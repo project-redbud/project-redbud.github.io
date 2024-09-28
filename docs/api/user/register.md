@@ -48,7 +48,7 @@ JSON 的属性含义：
 |:----------:|:--------:|:--------:|
 | `socketType` | `int` | `SocketMessageType` 枚举   |
 | `token` | `Guid` | 客户端连接令牌   |
-| `parameters[0]` | `string` | `DataRequestType` 枚举   |
+| `parameters[0]` | `int` | `DataRequestType` 枚举   |
 | `parameters[1]` | `Guid` | RequestID   |
 | `username` | `string` | 用户名   |
 | `password` | `string` | 密码     |
@@ -87,8 +87,8 @@ JSON 的属性含义：
 
 `None`（值：0）：注册成功，账号数据写入数据库；
 
-`DuplicateUserName`（值：3）：提示有重复的用户名；
+`DuplicateUserName`（值：1）：提示有重复的用户名；
 
-`DuplicateEmail`（值：3）：提示有重复的邮箱；
+`DuplicateEmail`（值：2）：提示有重复的邮箱；
 
 `InputVerifyCode`（值：3）：这是注册的第一阶段，用于创建验证码返回，用户输入验证码后需要再次请求此接口。
