@@ -1,0 +1,15 @@
+{
+  "name": "oshima-docs",
+  "packageManager": "yarn@4.4.0",
+  "devDependencies": {
+    "@vuepress/bundler-vite": "^2.0.0-rc.14",
+    "typescript": "^5.5.4",
+    "vue": "^3.4.37",
+    "vuepress": "^2.0.0-rc.14",
+    "vuepress-theme-plume": "^1.0.0-rc.85"
+  },
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs"
+  }
+}
