@@ -11,7 +11,7 @@ permalink: /api/user/register/
 使用 RESTful API 连接时，不需要 Auth。
 :::
 
-## API请求
+## API 请求
 
 `POST`：/user/register/
 
