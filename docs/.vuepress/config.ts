@@ -12,10 +12,18 @@ export default defineUserConfig({
     theme: plumeTheme({
         lang: 'zh-CN',
         notes: { link: '/', dir: 'api', notes: [] },
+        blog: false,
         navbar: [
             {
                 text: '首页',
                 link: '/',
+            },
+            {
+                text: '基本',
+                items: [
+                    { text: '架构说明', link: '/dev/architecture/' },
+                    { text: '配置文件', link: '/dev/config/' },
+                ]
             },
             {
                 text: '账号管理',
