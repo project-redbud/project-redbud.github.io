@@ -3,6 +3,8 @@ title: FunGame 开发文档
 author: Project Redbud
 createTime: 2024/09-29 18:41:27
 permalink: /welcome/
+prev: /dev/config/
+next: /dev/architecture/
 ---
 
 ![红芽绽放之时，繁花散落满世](/images/logo.png)

@@ -7,10 +7,6 @@ permalink: /api/user/register/
 
 注册一个 `FunGame` 账号。
 
-::: tip 提示
-使用 RESTful API 连接时，不需要 Auth。
-:::
-
 ## API 请求
 
 `POST`：/user/register/
@@ -57,7 +53,7 @@ JSON 的属性含义：
 
 其中：`socketType` 固定为 2，代表 `SocketMessageType.DataRequest`；
 
-`parameters[0]` 固定为 12，代表 `DataRequest.Reg_GetRegVerifyCode`；
+`parameters[0]` 固定为 12，代表 `DataRequest.Reg_Reg`；
 
 `parameters[1]` 指示一个请求 ID，如果使用了 `DataRequest` 类请求数据，此属性用于判断任务是否结束。通常，服务器返回的 RequestID 与请求时的相同。
 
@@ -91,4 +87,20 @@ JSON 的属性含义：
 
 `DuplicateEmail`（值：2）：提示有重复的邮箱；
 
-`InputVerifyCode`（值：3）：这是注册的第一阶段，用于创建验证码返回，用户输入验证码后需要再次请求此接口。
+`InputVerifyCode`（值：3）：这是注册的第一阶段，用于创建验证码返回，用户输入验证码后需要再次请求此接口；如果 `verifycode` 不为空且验证错误，那么服务器将返回此值，并且提示验证码输入错误，需要重新输入：
+
+```JSON
+{
+  "socketType": 2,
+  "token": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "parameters": [
+    12,
+    "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    {
+        "msg": "验证码输入错误，请重新输入！",
+        "type": 3,
+        "success": false
+    }
+  ]
+}
+```
