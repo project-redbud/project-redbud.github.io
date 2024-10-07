@@ -4,7 +4,7 @@ author: Project Redbud
 createTime: 2024/09/29 18:41:20
 permalink: /dev/config/
 prev: /dev/architecture/
-next: /welcome/
+next: /api/
 ---
 
 `FunGame` 的配置文件在客户端和服务器端都命名为 `FunGame.ini`。在启动程序时，如果未检测到配置文件，程序会自动生成。
