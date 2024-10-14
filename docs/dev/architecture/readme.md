@@ -55,11 +55,11 @@ public readonly struct SocketObject
     public int Length => Parameters.Length;  // 返回参数的长度
 
     [JsonConstructor]
-    public SocketObject(SocketMessageType type, Guid token, params object[] args)
+    public SocketObject(SocketMessageType socketType, Guid token, params object[] parameters)
     {
-        SocketType = type;
+        SocketType = socketType;
         Token = token;
-        if (args != null && args.Length > 0) Parameters = args;
+        if (parameters != null && parameters.Length > 0) Parameters = parameters;
     }
 }
 ```
@@ -150,9 +150,9 @@ public enum DataRequestType
 #### 示例 JSON 格式：
 ```JSON
 {
-  "SocketType": 1,  // 如 SocketMessageType.Connect
-  "Token": "00000000-0000-0000-0000-000000000000",  // 客户端的 OpenToken，需要 Connect 获取
-  "Parameters": [
+  "socketType": 1,  // 如 SocketMessageType.Connect
+  "token": "00000000-0000-0000-0000-000000000000",  // 客户端的 OpenToken，需要 Connect 获取
+  "parameters": [
     [
       "param1"
     ], // Connect 需要的参数 1，是一个数组
