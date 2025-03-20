@@ -97,7 +97,7 @@ export default defineUserConfig({
         ],
         aside: 'left',
         docsRepo: 'project-redbud/docs',
-        docsBranch: 'www',
+        docsBranch: 'master',
         docsDir: 'docs',
         externalLinkIcon: true,
         editLinkText: '在 GitHub 上编辑此页',
