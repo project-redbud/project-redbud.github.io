@@ -3,7 +3,7 @@ import { defineUserConfig } from 'vuepress'
 import { plumeTheme } from 'vuepress-theme-plume'
 
 export default defineUserConfig({
-    base: '/docs/',
+    base: '/',
     title: 'FunGame 开发文档',
     description: 'Project Redbud',
     head: [
@@ -97,7 +97,7 @@ export default defineUserConfig({
         ],
         aside: 'left',
         docsRepo: 'project-redbud/docs',
-        docsBranch: 'master',
+        docsBranch: 'www',
         docsDir: 'docs',
         externalLinkIcon: true,
         editLinkText: '在 GitHub 上编辑此页',
