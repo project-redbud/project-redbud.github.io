@@ -96,14 +96,14 @@ export default defineUserConfig({
             }
         ],
         aside: 'left',
-        docsRepo: 'project-redbud/docs',
+        docsRepo: 'project-redbud/project-redbud.github.io',
         docsBranch: 'master',
         docsDir: 'docs',
         externalLinkIcon: true,
         editLinkText: '在 GitHub 上编辑此页',
         lastUpdated: true,
 	    footer: {
-            message: "<a href='https://www.gnu.org/licenses/agpl-3.0' target='_blank'>AGPL-3.0 license</a>",
+            message: "MIT license",
 		    copyright: "Copyright © 2014-至今 <a href='https://github.com/project-redbud' target='_blank'>Project Redbud</a>."
         },
         social: [
