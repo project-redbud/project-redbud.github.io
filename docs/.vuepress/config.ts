@@ -21,9 +21,29 @@ export default defineUserConfig({
             {
                 text: '基本',
                 items: [
-                    { text: '项目简介', link: '/welcome/' },
-                    { text: '架构说明', link: '/dev/architecture/' },
-                    { text: '配置文件', link: '/dev/config/' },
+                    {
+                        text: '项目架构',
+                        items: [
+                            { text: '项目简介', link: '/welcome/' },
+                            { text: '配置文件', link: '/dev/config/' },
+                            { text: '架构说明', link: '/dev/architecture/' },
+                        ]
+                    },
+                    {
+                        text: '建立服务器连接',
+                        items: [
+                            { text: '连接服务器', link: '/dev/architecture/connect/' },
+                            { text: '客户端令牌', link: '/dev/architecture/token/' },
+                        ]
+                    },
+                    {
+                        text: '与服务器交互',
+                        items: [
+                            { text: '数据传输', link: '/dev/architecture/transmittal/' },
+                            { text: 'Socket Object', link: '/dev/data/socketobject/' },
+                            { text: 'Payload Model', link: '/dev/data/payload/' },
+                        ]
+                    },
                     { text: 'API 列表', link: '/api/' },
                 ]
             },
@@ -32,6 +52,8 @@ export default defineUserConfig({
                 items: [
                     { text: '注册', link: '/api/user/register/' },
                     { text: '登录', link: '/api/user/login/' },
+                    { text: '登出', link: '/api/user/logout/' },
+                    { text: '刷新令牌', link: '/api/user/refresh/' },
                     { text: '用户中心', link: '/api/user/usercenter/' },
                     { text: '每日签到', link: '/api/user/dailysignin/' },
                 ]

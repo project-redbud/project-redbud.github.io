@@ -122,7 +122,8 @@ permalink: /api/user/login/
 
 ## 注意事项
 
-客户端需妥善处理 `bearerToken` 和 `openToken`，避免泄露给他人，确保账户安全。
+1. `bearerToken` 将在登录成功的 30 分钟后过期，客户端需要定期刷新 Token，参考 [刷新令牌](/api/user/refresh/)。
+2. 客户端需妥善处理 `bearerToken` 和 `openToken`，避免泄露给他人，确保账户安全。
 
 ## 代码示例
 
