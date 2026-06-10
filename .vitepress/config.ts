@@ -5,7 +5,7 @@ export default defineConfig({
   title: 'FunGame.Core',
   description: 'C# .NET 回合制游戏框架 — 规则书 & 开发者文档',
   lang: 'zh-CN',
-  base: '/docs/',
+  base: '/',
 
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
