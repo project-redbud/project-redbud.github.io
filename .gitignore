@@ -1,0 +1,5 @@
+node_modules/
+.vitepress/dist/
+.vitepress/cache/
+DOCS_PLAN.md
+GamingQueueRule.md

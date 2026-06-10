@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="none">
+  <rect width="400" height="300" rx="20" fill="#1a1a2e"/>
+  <circle cx="200" cy="120" r="60" stroke="#e94560" stroke-width="3" fill="none"/>
+  <path d="M200 60 L200 180 M140 120 L260 120" stroke="#e94560" stroke-width="2" opacity="0.5"/>
+  <circle cx="200" cy="120" r="30" stroke="#0f3460" stroke-width="2" fill="#16213e" opacity="0.8"/>
+  <text x="200" y="125" text-anchor="middle" fill="#e94560" font-size="16" font-family="monospace">FG</text>
+  <rect x="150" y="210" width="100" height="24" rx="6" fill="#e94560" opacity="0.15"/>
+  <text x="200" y="227" text-anchor="middle" fill="#e94560" font-size="11" font-family="monospace">Turn-Based</text>
+  <line x1="80" y1="250" x2="320" y2="250" stroke="#e94560" stroke-width="1" opacity="0.3"/>
+  <text x="200" y="275" text-anchor="middle" fill="#aaa" font-size="9" font-family="monospace">MILIMOE · FUNGAME · CORE</text>
+</svg>

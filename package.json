@@ -1,0 +1,15 @@
+{
+  "name": "fungame-docs",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "FunGame.Core 回合制游戏框架文档",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.0"
+  }
+}
