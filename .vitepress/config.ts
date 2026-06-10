@@ -2,8 +2,8 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: 'FunGame.Core',
-  description: 'C# .NET 回合制游戏框架 — 规则书 & 开发者文档',
+  title: 'FunGame 开发文档',
+  description: '基于 C#.NET 的回合制游戏开发库 — 规则书 & 开发者文档',
   lang: 'zh-CN',
   base: '/',
 
@@ -133,6 +133,7 @@ export default defineConfig({
           text: 'API 参考',
           items: [
             { text: '概述', link: '/api/' },
+            { text: 'EquilibriumConstant', link: '/api/EquilibriumConstant' },
             { text: 'GamingQueue', link: '/api/GamingQueue' },
             { text: 'Character', link: '/api/Character' },
             { text: 'Skill', link: '/api/Skill' },

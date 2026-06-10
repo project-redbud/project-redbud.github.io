@@ -8,8 +8,6 @@
 dotnet add package FunGame.Core
 ```
 
-或在 [Release 页面](https://github.com/project-redbud/FunGame-Core/releases) 下载 DLL。
-
 ## 基本概念
 
 FunGame.Core 是一个**回合制游戏框架库**，提供：

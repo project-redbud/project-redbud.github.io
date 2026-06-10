@@ -2,9 +2,9 @@
 layout: home
 
 hero:
-  name: "FunGame.Core"
-  text: "C# .NET 回合制游戏框架"
-  tagline: 完整实现行动顺序表、决策点、六乘区伤害、技能/特效系统的轻量级游戏库
+  name: "FunGame 开发文档"
+  text: "回合制游戏开发库"
+  tagline: 基于 C#.NET 完整实现行动顺序表、决策点、六乘区伤害、技能/特效系统的轻量级游戏库
   image:
     src: /hero.svg
     alt: FunGame
