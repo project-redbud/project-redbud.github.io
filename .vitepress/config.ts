@@ -103,20 +103,6 @@ export default defineConfig({
           ],
         },
         {
-          text: 'Module 开发（官方示例）',
-          collapsed: true,
-          items: [
-            { text: '总览与架构', link: '/dev/module-overview' },
-            { text: '客户端模组 (GameModule)', link: '/dev/module-game-module' },
-            { text: '服务端模组 (Server)', link: '/dev/module-server' },
-            { text: '技能系统', link: '/dev/module-skill' },
-            { text: '特效系统', link: '/dev/module-effect' },
-            { text: '物品系统', link: '/dev/module-item' },
-            { text: '角色与注册', link: '/dev/module-registration' },
-            { text: '插件系统 (Plugin)', link: '/dev/module-plugin' },
-          ],
-        },
-        {
           text: 'GamingQueue 事件模式',
           collapsed: false,
           items: [
@@ -124,6 +110,17 @@ export default defineConfig({
             { text: '事件绑定与游戏循环', link: '/dev/events-game-loop' },
             { text: 'SyncAwaiter 同步模式', link: '/dev/events-pattern' },
             { text: 'WPF Demo 完整示例', link: '/dev/events-wpf-demo' },
+          ],
+        },
+        {
+          text: '模组开发',
+          collapsed: false,
+          items: [
+            { text: '总览与架构', link: '/dev/module-overview' },
+            { text: '客户端模组 (GameModule)', link: '/dev/module-game-module' },
+            { text: '服务端模组 (Server)', link: '/dev/module-server' },
+            { text: '实体模组 (EntityModule)', link: '/dev/module-registration' },
+            { text: '插件系统 (Plugin)', link: '/dev/module-plugin' },
           ],
         },
       ],
