@@ -78,9 +78,22 @@ public Item()
 | `UseItem(User, int times, Dictionary<string, object> args)` | 对局外使用物品 |
 | `ReduceTimesAndRemove(int times = 1)` | 减少使用次数并在用尽时移除 |
 | `SetGamingQueue(IGamingQueue)` | 绑定队列（传递技能/特效上下文） |
+| `InquiryBeforeTargetSelection(Character, DecisionPoints)` | 使用物品选择目标前询问 |
+| `ResolveInquiryBeforeTargetSelection(...)` | 解析询问结果 |
 | `Copy(bool copyLevel, bool copyGuid, bool copyProperty, bool copyOthers, ...)` | 复制物品（含关联技能） |
 | `SetLevel(int)` / `SetMagicsLevel(int)` | 设置物品/魔法技能等级 |
+| `SetPropertyToItemModuleNew(Item)` | 同步新物品属性（物品模组用） |
 | `ToString()` / `ToString(bool, bool)` / `ToStringInventory(bool)` | 文本输出（描述/背包） |
+
+### 可重写虚方法
+
+| 方法 | 说明 |
+|---|---|
+| `OnItemEquipped(Character, EquipSlotType)` | 装备完成后回调（预制实体在此应用特性） |
+| `OnItemUnEquipped(Character, EquipSlotType)` | 卸下完成后回调（恢复特性） |
+| `OnItemUsed(...)` | 物品使用后回调 |
+| `AfterCopy(...)` | 复制完成后回调 |
+| `InquiryBeforeTargetSelection(...)` / `ResolveInquiryBeforeTargetSelection(...)` | 目标选择询问 |
 
 ## 继承示例
 
