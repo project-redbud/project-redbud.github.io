@@ -131,14 +131,69 @@ export default defineConfig({
 
       '/api/': [
         {
-          text: 'API 参考',
+          text: '概述',
+          link: '/api/',
+        },
+        {
+          text: '核心类',
+          collapsed: false,
           items: [
-            { text: '概述', link: '/api/' },
             { text: 'EquilibriumConstant', link: '/api/EquilibriumConstant' },
             { text: 'GamingQueue', link: '/api/GamingQueue' },
             { text: 'Character', link: '/api/Character' },
             { text: 'Skill', link: '/api/Skill' },
             { text: 'Effect', link: '/api/Effect' },
+            { text: 'Item', link: '/api/Item' },
+            { text: 'NormalAttack', link: '/api/NormalAttack' },
+            { text: 'OpenSkill', link: '/api/OpenSkill' },
+            { text: 'Factory', link: '/api/Factory' },
+          ],
+        },
+        {
+          text: '即时外发',
+          collapsed: false,
+          items: [
+            { text: 'IRoundRecordSink', link: '/api/IRoundRecordSink' },
+            { text: 'DefaultRoundRecordSink', link: '/api/DefaultRoundRecordSink' },
+            { text: 'RoundRecordPayload', link: '/api/RoundRecordPayload' },
+            { text: 'RoundRecordSinkEventIds', link: '/api/RoundRecordSinkEventIds' },
+            { text: 'BattleStatePredictor', link: '/api/BattleStatePredictor' },
+            { text: 'RoundRecordRenderer', link: '/api/RoundRecordRenderer' },
+          ],
+        },
+        {
+          text: 'Model 层',
+          collapsed: false,
+          items: [
+            { text: 'RoundRecord', link: '/api/RoundRecord' },
+            { text: 'ActionRecord', link: '/api/ActionRecord' },
+            { text: 'CharacterStateSnapshot', link: '/api/CharacterStateSnapshot' },
+            { text: 'CharacterStatistics', link: '/api/CharacterStatistics' },
+            { text: 'DecisionPoints', link: '/api/DecisionPoints' },
+            { text: 'AIDecision', link: '/api/AIDecision' },
+            { text: 'GameMap', link: '/api/GameMap' },
+            { text: 'Grid', link: '/api/Grid' },
+          ],
+        },
+        {
+          text: '模组',
+          collapsed: false,
+          items: [
+            { text: 'IModule', link: '/api/IModule' },
+            { text: 'CharacterModule', link: '/api/CharacterModule' },
+            { text: 'SkillModule', link: '/api/SkillModule' },
+            { text: 'ItemModule', link: '/api/ItemModule' },
+            { text: 'EntityModuleConfig<T>', link: '/api/EntityModuleConfig' },
+          ],
+        },
+        {
+          text: '预制实体',
+          collapsed: false,
+          items: [
+            { text: 'MagicCardPack', link: '/api/MagicCardPack' },
+            { text: 'SoulboundSkill', link: '/api/SoulboundSkill' },
+            { text: 'CourageCommandSkill', link: '/api/CourageCommandSkill' },
+            { text: 'NeuralCalibrationEffect', link: '/api/NeuralCalibrationEffect' },
           ],
         },
       ],
