@@ -25,23 +25,27 @@ FunGame.Core 是一个**回合制游戏框架库**，提供：
 ```csharp
 using Milimoe.FunGame.Core.Model;
 using Milimoe.FunGame.Core.Entity;
-using Milimoe.FunGame.Core.Api.Utility;
+using Milimoe.FunGame.Core.Api;
 
 // 1. 创建角色
-// 角色通过继承 Character 类来定义（见下一章），这里用工厂创建
-Character player = Factory.GetCharacter();
-player.Name = "玩家1";
-player.NickName = "勇者";
-player.InitialHP = 80;
-player.InitialATK = 20;
-player.InitialSPD = 120;
+// 角色通过继承 Character 类来定义（见下一章），这里先直接 new 通用角色
+Character player = new()
+{
+    Name = "玩家1",
+    NickName = "勇者",
+    InitialHP = 80,
+    InitialATK = 20,
+    InitialSPD = 120
+};
 
-Character enemy = Factory.GetCharacter();
-enemy.Name = "敌人";
-enemy.NickName = "魔王";
-enemy.InitialHP = 100;
-enemy.InitialATK = 15;
-enemy.InitialSPD = 100;
+Character enemy = new()
+{
+    Name = "敌人",
+    NickName = "魔王",
+    InitialHP = 100,
+    InitialATK = 15,
+    InitialSPD = 100
+};
 
 // 2. 创建混战模式队列
 List<Character> characters = [player, enemy];

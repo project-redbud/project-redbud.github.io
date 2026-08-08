@@ -45,18 +45,25 @@ public class MyWarrior : Character
 
 ## 使用工厂创建通用角色
 
-如果不想继承，可以用 `Factory.GetCharacter()` 创建通用角色：
+如果不想继承，可以用工厂创建通用角色：
 
 ```csharp
-using Milimoe.FunGame.Core.Api.Utility;
+using FunGame.Core.Entity;
+using FunGame.Core.Api;
 
-Character c = Factory.GetCharacter();
-c.Name = "临时角色";
-c.NickName = "路人";
-c.InitialHP = 60;
-c.InitialATK = 15;
-c.InitialSPD = 110;
-c.FirstRoleType = RoleType.Core;
+// 直接 new 通用角色，再设置属性
+Character c = new()
+{
+    Name = "临时角色",
+    NickName = "路人",
+    InitialHP = 60,
+    InitialATK = 15,
+    InitialSPD = 110,
+    FirstRoleType = RoleType.Core
+};
+
+// 或通过工厂动态创建（注册了角色工厂后按 id 创建对应实体类）
+Character c2 = Factory.OpenFactory.GetInstance<Character>(1, "", []);
 ```
 
 ## 使用工厂方法注册（推荐用于 Module）

@@ -1,18 +1,18 @@
 # 实体模组 (EntityModule)
 
-实体模组是 FunGame 扩展系统的基石——通过三种模组类将角色、技能/特效、物品注册到框架的全局工厂中。
+实体模组是 FunGame 扩展系统的基石——通过三种模组类将角色、技能/特效、物品注册到框架的全局工厂中，使 `Factory.OpenFactory.GetInstance<T>()` 能按 id 动态创建实体。
 
 ---
 
 ## 三种实体模组
 
-| 模组 | 基类 | 注册的工厂 |
+| 模组 | 基类（`FunGame.Core.Library.Module`） | 注册的工厂 |
 |---|---|---|
-| `CharacterModule` | `Library.Common.Addon.CharacterModule` | `CharacterFactory()` |
-| `SkillModule` | `Library.Common.Addon.SkillModule` | `SkillFactory()` + `EffectFactory()` |
-| `ItemModule` | `Library.Common.Addon.ItemModule` | `ItemFactory()` |
+| `CharacterModule` | 继承 `IModule` | `CharacterFactory()` |
+| `SkillModule` | 继承 `IModule` | `SkillFactory()` + `EffectFactory()` |
+| `ItemModule` | 继承 `IModule` | `ItemFactory()` |
 
-它们都继承 `IAddon` 接口，共享相同的生命周期。
+三者共享相同的生命周期（`Load`/`UnLoad`/`BeforeLoad`/`AfterLoad`），见 [模组开发总览](/dev/module-overview)。
 
 ---
 
@@ -26,14 +26,27 @@ public class ExampleCharacterModule : CharacterModule
     public override string Version => "1.0.0";
     public override string Author => "FunGamer";
 
-    // 供外部直接访问的角色列表
+    // 预定义的角色（编码实现）
     public override Dictionary<string, Character> Characters
     {
         get
         {
-            // 从工厂获取所有已注册的角色实例
-            return Factory.GetGameModuleInstances<Character>(
-                "module_name", "character_file");
+            Dictionary<string, Character> dict = [];
+            Character c = new()
+            {
+                Name = "Oshima",
+                FirstName = "Shiya",
+                NickName = "OSM",
+                MagicType = MagicType.PurityNatural,
+                InitialHP = 30,
+                InitialSTR = 20,
+                InitialAGI = 10,
+                InitialINT = 5,
+                InitialATK = 100,
+                InitialDEF = 10
+            };
+            dict.Add(c.Name, c);
+            return dict;
         }
     }
 
@@ -50,14 +63,19 @@ public class ExampleCharacterModule : CharacterModule
             };
         };
     }
+
+    // 注册工厂后，创建角色只需这样调用
+    public static Character CreateCharacter(long id, string name, Dictionary<string, object> args)
+    {
+        return Factory.OpenFactory.GetInstance<Character>(id, name, args);
+    }
 }
 ```
 
 ### 工厂委托签名
 
 ```csharp
-// Factory.EntityFactoryDelegate<T> 的实际签名
-public delegate T EntityFactoryDelegate<T>(long id, string name, Dictionary<string, object> args);
+public delegate T? EntityFactoryDelegate<T>(long id, string name, Dictionary<string, object> args);
 ```
 
 | 参数 | 说明 |
@@ -77,9 +95,15 @@ public class ExampleSkillModule : SkillModule
 {
     public override string Name => "fungame.example.skill";
 
+    // 预定义的技能（编码实现）
     public override Dictionary<string, Skill> Skills
     {
-        get => Factory.GetGameModuleInstances<Skill>("module", "skill");
+        get
+        {
+            Dictionary<string, Skill> dict = [];
+            dict.Add("全力一击", new ExampleSkill());
+            return dict;
+        }
     }
 
     // ═══ 技能工厂 ═══
@@ -102,18 +126,15 @@ public class ExampleSkillModule : SkillModule
     {
         return (id, name, args) =>
         {
-            // args 中必须包含 "skill" 和 "values"
-            if (args.TryGetValue("skill", out object? v) && v is Skill skill
-                && args.TryGetValue("values", out v) && v is Dictionary<string, object> dict)
+            // args 中可携带 "skill" 参数（JSON 反序列化时自动传入所属技能）
+            Skill? skill = args.TryGetValue("skill", out object? v) && v is Skill s ? s : null;
+            skill ??= new OpenSkill(id, name, args);
+            return id switch
             {
-                return id switch
-                {
-                    1001 => new ExATK(skill, dict),
-                    1002 => new ExDEF(skill, dict),
-                    _ => null
-                };
-            }
-            return null;
+                1001 => new ExATK(skill, args),
+                1002 => new ExDEF(skill, args),
+                _ => null
+            };
         };
     }
 }
@@ -130,9 +151,15 @@ public class ExampleItemModule : ItemModule
 {
     public override string Name => "fungame.example.item";
 
+    // 预定义的物品（编码实现）
     public override Dictionary<string, Item> Items
     {
-        get => Factory.GetGameModuleInstances<Item>("module", "item");
+        get
+        {
+            Dictionary<string, Item> dict = [];
+            dict.Add("ExampleItem", new ExampleItem());
+            return dict;
+        }
     }
 
     protected override Factory.EntityFactoryDelegate<Item> ItemFactory()
@@ -157,19 +184,23 @@ public class ExampleItemModule : ItemModule
 每个实体模组的生命周期完全一致：
 
 ```
-BeforeLoad()
+Load(objs)
     │
-    ├─ 返回 false → 跳过加载
+    ├─ 已加载 → 返回 false（不允许重复加载）
     │
-    └─ 返回 true
-         │
-         ├─ 标记 _isLoaded = true（不允许重复加载）
-         ├─ 注册工厂到 Factory.OpenFactory
-         │   ├─ CharacterModule  → RegisterFactory(CharacterFactory())
-         │   ├─ SkillModule      → RegisterFactory(SkillFactory()) + RegisterFactory(EffectFactory())
-         │   └─ ItemModule       → RegisterFactory(ItemFactory())
-         │
-         └─ AfterLoad()  ← 可重写，在此修改全局平衡常数等
+    ├─ BeforeLoad()
+    │     └─ 返回 false → 跳过加载
+    │
+    ├─ 标记 _isLoaded = true
+    ├─ 注册工厂到 Factory.OpenFactory
+    │   ├─ CharacterModule  → RegisterFactory(CharacterFactory())
+    │   ├─ SkillModule      → RegisterFactory(SkillFactory()) + RegisterFactory(EffectFactory())
+    │   └─ ItemModule       → RegisterFactory(ItemFactory())
+    │
+    └─ AfterLoad()  ← 可重写，在此修改全局平衡常数等
+
+UnLoad(objs)
+    └─ UnRegisterFactory(对应工厂)
 ```
 
 ### AfterLoad 示例
@@ -191,95 +222,54 @@ protected override void AfterLoad()
 ```csharp
 protected override bool BeforeLoad()
 {
-    // 条件加载：只在服务器端加载此模组
-    return Controller.IsServer;
+    // 条件加载：根据宿主传入的参数决定是否加载，返回 false 将阻止加载
+    return true;
 }
 ```
 
 ---
 
-## 完整加载流程
+## JSON 配置文件（EntityModuleConfig）
 
-框架启动时，`GameModuleLoader.LoadGameModules()` 按以下顺序加载所有组件：
-
-```
-① 扫描 modules/ 目录的 DLL
-    │
-② 找到所有 IAddon 实现类
-    ├── GameMap           → 加载到 loader.Maps
-    ├── CharacterModule   → 加载到 loader.Characters
-    ├── SkillModule       → 加载到 loader.Skills
-    ├── ItemModule        → 加载到 loader.Items
-    ├── GameModule        → 加载到 loader.Modules（客户端）
-    └── GameModuleServer  → 加载到 loader.ModuleServers（服务端）
-    │
-③ 对每个 GameMap
-    ├── map.ModuleLoader = loader
-    └── map.AfterLoad(loader, objs)
-    │
-④ 对每个 GameModule / GameModuleServer
-    ├── module.ModuleLoader = loader
-    ├── module.GameModuleDepend.GetDependencies(loader)  ← 自动填充依赖
-    ├── module.Load()        ← 触发实体模组的加载
-    │     ├── CharacterModule.Load()  → 注册角色工厂
-    │     ├── SkillModule.Load()      → 注册技能+特效工厂
-    │     └── ItemModule.Load()       → 注册物品工厂
-    └── module.AfterLoad(loader, objs)
-```
-
-## GameModuleDepend 依赖声明
-
-`GameModuleDepend` 声明一个 GameModule 依赖哪些子模组，由框架自动填充：
+编码实现之外，`EntityModuleConfig<T>`（`FunGame.Core.Api`）支持把实体保存为 JSON 文件并按需读取——适用于动态扩展技能/物品、保存玩家存档：
 
 ```csharp
-public class ExampleGameModuleConstant
+// 读取配置：程序目录/modules/<模组名>/<文件名>.json
+Dictionary<string, Item> items =
+    Factory.GetGameModuleInstances<Item>("module_name", "file_name");
+if (items.Count > 0)
 {
-    public const string ExampleGameModule = "fungame.example.gamemodule";
-    public const string ExampleMap        = "fungame.example.gamemap";
-    public const string ExampleCharacter  = "fungame.example.character";
-    public const string ExampleSkill      = "fungame.example.skill";
-    public const string ExampleItem       = "fungame.example.item";
-
-    public static GameModuleDepend GameModuleDepend => new(
-        Maps:       [ExampleMap],       // 依赖的地图模组名
-        Characters: [ExampleCharacter], // 依赖的角色模组名
-        Skills:     [ExampleSkill],     // 依赖的技能模组名
-        Items:      [ExampleItem]       // 依赖的物品模组名
-    );
+    Item firstItem = items.Values.First();
 }
+
+// 保存配置：把实体字典写入 JSON 文件（覆盖同名文件，请注意备份）
+Factory.CreateGameModuleEntityConfig("module_name", "file_name", items);
 ```
 
-框架调用 `GetDependencies(loader)` 时，会自动从 `loader` 中查找名称匹配的模组并填充到对应的集合中。**不要手动填充 `Maps`/`Characters`/`Skills`/`Items` 集合**。
+要点：
+
+- 仅支持继承 `BaseEntity` 的实体类型，每个配置文件只保存一种实体类型。
+- 反序列化时，JSON 中未映射到转换器属性的字段自动进入实体的 `Values`/`Others` 字典。
+- 需要动态创建的特效类必须在 `EffectFactory()` 中按 id 注册（如上面的 `1001 => new ExATK(...)`）。
+
+> JSON 结构与完整示例见 [自定义物品 - JSON 动态创建](/dev/custom-item)。
 
 ---
 
-## 热重载支持
+## 硬编码 vs 工厂 vs JSON
 
-需要热重载的模组应实现 `IHotReloadAware` 接口：
+| 方式 | 适用场景 | 特点 |
+|---|---|---|
+| 编码 + 直接 `new` | 技能/特效逻辑复杂 | 高性能、可调试、可读性好（推荐） |
+| 工厂 `GetInstance<T>` | 运行时按 id/参数动态创建 | 灵活，适合模组化分发 |
+| JSON 配置 | 简单实体（数值修正）、存档 | 免编码，配合 `EffectFactory` 实现逻辑 |
 
-```csharp
-public class MySkillModule : SkillModule, IHotReloadAware
-{
-    // ... 工厂注册 ...
-
-    public void OnBeforeUnload()
-    {
-        // 清理状态：关闭网络连接、清空缓存等
-        // 框架在卸载前调用此方法
-    }
-}
-```
-
-> 只有实现了 `IHotReloadAware` 的模组才会被热重载模式识别。未实现该接口的模组在热重载时会被忽略。
+> 来自官方示例的注释：*"所有的技能特效，如果能直接 `new`，建议就直接 `new`，提高性能和可读性。工厂效率低且不好调试，工厂更偏向于动态创建技能。"*
 
 ---
 
-## DLL 部署位置
+## 下一步
 
-| 目录 | 内容 |
-|---|---|
-| `modules/` | 游戏模组 DLL（GameModule / GameModuleServer + EntityModule） |
-| `maps/` | 地图模组 DLL |
-| `plugins/` | 客户端/服务端插件 DLL |
-
-框架启动时自动扫描对应目录，找到所有 `IAddon` 实现并执行加载流程。
+- 三种模组的完整示例 → [完整示例](/dev/examples)
+- 模组体系与设计原则 → [模组开发总览](/dev/module-overview)
+- 编码实现一个技能/特效 → [自定义技能](/dev/custom-skill) / [自定义特效](/dev/custom-effect)

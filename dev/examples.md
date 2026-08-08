@@ -1,54 +1,17 @@
 # 完整示例
 
-基于 `Library/Common/Addon/Example/ExampleGameModule.cs` 官方示例。
-
-## 接口实现模式
-
-FunGame.Core 使用**接口驱动**架构。框架定义了接口，开发者需要在 `Milimoe.FunGame.Core.Implement` 命名空间下创建实现：
-
-```csharp
-using Milimoe.FunGame.Core.Interface;
-
-namespace Milimoe.FunGame.Core.Implement
-{
-    public class IClientImpl : IClient
-    {
-        public string RemoteServerIP()
-        {
-            string serverIP = "127.0.0.1";
-            string serverPort = "22222";
-            return serverIP + ":" + serverPort;
-        }
-    }
-}
-```
-
-> **注意**：namespace 必须是 `Milimoe.FunGame.Core.Implement`，文件夹位置随意。
-
----
-
-## 核心接口一览
-
-| 接口 | 用途 |
-|---|---|
-| `IGamingQueue` | 回合制队列核心 |
-| `IClient` | 客户端配置 |
-| `IServer` | 服务端配置 |
-| `ISQLHelper` | 数据库操作 |
-| `IMailSender` | 邮件发送 |
-
----
+基于官方示例 `Library/Module/Example/ExampleGameModule.cs`（`ExampleSkill.cs`、`ExampleItem.cs`）。
 
 ## 创建自定义游戏模式
 
 ### 混战模式（Mix）
 
 ```csharp
-using Milimoe.FunGame.Core.Model;
-using Milimoe.FunGame.Core.Entity;
-using Milimoe.FunGame.Core.Api.Utility;
+using FunGame.Core.Entity;
+using FunGame.Core.Model.Framework;
+using FunGame.Core.Model.Queue;
 
-// 准备角色列表
+// 准备角色列表（角色通过继承 Character 定义，见《自定义角色》）
 List<Character> characters = [player, enemy1, enemy2, enemy3];
 
 // 创建混战队列
@@ -69,7 +32,9 @@ queue.SetCharactersToAIControl(cancel: false, characters);
 ### 团队模式（Team）
 
 ```csharp
-using Milimoe.FunGame.Core.Model;
+using FunGame.Core.Entity;
+using FunGame.Core.Model.Framework;
+using FunGame.Core.Model.Queue;
 
 // 创建团队队列
 TeamGamingQueue queue = new(Console.WriteLine)
@@ -88,33 +53,24 @@ queue.InitActionQueue();
 
 ### 自定义继承
 
+默认的队友判定基于召唤物（`Master`）关系；团队模式基于队伍。如需自定义规则，重写 `GetTeammates`（`GetEnemies` 内部会调用它）：
+
 ```csharp
-public class MyTeamQueue : TeamGamingQueue
+public class MyGameMode : GamingQueue
 {
-    public MyTeamQueue(Action<string> writer) : base(writer) { }
+    public MyGameMode(Action<string> writer) : base(writer) { }
 
-    // 重写队伍判定逻辑
+    // 重写队友判定逻辑（例如：与角色同 Master 的角色视为队友）
     public override List<Character> GetTeammates(Character character)
-    {
-        return AllCharacters
-            .Where(c => c != character && c.Team == character.Team)
+        => AllCharacters
+            .Where(c => c != character && IsSameFactionAs(c, character))
             .ToList();
-    }
-
-    public override List<Character> GetEnemies(Character character)
-    {
-        return AllCharacters
-            .Where(c => c.Team != character.Team)
-            .ToList();
-    }
 }
 ```
 
 ---
 
 ## 完整的游戏循环
-
-来自 `GameMapTesting` WPF Demo：
 
 ```csharp
 double totalTime = 0;
@@ -143,11 +99,13 @@ while (round < 999)
 Console.WriteLine($"总游戏时长：{totalTime:0.##}");
 ```
 
+> 手动控制（玩家决策）需把事件绑定到 UI，见 [事件绑定与游戏循环](/dev/events-game-loop)。
+
 ---
 
 ## 调整游戏平衡
 
-通过 `EquilibriumConstant` 定制数值。所有可配置项见 `Library/Constant` 中的 `EquilibriumConstant` 类：
+通过 `EquilibriumConstant` 定制数值（`FunGame.Core.Model.Framework`）：
 
 ```csharp
 var eq = new EquilibriumConstant
@@ -158,7 +116,7 @@ var eq = new EquilibriumConstant
     MaxLevel = 60,
     CritRate = 0.08,          // 8% 初始暴击
     CritDMG = 1.5,            // 150% 暴击伤害
-    SPDUpperLimit = 2000,      // 速度上限
+    SPDUpperLimit = 2000,     // 速度上限
     MaxEP = 200,              // 最大爆发能量
     InGameCurrency = "金币",
     InGameTime = "秒",
@@ -175,7 +133,7 @@ var queue = new MixGamingQueue(characters, Console.WriteLine)
 ## 赛后统计
 
 ```csharp
-// GamingQueue 自动记录了所有统计数据
+// GamingQueue 自动记录了所有统计数据（CharacterStatistics）
 foreach (Character character in queue.CharacterStatistics
     .OrderByDescending(d => d.Value.Rating).Select(d => d.Key))
 {
@@ -187,3 +145,41 @@ foreach (Character character in queue.CharacterStatistics
     Console.WriteLine($"每秒伤害：{stats.DamagePerSecond:0.##}");
 }
 ```
+
+---
+
+## 即时外发
+
+游戏过程中的数据可以实时外发到专用服务器（观战/回放）：
+
+```csharp
+using FunGame.Core.Api;
+using FunGame.Core.Model.Queue;
+
+DefaultRoundRecordSink sink = new("https://example.com/api/round",
+[
+    RoundRecordSinkEventIds.Action,
+    RoundRecordSinkEventIds.Round,
+    RoundRecordSinkEventIds.CheckpointRound,
+    RoundRecordSinkEventIds.CharacterStatistics,
+    RoundRecordSinkEventIds.Characters,
+    RoundRecordSinkEventIds.QueueData,
+    RoundRecordSinkEventIds.EliminatedCharacters,
+]);
+
+MixGamingQueue queue = new(characters, Console.WriteLine)
+{
+    GameplayEquilibriumConstant = eq,
+    RoundRecordSink = sink
+};
+```
+
+详见 [即时外发功能](/dev/outbound)。
+
+---
+
+## 下一步
+
+- 自定义角色 → [自定义角色](/dev/custom-character)
+- 模组化你的实体 → [模组开发总览](/dev/module-overview)
+- 事件驱动与 UI 交互 → [GamingQueue 事件模式](/dev/events-overview)

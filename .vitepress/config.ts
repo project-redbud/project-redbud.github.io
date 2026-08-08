@@ -21,8 +21,7 @@ export default defineConfig({
         text: '相关链接',
         items: [
           { text: 'NuGet 包', link: 'https://www.nuget.org/packages/FunGame.Core' },
-          { text: 'GitHub 仓库', link: 'https://github.com/project-redbud/FunGame-Core' },
-          { text: 'FunGame Server', link: 'https://github.com/project-redbud/FunGame-Server' },
+          { text: 'GitHub 仓库', link: 'https://github.com/project-redbud/FunGame-Core' }
         ],
       },
     ],
@@ -79,8 +78,8 @@ export default defineConfig({
           text: '🎒 物品与装备',
           collapsed: false,
           items: [
-            { text: '物品系统概述', link: '/guide/items' },
-            { text: '预制实体 (卡包/灵魂绑定等)', link: '/guide/prefabricated-entities' },
+            { text: '物品系统', link: '/guide/items' },
+            { text: '预制实体', link: '/guide/prefabricated-entities' },
           ],
         },
       ],
@@ -90,7 +89,7 @@ export default defineConfig({
           text: '入门指南',
           items: [
             { text: '快速开始', link: '/dev/getting-started' },
-            { text: '完整示例 (Example.cs)', link: '/dev/examples' },
+            { text: '完整示例', link: '/dev/examples' },
           ],
         },
         {
@@ -106,10 +105,18 @@ export default defineConfig({
           text: 'GamingQueue 事件模式',
           collapsed: false,
           items: [
-            { text: '事件总览 (31个事件)', link: '/dev/events-overview' },
+            { text: '事件总览', link: '/dev/events-overview' },
             { text: '事件绑定与游戏循环', link: '/dev/events-game-loop' },
             { text: 'SyncAwaiter 同步模式', link: '/dev/events-pattern' },
             { text: 'WPF Demo 完整示例', link: '/dev/events-wpf-demo' },
+          ],
+        },
+        {
+          text: '即时外发',
+          collapsed: false,
+          items: [
+            { text: '即时外发功能', link: '/dev/outbound' },
+            { text: '专用服务器开发', link: '/dev/outbound-server' },
           ],
         },
         {
@@ -117,10 +124,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '总览与架构', link: '/dev/module-overview' },
-            { text: '客户端模组 (GameModule)', link: '/dev/module-game-module' },
-            { text: '服务端模组 (Server)', link: '/dev/module-server' },
-            { text: '实体模组 (EntityModule)', link: '/dev/module-registration' },
-            { text: '插件系统 (Plugin)', link: '/dev/module-plugin' },
+            { text: '实体模组', link: '/dev/module-registration' },
           ],
         },
       ],

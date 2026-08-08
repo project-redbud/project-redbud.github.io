@@ -1,6 +1,6 @@
 # GamingQueue
 
-回合制游戏队列基类，位于 `Milimoe.FunGame.Core.Model`。
+回合制游戏队列基类，位于 `Milimoe.FunGame.Core.Model.Queue`。
 
 提供混战模式的默认实现，可继承扩展。`MixGamingQueue` 和 `TeamGamingQueue` 是开箱即用的子类。
 
@@ -21,6 +21,9 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `GameplayEquilibriumConstant` | `EquilibriumConstant` | 游戏平衡常数 |
 | `WriteLine` | `Action<string>` | 日志输出委托（只读） |
 | `IsDebug` | `bool` | 调试模式 |
+| `Guid` | `Guid` | 本队列的唯一标识（外发数据包的 `g` 字段） |
+| `RoundRecordSink` | `IRoundRecordSink?` | 回合记录外发通道（赋值瞬间发起签名验证握手） |
+| `CheckpointInterval` | `int` | 状态检查点生成间隔（回合数），默认 50；0 或负数不生成 |
 | `AllCharacters` | `List<Character>` | 参与游戏的所有角色 |
 | `Queue` | `List<Character>` | 当前行动顺序 |
 | `HardnessTime` | `Dictionary<Character, double>` | 硬直时间表 |
@@ -53,6 +56,32 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `ChangeCharacterHardnessTime(character, addValue, isPercentage, isCheckProtected)` | 修改硬直时间 |
 | `CheckSkilledImmune(character, target, skill, item?)` | 免疫检定 |
 | `CheckExemption(character, source, effect)` | 豁免检定 |
+
+## 即时外发
+
+设置 `RoundRecordSink` 后，队列会在游戏过程中自动向外发通道推送数据包：
+
+- **每次操作结算完成后**：`SendAction`（"0"）、`SendRound`（"1"）、`SendQueueData`（"6"）、`SendEliminatedCharacters`（"7"）
+- **回合结束时**：检查点回合 `SendCheckpointRound`（"2"）、`SendCharacterStatistics`（"3"）、`SendCharacters`（"4"）
+- **游戏结束时**：`End()`（停止握手重试）
+
+```csharp
+// 接入官方默认实现（HTTP POST 到专用服务器）
+using FunGame.Core.Api;
+
+DefaultRoundRecordSink sink = new("https://example.com/api/round",
+[
+    RoundRecordSinkEventIds.Action,
+    RoundRecordSinkEventIds.Round,
+    RoundRecordSinkEventIds.CheckpointRound,
+]);
+
+queue.RoundRecordSink = sink;  // 赋值瞬间发起签名验证握手
+```
+
+> 团队模式下 `TeamGamingQueue` 还会额外外发 `SendTeams`（"5"）与 `SendEliminatedTeams`（"8"）。自定义队列可通过重写 `AfterSendRoundEndData()` 追加外发内容。
+
+详见 [即时外发功能](/dev/outbound) 与 [专用服务器开发](/dev/outbound-server)。
 
 ## 时间机制
 
@@ -92,9 +121,9 @@ public class MyGameMode : GamingQueue
 {
     public MyGameMode(Action<string> writer) : base(writer) { }
 
-    // 重写队伍判定
-    public override List<Character> GetTeammates(Character c)
-        => AllCharacters.Where(x => x.Team == c.Team).ToList();
+    // 重写队伍判定（默认基于召唤物 Master 关系）
+    public override List<Character> GetTeammates(Character character)
+        => AllCharacters.Where(c => c != character && IsSameFactionAs(c, character)).ToList();
 }
 ```
 

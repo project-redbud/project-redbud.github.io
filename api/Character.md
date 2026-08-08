@@ -3,7 +3,7 @@
 角色实体，位于 `Milimoe.FunGame.Core.Entity`。
 
 - **编码定义**：继承 `Character` 类，在构造函数中设置属性
-- **工厂创建**：通过 `Factory.GetCharacter()` 或 `Factory.OpenFactory.GetInstance<Character>(id, name, args)`
+- **工厂创建**：通过 `Factory.OpenFactory.GetInstance<Character>(id, name, args)`
 
 ## 编码定义（推荐）
 
@@ -37,10 +37,12 @@ public class MyCharacter : Character
 ## 工厂创建
 
 ```csharp
-Character c = Factory.GetCharacter();
-c.Name = "临时角色";
-c.InitialHP = 60;
-c.InitialATK = 15;
+Character c = new()
+{
+    Name = "临时角色",
+    InitialHP = 60,
+    InitialATK = 15
+};
 
 // 或通过注册的工厂
 Character c2 = Factory.OpenFactory.GetInstance<Character>(1, "", []);

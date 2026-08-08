@@ -1,6 +1,6 @@
 # 自定义特效
 
-基于官方示例 `Library/Common/Addon/Example/ExampleSkill.cs` 和 `ExampleItem.cs`。
+基于官方示例 `Library/Module/Example/ExampleSkill.cs` 和 `ExampleItem.cs`。
 
 ---
 

@@ -1,6 +1,6 @@
 # 自定义物品
 
-基于官方示例 `Library/Common/Addon/Example/ExampleItem.cs`。
+基于官方示例 `Library/Module/Example/ExampleItem.cs`。
 
 ---
 
@@ -154,8 +154,8 @@ string json = @"{
     }
 }";
 
-// 一行反序列化
-Item item = NetworkUtility.JsonDeserialize<Item>(json) ?? Factory.GetItem();
+// 一行反序列化（与官方示例 ExampleOpenItemByJson 一致）
+Item item = NetworkUtility.JsonDeserialize<Item>(json) ?? new();
 ```
 
 ::: info JSON 结构说明

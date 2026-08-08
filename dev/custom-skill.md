@@ -1,6 +1,6 @@
 # 自定义技能
 
-基于官方示例 `Library/Common/Addon/Example/ExampleSkill.cs`。
+基于官方示例 `Library/Module/Example/ExampleSkill.cs`。
 
 ## 设计思想
 
