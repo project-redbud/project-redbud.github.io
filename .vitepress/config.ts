@@ -9,6 +9,18 @@ export default defineConfig({
 
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['style', {}, `
+      /* 放大首页 hero 头像 */
+      .VPHero .image-src {
+        max-height: 400px;
+        width: auto;
+      }
+      @media (max-width: 960px) {
+        .VPHero .image-src {
+          max-height: 240px;
+        }
+      }
+    `],
   ],
 
   themeConfig: {
