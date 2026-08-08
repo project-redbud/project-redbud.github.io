@@ -1,6 +1,6 @@
 # DefaultRoundRecordSink
 
-即时主动 POST 外发数据包的默认实现，位于 `Milimoe.FunGame.Core.Api`。实现 `IRoundRecordSink`、`IDisposable`。
+即时主动 POST 外发数据包的默认实现，位于 `FunGame.Core.Api`。实现 `IRoundRecordSink`、`IDisposable`。
 
 将游戏过程中产生的数据包即时 POST 到外部专用服务器（服务器需存在一个 POST 方法，body 接收与 `RoundRecordPayload` 相同格式的模型）。设置 `Secret` 时，`Attach` 后立即发送事件 `"13"` 验证签名，成功前其他事件不会外发。
 

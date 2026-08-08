@@ -1,6 +1,6 @@
 # RoundRecordPayload
 
-即时外发数据包（线协议模型），位于 `Milimoe.FunGame.Core.Model.Framework`。
+即时外发数据包（线协议模型），位于 `FunGame.Core.Model.Framework`。
 
 POST 到外部专用服务器的数据包格式，序列化字段为紧凑格式：`g`（GamingQueue 的 Guid）、`t`（时间戳）、`e`（事件 id）、`d`（数据包）、`s`（签名）。
 

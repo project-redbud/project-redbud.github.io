@@ -1,6 +1,6 @@
 # NormalAttack
 
-普通攻击，位于 `Milimoe.FunGame.Core.Entity`。实现 `ISkill` 接口的特殊技能类型，基于角色的总攻击力造成伤害。
+普通攻击，位于 `FunGame.Core.Entity`。实现 `ISkill` 接口的特殊技能类型，基于角色的总攻击力造成伤害。
 
 ## 构造函数
 

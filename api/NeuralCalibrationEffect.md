@@ -1,6 +1,6 @@
 # NeuralCalibrationEffect
 
-神经校准，位于 `Milimoe.FunGame.Core.Model.PrefabricatedEntity`。抽象类，使用特定武器时触发的额外特效。
+神经校准，位于 `FunGame.Core.Model.PrefabricatedEntity`。抽象类，使用特定武器时触发的额外特效。
 
 ## 定义
 

@@ -1,6 +1,6 @@
 # Effect
 
-特效基类，位于 `Milimoe.FunGame.Core.Entity`。
+特效基类，位于 `FunGame.Core.Entity`。
 
 需继承并使用。一个 `Skill` 由多个 `Effect` 组合而成，每个 `Effect` 负责一种具体效果。特效承载技能的实际效果，可通过约 50 个虚方法介入游戏的各个环节。
 

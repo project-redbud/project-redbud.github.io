@@ -1,6 +1,6 @@
 # SoulboundSkill
 
-灵魂绑定爆发技，位于 `Milimoe.FunGame.Core.Model.PrefabricatedEntity`。抽象类，一个至少消耗 100 EP、每额外消耗 20 EP 效果增强 10% 的爆发技。
+灵魂绑定爆发技，位于 `FunGame.Core.Model.PrefabricatedEntity`。抽象类，一个至少消耗 100 EP、每额外消耗 20 EP 效果增强 10% 的爆发技。
 
 ## 定义
 

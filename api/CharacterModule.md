@@ -1,6 +1,6 @@
 # CharacterModule
 
-角色模组基类（抽象类），位于 `Milimoe.FunGame.Core.Library.Module`。实现 `IModule`，负责把自定义角色注册到全局工厂。
+角色模组基类（抽象类），位于 `FunGame.Core.Library.Module`。实现 `IModule`，负责把自定义角色注册到全局工厂。
 
 ## 抽象成员
 

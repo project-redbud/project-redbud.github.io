@@ -1,6 +1,6 @@
 # DecisionPoints
 
-决策点数据，位于 `Milimoe.FunGame.Core.Model.Framework`。表示角色在回合内允许的操作数量及其配额，由 `GamingQueue` 为每个角色维护一份。
+决策点数据，位于 `FunGame.Core.Model.Framework`。表示角色在回合内允许的操作数量及其配额，由 `GamingQueue` 为每个角色维护一份。
 
 ## 属性
 

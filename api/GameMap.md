@@ -1,6 +1,6 @@
 # GameMap
 
-战棋地图基类（抽象类），位于 `Milimoe.FunGame.Core.Model.Framework`。网格数据 + 队列事件介入，需继承实现。
+战棋地图基类（抽象类），位于 `FunGame.Core.Model.Framework`。网格数据 + 队列事件介入，需继承实现。
 
 ## 抽象成员
 

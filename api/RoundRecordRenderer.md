@@ -1,6 +1,6 @@
 # RoundRecordRenderer
 
-回合记录文本渲染器，位于 `Milimoe.FunGame.Core.Api`。静态类。
+回合记录文本渲染器，位于 `FunGame.Core.Api`。静态类。
 
 将回合记录（`RoundRecord`）渲染为可读文本，用于回放与战斗日志。
 

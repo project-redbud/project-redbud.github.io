@@ -287,9 +287,10 @@ JSON/配置文件动态创建
 
 ### 3. 命名空间约定
 
-- 扩展接口实现必须在 `Milimoe.FunGame.Core.Implement` 命名空间下
+- 核心库的所有类型位于 `FunGame.Core.*` 命名空间下（`Entity` / `Model` / `Api` / `Interface` / `Library` 等）
 - Module 类可以放在任意命名空间，通过加载流程发现
 - 推荐使用 `Oshima.FunGame.OshimaModules` 这样的独立命名空间
+- 注意：v2.x 的 `Milimoe.FunGame.Core.*` 命名空间前缀已废弃，请统一使用 `FunGame.Core.*`
 
 ### 4. v3.0 变更说明
 

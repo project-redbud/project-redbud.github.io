@@ -1,6 +1,6 @@
 # CharacterStatistics
 
-角色统计数据，位于 `Milimoe.FunGame.Core.Entity`。记录角色在一局游戏（或累计生涯）中的各项统计，由 `GamingQueue` 自动维护，随事件 `"3"` 外发。
+角色统计数据，位于 `FunGame.Core.Entity`。记录角色在一局游戏（或累计生涯）中的各项统计，由 `GamingQueue` 自动维护，随事件 `"3"` 外发。
 
 ## 伤害统计
 

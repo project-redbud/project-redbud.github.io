@@ -1,6 +1,6 @@
 # GamingQueue
 
-回合制游戏队列基类，位于 `Milimoe.FunGame.Core.Model.Queue`。
+回合制游戏队列基类，位于 `FunGame.Core.Model.Queue`。
 
 提供混战模式的默认实现，可继承扩展。`MixGamingQueue` 和 `TeamGamingQueue` 是开箱即用的子类。
 

@@ -1,6 +1,6 @@
 # OpenSkill
 
-开放技能，位于 `Milimoe.FunGame.Core.Entity`。继承 `Skill` 的**运行时动态创建**技能：通过 `Dictionary<string, object>` 参数解析技能属性，无需编写 C# 类。
+开放技能，位于 `FunGame.Core.Entity`。继承 `Skill` 的**运行时动态创建**技能：通过 `Dictionary<string, object>` 参数解析技能属性，无需编写 C# 类。
 
 ## 构造函数
 

@@ -1,6 +1,6 @@
 # Factory
 
-全局工厂，位于 `Milimoe.FunGame.Core.Api`。负责按 `id`/`name`/`args` 动态创建实体（角色、技能、特效、物品等），并支持从 JSON 配置文件批量加载实体。
+全局工厂，位于 `FunGame.Core.Api`。负责按 `id`/`name`/`args` 动态创建实体（角色、技能、特效、物品等），并支持从 JSON 配置文件批量加载实体。
 
 ## 工厂实例
 

@@ -1,6 +1,6 @@
 # Item
 
-物品/装备基类，位于 `Milimoe.FunGame.Core.Entity`。
+物品/装备基类，位于 `FunGame.Core.Entity`。
 
 与 `Skill` 一样，**需要继承此类**来构造自定义物品。物品通过 `Skills`（`SkillGroup`）关联主动/被动技能，装备后自动生效。
 

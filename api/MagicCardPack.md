@@ -1,6 +1,6 @@
 # MagicCardPack
 
-魔法卡包，位于 `Milimoe.FunGame.Core.Model.PrefabricatedEntity`。继承 `Item` 的魔法卡包标准实现，装备到角色后自动生效。
+魔法卡包，位于 `FunGame.Core.Model.PrefabricatedEntity`。继承 `Item` 的魔法卡包标准实现，装备到角色后自动生效。
 
 ## 构造函数
 

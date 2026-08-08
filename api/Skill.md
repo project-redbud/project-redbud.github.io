@@ -1,6 +1,6 @@
 # Skill
 
-技能基类，位于 `Milimoe.FunGame.Core.Entity`。
+技能基类，位于 `FunGame.Core.Entity`。
 
 建议**继承此类**来构造自定义技能。一个技能由多个 `Effect` 组合而成，技能负责消耗、冷却、目标选择等框架行为，具体效果由特效实现。
 

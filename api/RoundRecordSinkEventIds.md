@@ -1,6 +1,6 @@
 # RoundRecordSinkEventIds
 
-即时外发事件 id 常量，位于 `Milimoe.FunGame.Core.Api`。静态类，`RoundRecordPayload.E` 的取值。
+即时外发事件 id 常量，位于 `FunGame.Core.Api`。静态类，`RoundRecordPayload.E` 的取值。
 
 ## 常量
 

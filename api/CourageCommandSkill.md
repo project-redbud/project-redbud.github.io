@@ -1,6 +1,6 @@
 # CourageCommandSkill
 
-勇气指令，位于 `Milimoe.FunGame.Core.Model.PrefabricatedEntity`。抽象类，行动回合内的附赠指令技能，使用后**不会结束回合**，可继续执行其他行动。
+勇气指令，位于 `FunGame.Core.Model.PrefabricatedEntity`。抽象类，行动回合内的附赠指令技能，使用后**不会结束回合**，可继续执行其他行动。
 
 ## 定义
 

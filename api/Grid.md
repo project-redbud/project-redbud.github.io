@@ -1,6 +1,6 @@
 # Grid
 
-地图格子，位于 `Milimoe.FunGame.Core.Model.Framework`。战棋地图的最小单位，承载角色、特效与交互点。
+地图格子，位于 `FunGame.Core.Model.Framework`。战棋地图的最小单位，承载角色、特效与交互点。
 
 ## 构造函数
 

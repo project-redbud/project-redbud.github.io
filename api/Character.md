@@ -1,6 +1,6 @@
 # Character
 
-角色实体，位于 `Milimoe.FunGame.Core.Entity`。
+角色实体，位于 `FunGame.Core.Entity`。
 
 - **编码定义**：继承 `Character` 类，在构造函数中设置属性
 - **工厂创建**：通过 `Factory.OpenFactory.GetInstance<Character>(id, name, args)`

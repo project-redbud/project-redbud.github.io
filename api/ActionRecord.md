@@ -1,6 +1,6 @@
 # ActionRecord
 
-单次操作记录，位于 `Milimoe.FunGame.Core.Model.Framework`。记录角色一次行动（普攻/技能/物品/移动/结束回合等）的完整明细。
+单次操作记录，位于 `FunGame.Core.Model.Framework`。记录角色一次行动（普攻/技能/物品/移动/结束回合等）的完整明细。
 
 ## 构造函数
 

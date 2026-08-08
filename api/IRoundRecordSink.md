@@ -1,6 +1,6 @@
 # IRoundRecordSink
 
-回合记录外发通道接口，位于 `Milimoe.FunGame.Core.Interface.Base`。
+回合记录外发通道接口，位于 `FunGame.Core.Interface.Base`。
 
 实现方负责将记录序列化并发送（如 POST 到远程服务、写入消息队列等）。`GamingQueue.RoundRecordSink` 属性赋值的瞬间会调用 `Attach(Guid)`。
 

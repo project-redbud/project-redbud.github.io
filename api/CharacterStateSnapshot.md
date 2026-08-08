@@ -1,6 +1,6 @@
 # CharacterStateSnapshot
 
-角色状态快照，位于 `Milimoe.FunGame.Core.Model.Framework`。记录角色在某个时间点的完整状态（生命值、装备、技能、物品、特效），是检查点与回放的数据基础。
+角色状态快照，位于 `FunGame.Core.Model.Framework`。记录角色在某个时间点的完整状态（生命值、装备、技能、物品、特效），是检查点与回放的数据基础。
 
 同一文件还定义了 4 个状态明细类：`SkillStateSnapshot`、`ItemStateSnapshot`、`EffectStateSnapshot`、`EquipmentStateSnapshot`。
 

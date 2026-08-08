@@ -1,6 +1,6 @@
 # AIDecision
 
-AI 决策数据，位于 `Milimoe.FunGame.Core.Model.Framework`。由 `AIController.DecideAIAction()` 返回，描述 AI 角色的完整行动方案。
+AI 决策数据，位于 `FunGame.Core.Model.Framework`。由 `AIController.DecideAIAction()` 返回，描述 AI 角色的完整行动方案。
 
 ## 属性
 

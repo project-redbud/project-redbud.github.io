@@ -23,9 +23,9 @@ FunGame.Core 是一个**回合制游戏框架库**，提供：
 框架通过 **接口驱动** 设计，最直接的方式是使用 `MixGamingQueue` 或 `TeamGamingQueue`：
 
 ```csharp
-using Milimoe.FunGame.Core.Model;
-using Milimoe.FunGame.Core.Entity;
-using Milimoe.FunGame.Core.Api;
+using FunGame.Core.Entity;
+using FunGame.Core.Model.Framework;
+using FunGame.Core.Model.Queue;
 
 // 1. 创建角色
 // 角色通过继承 Character 类来定义（见下一章），这里先直接 new 通用角色

@@ -1,6 +1,6 @@
 # IModule
 
-模组接口，位于 `Milimoe.FunGame.Core.Interface.Base`。所有模组（`CharacterModule`/`SkillModule`/`ItemModule`/`GameMap`）的公共契约。
+模组接口，位于 `FunGame.Core.Interface.Base`。所有模组（`CharacterModule`/`SkillModule`/`ItemModule`/`GameMap`）的公共契约。
 
 ## 接口定义
 

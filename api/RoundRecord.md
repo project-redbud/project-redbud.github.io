@@ -1,6 +1,6 @@
 # RoundRecord
 
-回合记录，位于 `Milimoe.FunGame.Core.Model.Framework`。记录一个回合（Round）内发生的全部行动流与汇总数据。
+回合记录，位于 `FunGame.Core.Model.Framework`。记录一个回合（Round）内发生的全部行动流与汇总数据。
 
 ## 构造函数
 

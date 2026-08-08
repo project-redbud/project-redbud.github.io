@@ -1,6 +1,6 @@
 # EntityModuleConfig
 
-实体模组配置文件，位于 `Milimoe.FunGame.Core.Api`。继承 `Dictionary<string, T>`，用于读取/保存实体 JSON 配置文件，适用范围：动态扩展技能和物品、保存玩家的存档。
+实体模组配置文件，位于 `FunGame.Core.Api`。继承 `Dictionary<string, T>`，用于读取/保存实体 JSON 配置文件，适用范围：动态扩展技能和物品、保存玩家的存档。
 
 文件保存路径：`程序目录/<ModuleDirectory>/<ModuleName>/<FileName>.json`。
 

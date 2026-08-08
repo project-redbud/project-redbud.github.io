@@ -5,8 +5,8 @@
 ## 基本创建（继承方式）
 
 ```csharp
-using Milimoe.FunGame.Core.Entity;
-using Milimoe.FunGame.Core.Library.Constant;
+using FunGame.Core.Entity;
+using FunGame.Core.Library.Constant;
 
 public class MyWarrior : Character
 {
@@ -172,8 +172,8 @@ character.EXP += 500;   // 添加经验
 ## 完整角色示例
 
 ```csharp
-using Milimoe.FunGame.Core.Entity;
-using Milimoe.FunGame.Core.Library.Constant;
+using FunGame.Core.Entity;
+using FunGame.Core.Library.Constant;
 
 public class OshimaShiya : Character
 {

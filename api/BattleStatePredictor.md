@@ -1,6 +1,6 @@
 # BattleStatePredictor
 
-战斗状态推算器，位于 `Milimoe.FunGame.Core.Api`。静态类。
+战斗状态推算器，位于 `FunGame.Core.Api`。静态类。
 
 基于回合记录（`RoundRecord`）与检查点（`CharacterStateSnapshot`）推算到目标回合时各角色的状态，用于回放与观战的"跳到第 N 回合"功能。
 

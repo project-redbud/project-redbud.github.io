@@ -32,7 +32,7 @@ FunGame.Core 提供**即时外发**能力：在游戏过程中，将操作记录
 
 ```csharp
 using FunGame.Core.Api;
-using FunGame.Core.Model;
+using FunGame.Core.Model.Queue;
 
 // 1. 创建外发通道：指定服务器 URL 与要外发的事件 id
 DefaultRoundRecordSink sink = new("https://example.com/api/round",

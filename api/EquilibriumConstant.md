@@ -1,6 +1,6 @@
 # EquilibriumConstant
 
-游戏平衡常数，位于 `Milimoe.FunGame.Core.Model`。
+游戏平衡常数，位于 `FunGame.Core.Model.Framework`。
 
 所有数值完全可配置。默认值可通过 `General.GameplayEquilibriumConstant` 获取。
 
