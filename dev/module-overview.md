@@ -1,6 +1,6 @@
 # 模组开发总览
 
-FunGame.Core 通过**模组（Module）**系统扩展游戏内容。模组将角色、技能/特效、物品注册到全局工厂中，供 `Factory.OpenFactory.GetInstance<T>()` 动态创建实体；也可与 JSON 配置文件结合，实现免编码的实体扩展。
+FunGame.Core 通过 **模组（Module）** 系统扩展游戏内容。模组将角色、技能/特效、物品注册到全局工厂中，供 `Factory.OpenFactory.GetInstance<T>()` 动态创建实体；也可与 JSON 配置文件结合，实现免编码的实体扩展。
 
 官方示例位于 `Library/Module/Example/`（`ExampleGameModule.cs`、`ExampleSkill.cs`、`ExampleItem.cs`）。
 

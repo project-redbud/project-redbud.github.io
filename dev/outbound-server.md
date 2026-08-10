@@ -93,7 +93,7 @@ var app = builder.Build();
 // 与客户端 DefaultRoundRecordSink.Secret 相同的共享密钥
 const string Secret = "shared-secret-key";
 
-// 会话表：握手成功后保存 g → d，用于验证后续数据包的签名
+// 会话表：握手成功后保存 g → 签名结果，用于直接比对后续数据包的 s 字段
 var sessions = new Dictionary<Guid, string>();  // 生产环境请加锁或使用 ConcurrentDictionary
 
 app.MapPost("/api/round", async (HttpContext context) =>
@@ -118,17 +118,15 @@ app.MapPost("/api/round", async (HttpContext context) =>
         string signature = Convert.ToHexStringLower(
             HMACSHA512.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(Secret)));
 
-        sessions[payload.G] = d;  // 记住 d，供后续数据包验签
+        sessions[payload.G] = signature;  // 保存签名结果，供后续数据包直接比对
         return Results.Text(signature);  // 响应体即签名，客户端比对后启用 s
     }
 
-    // ④ 其余事件：用握手时保存的 d 验证签名（可选但推荐）
-    if (sessions.TryGetValue(payload.G, out string? savedD))
+    // ④ 其余事件：直接用握手时保存的签名比对 s 字段（可选但推荐）
+    // 客户端握手成功后，s 字段为单局固定值，直接比对即可，无需重算
+    if (sessions.TryGetValue(payload.G, out string? savedSignature))
     {
-        string key = savedD[..10] + savedD[^10..] + payload.T;
-        string expected = Convert.ToHexStringLower(
-            HMACSHA512.HashData(Encoding.UTF8.GetBytes(key), Encoding.UTF8.GetBytes(Secret)));
-        if (!payload.S.Equals(expected, StringComparison.OrdinalIgnoreCase))
+        if (!payload.S.Equals(savedSignature, StringComparison.OrdinalIgnoreCase))
             return Results.Unauthorized();  // 签名不匹配，拒绝
     }
 
@@ -168,18 +166,18 @@ app.Run();
 | 步骤 | 算法 | 说明 |
 |---|---|---|
 | 握手请求 `d` | `SHA256(secret)` 转小写 hex | 服务器应比对客户端发来的 `d` 是否等于此值 |
-| 签名 `key` | `d[..10] + d[^10..] + t` | `d` 的前 10 字符 + 后 10 字符 + 该数据包的 `t`（字符串拼接） |
-| 签名 | `HMAC-SHA512(key, secret)` 转小写 hex | 握手时返回给客户端；后续数据包用保存的 `d` 重新计算并比对 `s` |
+| 签名 `key` | `d[..10] + d[^10..] + t` | `d` 的前 10 字符 + 后 10 字符 + **握手数据包**的 `t`（字符串拼接），仅握手时计算一次 |
+| 签名 | `HMAC-SHA512(key, secret)` 转小写 hex | 握手时计算并返回给客户端，同时由服务器**保存该签名结果** |
 
 ::: warning 注意
-- `key` 拼接用的 `t` 是**当前数据包**的时间戳（毫秒），因此每个数据包的签名都不同。
-- 服务器必须保存握手时的 `d`（或直接保存签名算法所需信息），才能验证后续数据包——每局游戏 `g` 唯一，握手一般只发生一次。
+- **签名是单局固定值**：客户端握手成功后，后续所有数据包的 `s` 字段都携带握手时得到的同一个签名（`DefaultRoundRecordSink._signature`），不会随每个数据包的 `t` 变化。
+- 服务器**保存握手时计算的签名结果**即可验证整局数据：每次直接比对 `payload.S` 与保存的签名，**无需重算**（外发频率极高，重算开销大且无意义）。
 - 客户端比对响应体时忽略大小写并 `Trim()`，服务器返回纯文本 hex 即可。
 :::
 
 ### 握手重试语义
 
-- 服务器未就绪 / 网络抖动时，客户端每 `HandshakeRetryIntervalSeconds` 秒重发 `"13"`——**重复握手是正常行为**，幂等处理即可（重复 `sessions[g] = d` 无害）。
+- 服务器未就绪 / 网络抖动时，客户端每 `HandshakeRetryIntervalSeconds` 秒重发 `"13"`——**重复握手是正常行为**，幂等处理即可（重复 `sessions[g] = signature` 无害）。
 - 游戏结束时客户端调用 `End()` 停止重试，不会再发任何事件。
 - 握手成功前的其他事件**不会发出**，服务器无需处理"未握手先发数据"的情况（但建议按坏数据拒绝）。
 
