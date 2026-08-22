@@ -177,6 +177,7 @@ export default defineConfig({
           text: 'Model 层',
           collapsed: false,
           items: [
+            { text: 'HookContext', link: '/api/HookContext' },
             { text: 'RoundRecord', link: '/api/RoundRecord' },
             { text: 'ActionRecord', link: '/api/ActionRecord' },
             { text: 'CharacterStateSnapshot', link: '/api/CharacterStateSnapshot' },

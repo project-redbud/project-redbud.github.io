@@ -73,11 +73,13 @@ public class ExampleDamageBasedOnATKWithBasicDamage : Effect
         // 赋值所有参数...
     }
 
-    public override void OnSkillCasted(Character caster, List<Character> targets,
-        List<Grid> grids, Dictionary<string, object> others)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
-        foreach (Character enemy in targets)
-            DamageToEnemy(caster, enemy, DamageType, MagicType, Damage);
+        if (ctx.Actor is Character caster)
+        {
+            foreach (Character enemy in ctx.Targets)
+                DamageToEnemy(caster, enemy, DamageType, MagicType, Damage);
+        }
     }
 }
 ```
@@ -89,10 +91,10 @@ public class ExampleInterruptCastingEffect : Effect
 {
     public override EffectType EffectType => EffectType.InterruptCasting;
 
-    public override void OnSkillCasted(Character caster, List<Character> targets,
-        List<Grid> grids, Dictionary<string, object> others)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
-        foreach (Character target in targets)
+        if (ctx.Actor is not Character caster) return;
+        foreach (Character target in ctx.Targets)
         {
             // 方式二：手动调用 CheckExemption
             // 只对该特效有效，不影响同技能的其他特效（伤害不会丢失）
@@ -134,11 +136,10 @@ public class ExampleNonDirectionalSkill1 : Skill
 // 特效：执行传送
 public class ExampleNonDirectionalSkill1Effect(Skill skill) : Effect(skill)
 {
-    public override void OnSkillCasted(Character caster, List<Character> targets,
-        List<Grid> grids, Dictionary<string, object> others)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
-        if (GamingQueue?.Map is GameMap map && grids.Count > 0)
-            map.CharacterMove(caster, map.GetCharacterCurrentGrid(caster), grids[0]);
+        if (ctx.Actor is Character caster && GamingQueue?.Map is GameMap map && ctx.Grids.Count > 0)
+            map.CharacterMove(caster, map.GetCharacterCurrentGrid(caster), ctx.Grids[0]);
     }
 }
 ```
@@ -213,18 +214,18 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
     private bool IsNested = false;
 
     // 乘区2：嵌套普攻伤害折半
-    public override double AlterActualDamageAfterCalculation(..., double damage, ...)
+    public override double AlterActualDamageAfterCalculation(DamageContext ctx)
     {
-        if (character == Skill.Character && IsNested && isNormalAttack)
-            return -(damage / 2);
+        if (ctx.Actor == Skill.Character && IsNested && ctx.IsNormalAttack)
+            return -(ctx.Damage / 2);
         return 0;
     }
 
     // 伤害计算后：额外发动一次普通攻击
-    public override void AfterDamageCalculation(Character character, Character enemy,
-        double damage, double actualDamage, bool isNormalAttack, ...)
+    public override void AfterDamageCalculation(DamageContext ctx)
     {
-        if (character == Skill.Character && isNormalAttack
+        if (ctx.Actor is Character character && ctx.Enemy is Character enemy
+            && character == Skill.Character && ctx.IsNormalAttack
             && CurrentCD == 0 && !IsNested && enemy.HP > 0)
         {
             CurrentCD = CD;
@@ -234,16 +235,15 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
     }
 
     // 时间流逝时冷却
-    public override void OnTimeElapsed(Character character, double elapsed)
+    public override void OnTimeElapsed(TimeLapseContext ctx)
     {
-        if (CurrentCD > 0) CurrentCD -= elapsed;
+        if (CurrentCD > 0) CurrentCD -= ctx.Elapsed;
     }
 
     // 普攻后减少硬直时间
-    public override void AlterHardnessTimeAfterNormalAttack(
-        Character character, ref double baseHardnessTime, ref bool isCheckProtected)
+    public override void AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        baseHardnessTime *= 0.8;
+        ctx.BaseHardnessTime *= 0.8;
     }
 }
 ```
@@ -283,8 +283,9 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     // 保存实际加成值以便恢复
     private double ActualATKBonus = 0, ActualPenBonus = 0, ActualEvadeBonus = 0;
 
-    public override void OnEffectGained(Character character)
+    public override void OnEffectGained(HookContext ctx)
     {
+        if (ctx.Actor is not Character character) return;
         ActualATKBonus = ATKMultiplier * character.BaseATK;
         character.ExATK2 += ActualATKBonus;
         character.PhysicalPenetration += 0.1 + 0.03 * (Skill.Level - 1);
@@ -299,8 +300,9 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
         }
     }
 
-    public override void OnEffectLost(Character character)
+    public override void OnEffectLost(HookContext ctx)
     {
+        if (ctx.Actor is not Character character) return;
         character.ExATK2 -= ActualATKBonus;
         // 恢复所有...
         if (character.Effects.FirstOrDefault(
@@ -309,37 +311,35 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     }
 
     // AI 决策偏好调整
-    public override CharacterActionType AlterActionTypeBeforeAction(
-        ..., ref double pNormalAttack, ...)
+    public override CharacterActionType AlterActionTypeBeforeAction(DecisionContext ctx)
     {
-        pNormalAttack += 0.1;  // 提高普攻优先级
+        ctx.PNormalAttack += 0.1;  // 提高普攻优先级
         return CharacterActionType.None;
     }
 
     // 乘区1：基于敏捷的普攻伤害加成
-    public override double AlterExpectedDamageBeforeCalculation(
-        ..., bool isNormalAttack, ...)
+    public override double AlterExpectedDamageBeforeCalculation(DamageContext ctx)
     {
-        if (character == Skill.Character && isNormalAttack)
-            return 1.2 * (1 + 0.5 * (Skill.Level - 1)) * character.AGI;
+        if (ctx.Actor == Skill.Character && ctx.IsNormalAttack)
+            return 1.2 * (1 + 0.5 * (Skill.Level - 1)) * ctx.Actor.AGI;
         return 0;
     }
 
     // 普攻硬直时间额外减免（与心灵之弦叠加）
-    public override void AlterHardnessTimeAfterNormalAttack(
-        Character character, ref double baseHardnessTime, ref bool isCheckProtected)
+    public override void AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        baseHardnessTime *= 0.8;  // 最终 = 原硬直 * 0.8 * 0.8
+        ctx.BaseHardnessTime *= 0.8;  // 最终 = 原硬直 * 0.8 * 0.8
     }
 
-    public override void OnSkillCasted(Character caster, ...)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
+        if (ctx.Actor is not Character caster) return;
         // 不叠加效果：刷新持续时间
         RemainDuration = Duration;
         if (!caster.Effects.Contains(this))
         {
             caster.Effects.Add(this);
-            OnEffectGained(caster);
+            OnEffectGained(new HookContext(GamingQueue, caster));
         }
         RecordCharacterApplyEffects(caster, EffectType.DamageBoost, EffectType.PenetrationBoost);
     }

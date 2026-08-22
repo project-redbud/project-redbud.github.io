@@ -99,18 +99,15 @@ public class UserInputRequester<T>
 ### 事件处理器（同步上下文）
 
 ```csharp
-private List<Character> Queue_SelectSkillTargets(
-    GamingQueue queue, Character caster, Skill skill,
-    List<Character> allEnemys, List<Character> allTeammates,
-    List<Character> enemys, List<Character> teammates,
-    List<Grid> castRange)
+private List<Character> Queue_SelectSkillTargets(SelectionContext ctx)
 {
     // 事件处理器是同步的，但 UI 是异步的
     // 使用 SyncAwaiter.WaitResult 桥接
     List<Character>? selectedTargets = SyncAwaiter.WaitResult(
         Controller.RequestTargetSelection(
-            caster, skill, allEnemys, allTeammates,
-            enemys, teammates, castRange));
+            ctx.Actor!, ctx.Skill!,
+            ctx.AllEnemys, ctx.AllTeammates,
+            ctx.Enemys, ctx.Teammates));
 
     return selectedTargets ?? [];
 }

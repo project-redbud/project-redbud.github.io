@@ -134,7 +134,7 @@ queue.RoundRecordSink = sink;
 
 ## 检查点（Checkpoint）
 
-`GamingQueue.CheckpointInterval`（默认 `50`）控制状态检查点的生成频率：大于 0 时，每 N 回合在回合记录上附带一次**全角色状态快照** `CharacterStateSnapshot`（HP/MP/EP、装备、技能、物品、特效状态明细）。
+`GamingQueue.CheckpointInterval`（默认 `50`）控制状态检查点的生成频率：大于 0 时，每 N 回合在回合记录上附带一次**全角色状态快照** `CharacterStateSnapshot`（HP/MP/EP、全部属性、装备、技能、物品、特效状态明细，明细均含描述文本，回放端可直接展示）。
 
 ```csharp
 queue.CheckpointInterval = 10;  // 每 10 回合生成一次检查点

@@ -26,9 +26,10 @@ public class BowMasteryEffect(Skill skill) : NeuralCalibrationEffect
 
     // 当角色使用 SupportedWeaponType 武器时，此特效生效
     // 例如：使用弓时普攻伤害提升
-    public override void OnEffectGained(Character character)
+    public override void OnEffectGained(HookContext ctx)
     {
-        if (character.EquipSlot.Weapon?.WeaponType == SupportedWeaponType)
+        if (ctx.Actor is Character character
+            && character.EquipSlot.Weapon?.WeaponType == SupportedWeaponType)
         {
             // 施加加成...
         }

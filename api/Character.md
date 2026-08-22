@@ -224,6 +224,7 @@ public Character()
 | `GetSkillInfo(bool showUser)` | 技能信息 |
 | `GetItemInfo(...)` | 物品信息 |
 | `GetAttributeInfo(...)` / `GetSimpleAttributeInfo(...)` | 属性信息 |
+| `GetAttributeValues()` | 全部属性的展示值（`Dictionary<string, string>`，检查点快照 `Attributes` 的数据来源） |
 | `GetStatusInfo()` | 状态信息 |
 | `GetEquipSlotInfo()` | 装备栏信息 |
 | `GetBackpackItemsInfo()` | 背包信息 |

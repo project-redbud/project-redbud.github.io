@@ -85,22 +85,24 @@ public class ExampleOpenEffectExATK2 : Effect
     private readonly double BonusFactor = 0;
     private double ActualBonus = 0;
 
-    public override void OnEffectGained(Character character)
+    public override void OnEffectGained(HookContext ctx)
     {
+        if (ctx.Actor is not Character character) return;
         ActualBonus = character.BaseATK * BonusFactor;
         character.ExATKPercentage += BonusFactor;
     }
 
-    public override void OnEffectLost(Character character)
+    public override void OnEffectLost(HookContext ctx)
     {
+        if (ctx.Actor is not Character character) return;
         character.ExATKPercentage -= BonusFactor;
     }
 
     // 属性变化时刷新加成（等级提升、装备更换等）
-    public override void OnAttributeChanged(Character character)
+    public override void OnAttributeChanged(HookContext ctx)
     {
-        OnEffectLost(character);
-        OnEffectGained(character);
+        OnEffectLost(ctx);
+        OnEffectGained(ctx);
     }
 
     // 从 Dictionary 读取参数

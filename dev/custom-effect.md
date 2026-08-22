@@ -2,6 +2,10 @@
 
 基于官方示例 `Library/Module/Example/ExampleSkill.cs` 和 `ExampleItem.cs`。
 
+::: info v3.0 起统一上下文参数
+所有特效钩子接收单一**参数上下文对象**（如 `SkillCastContext`、`DamageContext`），主角色从 `ctx.Actor` 获取，原 `ref` 参数改为上下文可写属性，返回值语义不变。详见 [HookContext 参数上下文族](/api/HookContext)。
+:::
+
 ---
 
 ## 伤害特效（带等级成长）
@@ -58,12 +62,14 @@ public class ExampleDamageBasedOnATKWithBasicDamage : Effect
         MagicType = magicType;
     }
 
-    public override void OnSkillCasted(Character caster, List<Character> targets,
-        List<Grid> grids, Dictionary<string, object> others)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
-        foreach (Character enemy in targets)
+        if (ctx.Actor is Character caster)
         {
-            DamageToEnemy(caster, enemy, DamageType, MagicType, Damage);
+            foreach (Character enemy in ctx.Targets)
+            {
+                DamageToEnemy(caster, enemy, DamageType, MagicType, Damage);
+            }
         }
     }
 }
@@ -87,15 +93,17 @@ public class ExampleInterruptCastingEffect : Effect
         GamingQueue = skill.GamingQueue;
     }
 
-    public override void OnSkillCasted(Character caster, List<Character> targets,
-        List<Grid> grids, Dictionary<string, object> others)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
-        foreach (Character target in targets)
+        if (ctx.Actor is Character caster)
         {
-            // 手动调用豁免检定——只对该特效有效
-            if (!CheckExemption(caster, target, this))
+            foreach (Character target in ctx.Targets)
             {
-                InterruptCasting(target, caster);
+                // 手动调用豁免检定——只对该特效有效
+                if (!CheckExemption(caster, target, this))
+                {
+                    InterruptCasting(target, caster);
+                }
             }
         }
     }
@@ -114,14 +122,13 @@ public class ExampleNonDirectionalSkill1Effect(Skill skill) : Effect(skill)
     public override string Description =>
         $"立即将角色传送到范围内的任意{Skill.TargetDescription()}。";
 
-    public override void OnSkillCasted(Character caster, List<Character> targets,
-        List<Grid> grids, Dictionary<string, object> others)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
         // 只有地图模式才有效
-        if (GamingQueue?.Map is GameMap map && grids.Count > 0)
+        if (ctx.Actor is Character caster && GamingQueue?.Map is GameMap map && ctx.Grids.Count > 0)
         {
             map.CharacterMove(caster,
-                map.GetCharacterCurrentGrid(caster), grids[0]);
+                map.GetCharacterCurrentGrid(caster), ctx.Grids[0]);
         }
     }
 }
@@ -145,25 +152,19 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
     private bool IsNested = false;
 
     // 乘区2钩子：调整伤害计算后的实际伤害
-    public override double AlterActualDamageAfterCalculation(
-        Character character, Character enemy, double damage,
-        bool isNormalAttack, DamageType damageType, MagicType magicType,
-        DamageResult damageResult, ref bool isEvaded,
-        Dictionary<Effect, double> totalDamageBonus)
+    public override double AlterActualDamageAfterCalculation(DamageContext ctx)
     {
         // 嵌套普攻伤害折半
-        if (character == Skill.Character && IsNested && isNormalAttack && damage > 0)
-            return -(damage / 2);  // 返回负值即削减
+        if (ctx.Actor == Skill.Character && IsNested && ctx.IsNormalAttack && ctx.Damage > 0)
+            return -(ctx.Damage / 2);  // 返回负值即削减
         return 0;
     }
 
     // 伤害计算后钩子：额外发动一次普通攻击
-    public override void AfterDamageCalculation(
-        Character character, Character enemy, double damage,
-        double actualDamage, bool isNormalAttack, DamageType damageType,
-        MagicType magicType, DamageResult damageResult)
+    public override void AfterDamageCalculation(DamageContext ctx)
     {
-        if (character == Skill.Character && isNormalAttack
+        if (ctx.Actor is Character character && ctx.Enemy is Character enemy
+            && character == Skill.Character && ctx.IsNormalAttack
             && CurrentCD == 0 && !IsNested && GamingQueue != null && enemy.HP > 0)
         {
             WriteLine($"[ {character} ] 发动了{Skill.Name}！额外进行一次普通攻击！");
@@ -172,25 +173,24 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
             character.NormalAttack.Attack(GamingQueue, character, null, enemy);
         }
 
-        if (character == Skill.Character && IsNested)
+        if (ctx.Actor == Skill.Character && IsNested)
             IsNested = false;
     }
 
     // 时间流逝时冷却
-    public override void OnTimeElapsed(Character character, double elapsed)
+    public override void OnTimeElapsed(TimeLapseContext ctx)
     {
         if (CurrentCD > 0)
         {
-            CurrentCD -= elapsed;
+            CurrentCD -= ctx.Elapsed;
             if (CurrentCD <= 0) CurrentCD = 0;
         }
     }
 
     // 普攻后硬直时间减免
-    public override void AlterHardnessTimeAfterNormalAttack(
-        Character character, ref double baseHardnessTime, ref bool isCheckProtected)
+    public override void AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        baseHardnessTime *= 0.8;  // ref 变量直接修改
+        ctx.BaseHardnessTime *= 0.8;  // ref 变量 → 可写属性
     }
 }
 ```
@@ -228,8 +228,9 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     private double ActualEvadeRateBonus = 0;
 
     // 特效施加：修改角色属性
-    public override void OnEffectGained(Character character)
+    public override void OnEffectGained(HookContext ctx)
     {
+        if (ctx.Actor is not Character character) return;
         ActualATKBonus = ATKBonus;
         ActualPhysicalPenetrationBonus = PhysicalPenetrationBonus;
         ActualEvadeRateBonus = EvadeRateBonus;
@@ -248,8 +249,9 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     }
 
     // 特效移除：恢复角色属性
-    public override void OnEffectLost(Character character)
+    public override void OnEffectLost(HookContext ctx)
     {
+        if (ctx.Actor is not Character character) return;
         character.ExATK2 -= ActualATKBonus;
         character.PhysicalPenetration -= ActualPhysicalPenetrationBonus;
         character.ExEvadeRate -= ActualEvadeRateBonus;
@@ -263,38 +265,30 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     }
 
     // AI 决策偏好：提高普攻积极性
-    public override CharacterActionType AlterActionTypeBeforeAction(
-        Character character, DecisionPoints dp, CharacterState state,
-        ref bool canUseItem, ref bool canCastSkill,
-        ref double pUseItem, ref double pCastSkill,
-        ref double pNormalAttack, ref bool forceAction)
+    public override CharacterActionType AlterActionTypeBeforeAction(DecisionContext ctx)
     {
-        pNormalAttack += 0.1;
+        ctx.PNormalAttack += 0.1;
         return CharacterActionType.None;
     }
 
     // 乘区1钩子：普攻伤害加成（基于敏捷）
-    public override double AlterExpectedDamageBeforeCalculation(
-        Character character, Character enemy, double damage,
-        bool isNormalAttack, DamageType damageType, MagicType magicType,
-        Dictionary<Effect, double> totalDamageBonus)
+    public override double AlterExpectedDamageBeforeCalculation(DamageContext ctx)
     {
-        if (character == Skill.Character && isNormalAttack)
-            return Coefficient * character.AGI;
+        if (ctx.Actor == Skill.Character && ctx.IsNormalAttack)
+            return Coefficient * (Skill.Character?.AGI ?? 0);
         return 0;
     }
 
     // 普攻后硬直时间减免
-    public override void AlterHardnessTimeAfterNormalAttack(
-        Character character, ref double baseHardnessTime, ref bool isCheckProtected)
+    public override void AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        baseHardnessTime *= 0.8;
+        ctx.BaseHardnessTime *= 0.8;
     }
 
     // 技能释放时：不叠加效果刷新持续时间
-    public override void OnSkillCasted(Character caster, List<Character> targets,
-        List<Grid> grids, Dictionary<string, object> others)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
+        if (ctx.Actor is not Character caster) return;
         ActualATKBonus = 0;
         ActualPhysicalPenetrationBonus = 0;
         ActualEvadeRateBonus = 0;
@@ -302,7 +296,7 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
         if (!caster.Effects.Contains(this))
         {
             caster.Effects.Add(this);
-            OnEffectGained(caster);
+            OnEffectGained(new HookContext(GamingQueue, caster));
         }
         RecordCharacterApplyEffects(caster, EffectType.DamageBoost, EffectType.PenetrationBoost);
     }
@@ -327,8 +321,9 @@ public class ExampleOpenEffectExATK2 : Effect
     private double ActualBonus = 0;
 
     // 特效施加
-    public override void OnEffectGained(Character character)
+    public override void OnEffectGained(HookContext ctx)
     {
+        if (ctx.Actor is not Character character) return;
         if (Durative && RemainDuration == 0)
             RemainDuration = Duration;
         else if (RemainDurationTurn == 0)
@@ -339,16 +334,17 @@ public class ExampleOpenEffectExATK2 : Effect
     }
 
     // 特效移除
-    public override void OnEffectLost(Character character)
+    public override void OnEffectLost(HookContext ctx)
     {
+        if (ctx.Actor is not Character character) return;
         character.ExATKPercentage -= BonusFactor;
     }
 
     // 属性变化时刷新（等级提升、装备更换等引起的基础属性变化）
-    public override void OnAttributeChanged(Character character)
+    public override void OnAttributeChanged(HookContext ctx)
     {
-        OnEffectLost(character);
-        OnEffectGained(character);
+        OnEffectLost(ctx);
+        OnEffectGained(ctx);
     }
 
     // 从 Dictionary 读取参数
@@ -377,18 +373,18 @@ public class ExampleOpenEffectExATK2 : Effect
 
 | 方法签名 | 用途 | 来自 |
 |---|---|---|
-| `OnEffectGained(Character)` | 特效施加到角色 | `ExampleSuperSkillEffect`, `ExATK2` |
-| `OnEffectLost(Character)` | 特效从角色移除 | `ExampleSuperSkillEffect`, `ExATK2` |
-| `OnSkillCasted(Character, List<Character>, List<Grid>, Dictionary)` | 技能释放时执行 | 所有技能特效 |
-| `OnTimeElapsed(Character, double)` | 时间流逝 | `ExamplePassiveSkillEffect` |
-| `OnAttributeChanged(Character)` | 属性变化时刷新 | `ExATK2` |
-| `AfterDamageCalculation(Character, Character, double, double, bool, DamageType, MagicType, DamageResult)` | 伤害计算后 | `ExamplePassiveSkillEffect` |
-| `AlterActualDamageAfterCalculation(Character, Character, double, bool, DamageType, MagicType, DamageResult, ref bool, Dictionary)` | 乘区2调整（返回加值） | `ExamplePassiveSkillEffect` |
-| `AlterExpectedDamageBeforeCalculation(Character, Character, double, bool, DamageType, MagicType, Dictionary)` | 乘区1调整（返回加值） | `ExampleSuperSkillEffect` |
-| `AlterHardnessTimeAfterNormalAttack(Character, ref double, ref bool)` | 普攻后调整硬直（ref 修改） | `ExamplePassiveSkillEffect`, `ExampleSuperSkillEffect` |
-| `AlterActionTypeBeforeAction(Character, DecisionPoints, CharacterState, ref bool, ref bool, ref double, ref double, ref double, ref bool)` | AI 决策偏好调整 | `ExampleSuperSkillEffect` |
-| `BeforeSkillCasted(Character, List<Character>, List<Grid>, double, double)` | 技能释放前 | `SoulboundEffect` |
-| `AfterSkillCasted(Character, List<Character>, List<Grid>)` | 技能释放后 | `SoulboundEffect` |
+| `OnEffectGained(HookContext)` | 特效施加到角色 | `ExampleSuperSkillEffect`, `ExATK2` |
+| `OnEffectLost(HookContext)` | 特效从角色移除 | `ExampleSuperSkillEffect`, `ExATK2` |
+| `OnSkillCasted(SkillCastContext)` | 技能释放时执行 | 所有技能特效 |
+| `OnTimeElapsed(TimeLapseContext)` | 时间流逝 | `ExamplePassiveSkillEffect` |
+| `OnAttributeChanged(HookContext)` | 属性变化时刷新 | `ExATK2` |
+| `AfterDamageCalculation(DamageContext)` | 伤害计算后 | `ExamplePassiveSkillEffect` |
+| `AlterActualDamageAfterCalculation(DamageContext)` | 乘区2调整（返回加值） | `ExamplePassiveSkillEffect` |
+| `AlterExpectedDamageBeforeCalculation(DamageContext)` | 乘区1调整（返回加值） | `ExampleSuperSkillEffect` |
+| `AlterHardnessTimeAfterNormalAttack(HardnessContext)` | 普攻后调整硬直（`ctx.BaseHardnessTime` 可写） | `ExamplePassiveSkillEffect`, `ExampleSuperSkillEffect` |
+| `AlterActionTypeBeforeAction(DecisionContext)` | AI 决策偏好调整 | `ExampleSuperSkillEffect` |
+| `BeforeSkillCasted(SkillCastContext)` | 技能释放前（读取 `ctx.MPCost`/`ctx.EPCost`） | `SoulboundEffect` |
+| `AfterSkillCasted(SkillCastContext)` | 技能释放后 | `SoulboundEffect` |
 
 ## 特效内部可用方法
 

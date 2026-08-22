@@ -110,7 +110,7 @@ public class MySoulboundEffect : SoulboundEffect
 {
     public MySoulboundEffect(MySoulbound skill) : base(skill) { }
 
-    public override void OnSkillCasted(Character caster, ...)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
         double baseDamage = 500;
         double finalDamage = baseDamage * (1 + Improvement);  // 增强系数

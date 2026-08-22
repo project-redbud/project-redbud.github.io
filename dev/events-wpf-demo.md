@@ -52,12 +52,10 @@ queue.CharacterMoveEvent += Queue_CharacterMove;
 ### TurnStart — 回合开始
 
 ```csharp
-private bool Queue_TurnStart(GamingQueue queue, Character character,
-    DecisionPoints dp, List<Character> enemys, List<Character> teammates,
-    List<Skill> skills, List<Item> items)
+private bool Queue_TurnStart(TurnContext ctx)
 {
     // 更新 UI 底部信息面板（决策点、技能列表、物品列表）
-    SyncAwaiter.Wait(Controller.UpdateBottomInfoPanel(dp));
+    SyncAwaiter.Wait(Controller.UpdateBottomInfoPanel(ctx.DP!));
     return true;  // true = 继续，false = 取消回合
 }
 ```
@@ -65,48 +63,42 @@ private bool Queue_TurnStart(GamingQueue queue, Character character,
 ### DecideAction — 选择行动类型
 
 ```csharp
-private CharacterActionType Queue_DecideAction(GamingQueue queue,
-    Character character, DecisionPoints dp, ...)
+private CharacterActionType Queue_DecideAction(TurnContext ctx)
 {
-    if (!IsPlayer_OnlyTest(queue, character))
+    if (!IsPlayer_OnlyTest(ctx))
         return CharacterActionType.None;  // AI 不进入此分支
 
     // 请求 UI 显示行动按钮
     return SyncAwaiter.WaitResult(
-        Controller.RequestActionType(character, items));
+        Controller.RequestActionType(ctx.Actor!, ctx.Items));
 }
 ```
 
 ### SelectSkill — 选择技能
 
 ```csharp
-private Skill? Queue_SelectSkill(GamingQueue queue, Character character,
-    List<Skill> skills)
+private Skill? Queue_SelectSkill(SelectionContext ctx)
 {
-    if (!IsPlayer_OnlyTest(queue, character)) return null;
+    if (!IsPlayer_OnlyTest(ctx)) return null;
 
     Skill? skill = SyncAwaiter.WaitResult(
-        Controller.RequestSkillSelection(character, skills));
+        Controller.RequestSkillSelection(ctx.Actor!, ctx.Skills));
     SyncAwaiter.Wait(Controller.ResolveSkillSelection(skill));
-    return availableSkills.Any(s => s == skill) ? skill : null;
+    return ctx.Skills.Any(s => s == skill) ? skill : null;
 }
 ```
 
 ### SelectNormalAttackTargets — 选择普攻目标
 
 ```csharp
-private List<Character> Queue_SelectNormalAttackTargets(
-    GamingQueue queue, Character character, NormalAttack attack,
-    List<Character> allEnemys, List<Character> allTeammates,
-    List<Character> enemys, List<Character> teammates,
-    List<Grid> attackRange)
+private List<Character> Queue_SelectNormalAttackTargets(SelectionContext ctx)
 {
-    if (!IsPlayer_OnlyTest(queue, character)) return [];
+    if (!IsPlayer_OnlyTest(ctx)) return [];
 
     List<Character> targets = SyncAwaiter.WaitResult(
         Controller.RequestTargetSelection(
-            character, attack, allEnemys, allTeammates,
-            enemys, teammates, attackRange));
+            ctx.Actor!, ctx.NormalAttack!, ctx.AllEnemys, ctx.AllTeammates,
+            ctx.Enemys, ctx.Teammates, ctx.CastRange));
     SyncAwaiter.Wait(Controller.ResolveTargetSelection(targets));
     return targets ?? [];
 }
@@ -115,18 +107,14 @@ private List<Character> Queue_SelectNormalAttackTargets(
 ### SelectSkillTargets — 选择指向性技能目标
 
 ```csharp
-private List<Character> Queue_SelectSkillTargets(
-    GamingQueue queue, Character caster, Skill skill,
-    List<Character> allEnemys, List<Character> allTeammates,
-    List<Character> enemys, List<Character> teammates,
-    List<Grid> castRange)
+private List<Character> Queue_SelectSkillTargets(SelectionContext ctx)
 {
-    if (!IsPlayer_OnlyTest(queue, caster)) return [];
+    if (!IsPlayer_OnlyTest(ctx)) return [];
 
     List<Character> targets = SyncAwaiter.WaitResult(
         Controller.RequestTargetSelection(
-            caster, skill, allEnemys, allTeammates,
-            enemys, teammates, castRange));
+            ctx.Actor!, ctx.Skill!, ctx.AllEnemys, ctx.AllTeammates,
+            ctx.Enemys, ctx.Teammates, ctx.CastRange));
     SyncAwaiter.Wait(Controller.ResolveTargetSelection(targets));
     return targets ?? [];
 }
@@ -135,21 +123,18 @@ private List<Character> Queue_SelectSkillTargets(
 ### SelectNonDirectionalSkillTargets — 选择非指向性目标（格子）
 
 ```csharp
-private List<Grid> Queue_SelectNonDirectionalSkillTargets(
-    GamingQueue queue, Character caster, Skill skill,
-    List<Character> enemys, List<Character> teammates,
-    List<Grid> castRange)
+private List<Grid> Queue_SelectNonDirectionalSkillTargets(SelectionContext ctx)
 {
-    if (!IsPlayer_OnlyTest(queue, caster)) return [];
+    if (!IsPlayer_OnlyTest(ctx)) return [];
 
-    if (queue.Map == null) return [];
+    if (ctx.Queue?.Map == null) return [];
 
-    Grid current = queue.CustomData["currentGrid"] as Grid ?? Grid.Empty;
+    Grid current = ctx.Queue.CustomData["currentGrid"] as Grid ?? Grid.Empty;
     if (current == Grid.Empty) return [];
 
     List<Grid> targets = SyncAwaiter.WaitResult(
         Controller.RequestTargetGridsSelection(
-            caster, skill, enemys, teammates, current, castRange));
+            ctx.Actor!, ctx.Skill!, ctx.Enemys, ctx.Teammates, current, ctx.CastRange));
     SyncAwaiter.Wait(Controller.ResolveTargetGridsSelection(targets));
     return targets ?? [];
 }
@@ -158,18 +143,16 @@ private List<Grid> Queue_SelectNonDirectionalSkillTargets(
 ### SelectTargetGrid — 选择移动目标
 
 ```csharp
-private Grid Queue_SelectTargetGrid(GamingQueue queue,
-    Character character, List<Character> enemys,
-    List<Character> teammates, GameMap map, List<Grid> moveRange)
+private Grid Queue_SelectTargetGrid(SelectionContext ctx)
 {
-    if (!IsPlayer_OnlyTest(queue, character)) return Grid.Empty;
+    if (!IsPlayer_OnlyTest(ctx)) return Grid.Empty;
 
-    Grid current = queue.CustomData["currentGrid"] as Grid ?? Grid.Empty;
+    Grid current = ctx.Queue?.CustomData["currentGrid"] as Grid ?? Grid.Empty;
     if (current == Grid.Empty) return current;
 
     Grid? target = SyncAwaiter.WaitResult(
         Controller.RequestTargetGridSelection(
-            character, current, map.GetGridsByRange(current, character.MOV)));
+            ctx.Actor!, current, ctx.Map!.GetGridsByRange(current, ctx.Actor!.MOV)));
     SyncAwaiter.Wait(Controller.ResolveTargetGridSelection(target));
     return target ?? Grid.Empty;
 }
@@ -178,30 +161,25 @@ private Grid Queue_SelectTargetGrid(GamingQueue queue,
 ### CharacterInquiry — 询问玩家
 
 ```csharp
-private InquiryResponse Queue_CharacterInquiry(
-    GamingQueue queue, Character character,
-    DecisionPoints dp, InquiryOptions options)
+private InquiryResponse Queue_CharacterInquiry(InquiryContext ctx)
 {
-    if (!IsPlayer_OnlyTest(queue, character))
-        return new(options);  // AI 默认响应
+    if (!IsPlayer_OnlyTest(ctx))
+        return new(ctx.Options);  // AI 默认响应
 
     return SyncAwaiter.WaitResult(
-        Controller.RequestInquiryResponseSelection(options));
+        Controller.RequestInquiryResponseSelection(ctx.Options));
 }
 ```
 
 ### QueueUpdated — 顺序表更新
 
 ```csharp
-private void Queue_QueueUpdated(GamingQueue queue,
-    List<Character> characters, Character character,
-    DecisionPoints dp, double hardnessTime,
-    QueueUpdatedReason reason, string msg)
+private void Queue_QueueUpdated(QueueUpdatedContext ctx)
 {
     // 只在非行动原因时更新（避免频繁刷新）
-    if (reason != QueueUpdatedReason.Action)
+    if (ctx.Reason != QueueUpdatedReason.Action)
     {
-        SyncAwaiter.Wait(Controller.UpdateQueue(dp));
+        SyncAwaiter.Wait(Controller.UpdateQueue(ctx.DP!));
     }
 }
 ```
@@ -209,15 +187,12 @@ private void Queue_QueueUpdated(GamingQueue queue,
 ### CharacterActionTaken / CharacterMove — 地图同步
 
 ```csharp
-private void Queue_CharacterActionTaken(GamingQueue queue,
-    Character actor, DecisionPoints dp,
-    CharacterActionType type, RoundRecord record)
+private void Queue_CharacterActionTaken(ActionContext ctx)
 {
     SyncAwaiter.Wait(Controller.UpdateCharacterPositionsOnMap());
 }
 
-private void Queue_CharacterMove(GamingQueue queue,
-    Character actor, DecisionPoints dp, Grid grid)
+private void Queue_CharacterMove(MoveContext ctx)
 {
     SyncAwaiter.Wait(Controller.UpdateCharacterPositionsOnMap());
 }

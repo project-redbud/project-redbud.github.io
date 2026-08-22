@@ -11,11 +11,11 @@
 GamingQueue queue = new MixGamingQueue(characters, WriteLine);
 // 或 TeamGamingQueue（团队模式）
 
-// ═══ 绑定所有事件 ═══
+// ═══ 绑定所有事件（v3.0 起处理器接收单一上下文参数，队列从 ctx.Queue 获取） ═══
 
 // 游戏级
-queue.GameStartEvent += (q) => { /* 游戏开始 */ };
-queue.GameEndEvent += (q, winner) => { /* 游戏结束 */ return true; };
+queue.GameStartEvent += (ctx) => { /* 游戏开始 */ };
+queue.GameEndEvent += (ctx) => { /* 游戏结束，胜者 ctx.Actor */ return true; };
 
 // 回合级
 queue.TurnStartEvent += Queue_TurnStart;
@@ -38,8 +38,8 @@ queue.CharacterInquiryEvent += Queue_CharacterInquiry;
 queue.CharacterMoveEvent += Queue_CharacterMove;
 
 // 战斗（可选）
-queue.DamageToEnemyEvent += (q, actor, enemy, dmg, actual, ...) => { /* 动画 */ };
-queue.DeathCalculationEvent += (q, killer, death) => { /* 特效 */ return true; };
+queue.DamageToEnemyEvent += (ctx) => { /* 动画：ctx.Actor 对 ctx.Enemy 造成 ctx.ActualDamage */ };
+queue.DeathCalculationEvent += (ctx) => { /* 特效：ctx.Killer 击杀 ctx.Actor */ return true; };
 
 // 加载地图（可选）
 queue.LoadGameMap(gameMap);
@@ -123,13 +123,13 @@ foreach (Character character in queue.CharacterStatistics
 
 ```csharp
 // 示例：事件处理器中判断是否是玩家
-private List<Character> Queue_SelectSkillTargets(
-    GamingQueue queue, Character caster, Skill skill, ...)
+private List<Character> Queue_SelectSkillTargets(SelectionContext ctx)
 {
     // AI 控制时不会进入此方法
     // 只在玩家控制时触发
     return SyncAwaiter.WaitResult(
-        Controller.RequestTargetSelection(caster, skill, ...));
+        Controller.RequestTargetSelection(ctx.Actor!, ctx.Skill!,
+            ctx.AllEnemys, ctx.AllTeammates, ctx.Enemys, ctx.Teammates));
 }
 ```
 

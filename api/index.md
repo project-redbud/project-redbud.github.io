@@ -40,6 +40,7 @@ FunGame.Core 的核心 API 一览。
 
 | 类 | 命名空间 | 说明 |
 |---|---|---|
+| [HookContext](/api/HookContext) | `FunGame.Core.Model.EffectContext` | 钩子/事件统一参数上下文族（v3.0 起） |
 | [RoundRecord](/api/RoundRecord) | `FunGame.Core.Model.Framework` | 回合记录（含行动流与汇总） |
 | [ActionRecord](/api/ActionRecord) | `FunGame.Core.Model.Framework` | 单次操作记录 |
 | [CharacterStateSnapshot](/api/CharacterStateSnapshot) | `FunGame.Core.Model.Framework` | 角色状态快照（检查点/回放） |

@@ -2,7 +2,11 @@
 
 特效基类，位于 `FunGame.Core.Entity`。
 
-需继承并使用。一个 `Skill` 由多个 `Effect` 组合而成，每个 `Effect` 负责一种具体效果。特效承载技能的实际效果，可通过约 50 个虚方法介入游戏的各个环节。
+需继承并使用。一个 `Skill` 由多个 `Effect` 组合而成，每个 `Effect` 负责一种具体效果。特效承载技能的实际效果，可通过约 60 个虚方法介入游戏的各个环节。
+
+::: info v3.0 起统一上下文参数
+所有可重写钩子均接收单一**参数上下文对象**（如 `DamageContext`、`SkillCastContext`），替代旧版的长参数列表与 `ref` 传参；返回值语义（`double` 加值 / `bool` 拦截）保持不变。详见 [HookContext 参数上下文族](/api/HookContext)。
+:::
 
 ## 构造函数
 
@@ -85,135 +89,135 @@ public Effect()
 
 ## 可重写方法
 
+所有钩子均为单一上下文参数（括号内为上下文类型，主角色统一从 `ctx.Actor` 获取）。
+
 ### 生命周期
 
-| 方法 | 触发时机 |
-|---|---|
-| `OnEffectGained(Character)` | 特效施加到角色 |
-| `OnEffectLost(Character)` | 特效从角色移除 |
-| `OnGameStart()` | 游戏开始时 |
-| `OnTurnStart(Character, List<Character>, List<Character>, List<Skill>, List<Item>)` | 回合开始时 |
-| `OnTurnEnd(Character)` | 回合结束时 |
-| `OnTimeElapsed(Character, double)` | 时间流逝时 |
-| `OnTimeElapsed(Grid, double)` | 时间流逝时（格子版本） |
-| `OnAttributeChanged(Character)` | 角色属性变化时 |
-| `OnSkillLevelUp(Character, double)` | 技能升级时 |
-| `OnOwnerLevelUp(Character, double)` | 所属角色升级时 |
+| 方法 | 上下文 | 触发时机 |
+|---|---|---|
+| `OnEffectGained(HookContext)` | 主角色 | 特效施加到角色 |
+| `OnEffectLost(HookContext)` | 主角色 | 特效从角色移除 |
+| `OnGameStart(HookContext)` | — | 游戏开始时 |
+| `OnTurnStart(TurnContext)` | DP/敌人/队友/技能/物品列表 | 回合开始时 |
+| `OnTurnEnd(TurnContext)` | DP | 回合结束时 |
+| `OnTimeElapsed(TimeLapseContext)` | `ctx.Actor` 或 `ctx.Grid` | 时间流逝时（角色版与地图格版共用，v3.0 合并） |
+| `OnAttributeChanged(HookContext)` | 主角色 | 角色属性变化时 |
+| `OnSkillLevelUp(LevelUpContext)` | `ctx.Level` | 技能升级时 |
+| `OnOwnerLevelUp(LevelUpContext)` | `ctx.Level` | 所属角色升级时 |
 
 ### 技能相关
 
-| 方法 | 触发时机 |
-|---|---|
-| `OnSkillCasting(Character, List<Character>, List<Grid>)` | 技能吟唱开始时 |
-| `OnSkillCasted(Character, List<Character>, List<Grid>, Dictionary)` | 技能释放完成时 |
-| `OnSkillCasted(User, List<Character>, Dictionary)` | 技能释放完成（用户版本） |
-| `BeforeSkillCasted(Character, List<Character>, List<Grid>, double, double)` | 技能释放前（含消耗信息） |
-| `BeforeSkillCasted(Character, Skill, List<Character>, List<Grid>, Dictionary)` | 技能释放前（bool：false 可阻止） |
-| `AfterSkillCasted(Character, List<Character>, List<Grid>)` | 技能释放后 |
-| `BeforeSkillCastWillBeInterrupted(Character, Skill, Character)` | 技能将被打断前（bool） |
-| `OnSkillCastInterrupted(Character, Skill, Character)` | 技能吟唱被打断时 |
+| 方法 | 上下文 | 触发时机 |
+|---|---|---|
+| `OnSkillCasting(SkillCastContext)` | 施法者/Targets/Grids | 技能吟唱开始时 |
+| `OnSkillCasted(SkillCastContext)` | 施法者/Targets/Grids/Others | 技能释放完成时（局内） |
+| `OnSkillCastedOutside(SkillCastContext)` | `ctx.User` | 技能释放完成（局外，v3.0 由 User 重载改名） |
+| `BeforeSkillCasted(SkillCastContext)` | MPCost/EPCost | 技能释放前【技能的特效组】 |
+| `BeforeSkillCastedOnStatus(SkillCastContext)` | Skill/Targets/Others | 技能释放前【状态栏特效】，返回 false 将角色从目标集合移除（v3.0 改名） |
+| `AfterSkillCasted(SkillCastContext)` | 施法者/Targets/Grids | 技能释放后 |
+| `BeforeSkillCastWillBeInterrupted(SkillCastContext)` | Skill/Interrupter | 技能将被打断前（bool：false 阻止打断） |
+| `OnSkillCastInterrupted(SkillCastContext)` | Skill/Interrupter | 技能吟唱被打断时 |
 
 ### 伤害相关
 
-| 方法 | 触发时机 | 返回 |
-|---|---|---|
-| `AlterDamageTypeBeforeCalculation(Character, Character, ref bool, ref DamageType, ref MagicType)` | 计算前修改伤害类型 | void（ref 修改） |
-| `AlterExpectedDamageBeforeCalculation(Character, Character, double, bool, DamageType, MagicType, Dictionary)` | 乘区1调整 | double（加值） |
-| `AlterActualDamageAfterCalculation(Character, Character, double, bool, DamageType, MagicType, DamageResult, ref bool, Dictionary)` | 乘区2调整 | double（加值） |
-| `BeforeApplyTrueDamage(Character, Character, double, bool, DamageResult)` | 真实伤害生效前 | bool（false=阻止） |
-| `OnApplyDamage(Character, Character, double, double, bool, DamageType, MagicType, DamageResult, string, ref string)` | 伤害生效时 | void |
-| `AfterDamageCalculation(Character, Character, double, double, bool, DamageType, MagicType, DamageResult)` | 伤害计算完成后 | void |
+| 方法 | 上下文要点 | 触发时机 | 返回 |
+|---|---|---|---|
+| `AlterDamageTypeBeforeCalculation(DamageContext)` | 可写 IsNormalAttack/DamageType/MagicType | 计算前修改伤害类型 | void（属性修改） |
+| `AlterExpectedDamageBeforeCalculation(DamageContext)` | TotalDamageBonus | 乘区1调整 | double（加值） |
+| `AlterActualDamageAfterCalculation(DamageContext)` | 可写 IsEvaded | 乘区2调整 | double（加值） |
+| `BeforeApplyTrueDamage(DamageContext)` | — | 真实伤害生效前 | bool（true=取消伤害） |
+| `OnApplyDamage(DamageContext)` | 可写 OriginalMessage | 伤害生效时 | void |
+| `AfterDamageCalculation(DamageContext)` | — | 伤害计算完成后 | void |
 
 ### 治疗相关
 
-| 方法 | 触发时机 | 返回 |
-|---|---|---|
-| `BeforeHealToTarget(Character, Character, double, bool)` | 治疗前 | bool（false=阻止） |
-| `AlterHealValueBeforeHealToTarget(Character, Character, double, ref bool, Dictionary)` | 修改治疗值 | double（加值） |
+| 方法 | 上下文要点 | 触发时机 | 返回 |
+|---|---|---|---|
+| `BeforeHealToTarget(HealContext)` | — | 治疗前 | bool（false=阻止） |
+| `AlterHealValueBeforeHealToTarget(HealContext)` | 可写 CanRespawn | 修改治疗值 | double（加值） |
 
 ### 硬直时间
 
-| 方法 | 触发时机 |
-|---|---|
-| `AlterHardnessTimeAfterNormalAttack(Character, ref double, ref bool)` | 普攻后调整硬直 |
-| `AlterHardnessTimeAfterCastSkill(Character, Skill, ref double, ref bool)` | 释放技能后调整硬直 |
+| 方法 | 上下文要点 | 触发时机 |
+|---|---|---|
+| `AlterHardnessTimeAfterNormalAttack(HardnessContext)` | 可写 BaseHardnessTime/IsCheckProtected | 普攻后调整硬直 |
+| `AlterHardnessTimeAfterCastSkill(HardnessContext)` | 同上 + Skill | 释放技能后调整硬直 |
 
 ### 能量与回复
 
-| 方法 | 触发时机 |
-|---|---|
-| `AlterEPAfterDamage(Character, ref double)` | 造成伤害后修改获得的 EP |
-| `AlterEPAfterGetDamage(Character, ref double)` | 受到伤害后修改获得的 EP |
-| `BeforeApplyRecoveryAtTimeLapsing(Character, ref double, ref double)` | 时间流逝回复前（false=否决） |
+| 方法 | 上下文要点 | 触发时机 |
+|---|---|---|
+| `AlterEPAfterDamage(DamageContext)` | 可写 BaseEP | 造成伤害后修改获得的 EP |
+| `AlterEPAfterGetDamage(DamageContext)` | 可写 BaseEP | 受到伤害后修改获得的 EP |
+| `BeforeApplyRecoveryAtTimeLapsing(TimeLapseContext)` | 可写 HR/MR | 时间流逝回复前（false=否决） |
 
 ### 检定：闪避 / 暴击
 
-| 方法 | 触发时机 | 返回 |
-|---|---|---|
-| `BeforeEvadeCheck(Character, Character, ref double)` | 闪避检定前 | bool（false=必定失败） |
-| `OnEvadedTriggered(Character, Character, double)` | 闪避成功时 | void |
-| `BeforeCriticalCheck(Character, Character, bool, ref double)` | 暴击检定前 | bool |
-| `OnCriticalDamageTriggered(Character, Character, double)` | 暴击触发时 | void |
+| 方法 | 上下文要点 | 触发时机 | 返回 |
+|---|---|---|---|
+| `BeforeEvadeCheck(DamageContext)` | 可写 ThrowingBonus | 闪避检定前 | bool（false=必定失败） |
+| `OnEvadedTriggered(DamageContext)` | Dice | 闪避成功时 | bool（true=无视闪避） |
+| `BeforeCriticalCheck(DamageContext)` | 可写 ThrowingBonus | 暴击检定前 | bool |
+| `OnCriticalDamageTriggered(DamageContext)` | Dice | 暴击触发时 | void |
 
 ### 免疫与豁免
 
-| 方法 | 触发时机 | 返回 |
-|---|---|---|
-| `OnImmuneCheck(Character, Character, ISkill, Item?)` | 技能免疫检定 | bool |
-| `OnDamageImmuneCheck(Character, Character, bool, DamageType, MagicType, double)` | 伤害免疫检定 | bool |
-| `OnExemptionCheck(Character, Character?, Effect, bool, ref double)` | 豁免检定 | bool |
+| 方法 | 上下文要点 | 触发时机 | 返回 |
+|---|---|---|---|
+| `OnImmuneCheck(ImmuneContext)` | Target/Skill/Item | 技能免疫检定 | bool |
+| `OnDamageImmuneCheck(DamageContext)` | — | 伤害免疫检定 | bool |
+| `OnExemptionCheck(ImmuneContext)` | Effect/IsEvade、可写 ThrowingBonus | 豁免检定 | bool |
 
 ### 护盾
 
-| 方法 | 触发时机 | 返回 |
-|---|---|---|
-| `BeforeShieldCalculation(Character, Character, DamageType, MagicType, double, ref double, ref string)` | 护盾结算前 | bool |
-| `OnShieldNeutralizeDamage(Character, Character, DamageType, MagicType, double, ShieldType)` | 护盾抵消伤害时 | void |
-| `OnShieldBroken(Character, Character, ShieldType, double)` | 护盾破碎时（类型版本） | bool |
-| `OnShieldBroken(Character, Character, Effect, double)` | 护盾破碎时（特效版本） | bool |
+| 方法 | 上下文要点 | 触发时机 | 返回 |
+|---|---|---|---|
+| `BeforeShieldCalculation(ShieldContext)` | 可写 DamageReduce/Message | 护盾结算前 | bool（false=跳过结算） |
+| `OnShieldNeutralizeDamage(ShieldContext)` | ShieldType | 护盾抵消伤害时 | void |
+| `OnShieldBroken(ShieldContext)` | ShieldType 或 ShieldEffect | 护盾破碎时（v3.0 两版重载合并为一个钩子） | bool（false=阻止扣血） |
 
 ### 生命偷取
 
-| 方法 | 触发时机 | 返回 |
-|---|---|---|
-| `BeforeLifesteal(Character, Character, double, double)` | 生命偷取前 | bool |
-| `AfterLifesteal(Character, Character, double, double)` | 生命偷取后 | void |
+| 方法 | 上下文 | 触发时机 | 返回 |
+|---|---|---|---|
+| `BeforeLifesteal(LifestealContext)` | Enemy/Damage/Steal | 生命偷取前 | bool |
+| `AfterLifesteal(LifestealContext)` | Enemy/Damage/Steal | 生命偷取后 | void |
 
 ### 驱散
 
-| 方法 | 触发时机 | 返回 |
-|---|---|---|
-| `OnDispellingEffect(Character, Character, Effect, bool)` | 驱散其他特效时 | void |
-| `OnEffectIsBeingDispelled(Character, Character, Effect, bool)` | 自身被驱散时 | bool |
+| 方法 | 上下文 | 触发时机 | 返回 |
+|---|---|---|---|
+| `OnDispellingEffect(DispelContext)` | Target/Effect | 驱散其他特效时（有默认实现） | void |
+| `OnEffectIsBeingDispelled(DispelContext)` | Target/DispellerEffect | 自身被驱散时 | bool（false=阻止） |
 
 ### AI 决策与选择
 
-| 方法 | 触发时机 | 返回 |
-|---|---|---|
-| `AlterActionTypeBeforeAction(Character, DecisionPoints, CharacterState, ref bool, ref bool, ref double, ref double, ref double, ref bool)` | AI 决策偏好调整 | `CharacterActionType` |
-| `AlterSelectListBeforeAction(Character, enemys, teammates, skills, ...)` | 行动前修改可选列表 | void |
-| `AlterSelectListBeforeSelection(Character, ISkill, ...)` | 选择前修改可选列表 | void |
-| `BeforeSelectTargetGrid(Character, enemys, teammates, GameMap, moveRange)` | 选择目标格子前 | void |
+| 方法 | 上下文要点 | 触发时机 | 返回 |
+|---|---|---|---|
+| `AlterActionTypeBeforeAction(DecisionContext)` | 可写 CanUseItem/CanCastSkill/PUseItem/PCastSkill/PNormalAttack/ForceAction | AI 决策偏好调整 | `CharacterActionType` |
+| `AlterSelectListBeforeAction(SelectionContext)` | 可修改 Enemys/Teammates/Skills 列表 | 行动前修改可选列表 | void |
+| `AlterSelectListBeforeSelection(SelectionContext)` | Skill/AllEnemys/AllTeammates | 选择前修改可选列表 | void |
+| `BeforeSelectTargetGrid(SelectionContext)` | Map/MoveRange | 选择目标格子前 | void |
 
 ### 角色行动回调
 
-| 方法 | 触发时机 |
-|---|---|
-| `OnCharacterActionStart(Character, DecisionPoints, CharacterActionType)` | 角色行动开始时 |
-| `OnCharacterActionTaken(Character, DecisionPoints, CharacterActionType)` | 角色行动完成时 |
-| `OnCharacterDecisionCompleted(Character, DecisionPoints)` | 角色决策完成时 |
-| `OnCharacterInquiry(Character, InquiryOptions, InquiryResponse)` | 角色询问时 |
-| `AfterCharacterMove(Character, Grid)` | 角色移动后 |
-| `AfterCharacterNormalAttack(Character, NormalAttack, List<Character>)` | 角色普攻后 |
-| `AfterCharacterStartCasting(Character, Skill, List<Character>)` | 角色开始吟唱后 |
-| `AfterCharacterCastSkill(Character, Skill, List<Character>)` | 角色释放技能后 |
-| `AfterCharacterUseItem(Character, Item, Skill, List<Character>)` | 角色使用物品后 |
+| 方法 | 上下文 | 触发时机 |
+|---|---|---|
+| `OnCharacterActionStart(ActionContext)` | DP/ActionType | 角色行动开始时 |
+| `OnCharacterActionTaken(ActionContext)` | DP/ActionType | 角色行动完成时（广播全体） |
+| `OnCharacterDecisionCompleted(ActionContext)` | DP | 角色决策完成时 |
+| `OnCharacterInquiry(InquiryContext)` | Options/Response | 角色询问时 |
+| `AfterCharacterMove(MoveContext)` | Target（目标格子） | 角色移动后 |
+| `AfterCharacterNormalAttack(NormalAttackContext)` | NormalAttack/Targets | 角色普攻后 |
+| `AfterCharacterStartCasting(SkillCastContext)` | Skill/Targets | 角色开始吟唱后 |
+| `AfterCharacterCastSkill(SkillCastContext)` | Skill/Targets | 角色释放技能后 |
+| `AfterCharacterUseItem(ItemUseContext)` | Item/Skill/Targets | 角色使用物品后 |
 
 ### 死亡
 
-| 方法 | 触发时机 |
-|---|---|
-| `AfterDeathCalculation(Character, bool, Character?, Dictionary, Dictionary, Character[], ...)` | 死亡结算后 |
+| 方法 | 上下文 | 触发时机 |
+|---|---|---|
+| `AfterDeathCalculation(DeathContext)` | Killer/HasMaster/ContinuousKilling/EarnedMoney/Assists | 死亡结算后（广播全体） |
 
 ---
 
@@ -242,6 +246,7 @@ public Effect()
 
 ## 关联
 
+- 参数上下文族 → [HookContext](/api/HookContext)
 - 自定义特效 → [自定义特效](/dev/custom-effect)
 - 特效规则 → [特效概述](/guide/effects)
 - 技能基类 → [Skill](/api/Skill)

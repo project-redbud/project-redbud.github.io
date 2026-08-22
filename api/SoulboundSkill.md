@@ -26,8 +26,8 @@ public abstract class SoulboundEffect(SoulboundSkill skill) : Effect(skill)
         get => (character.EP - 100) / 20.0 * 0.1;
     }
 
-    public override void BeforeSkillCasted(...);  // 释放前
-    public override void AfterSkillCasted(...);   // 释放后
+    public override void BeforeSkillCasted(SkillCastContext ctx);  // 释放前（读取 ctx.EPCost）
+    public override void AfterSkillCasted(SkillCastContext ctx);   // 释放后
 }
 ```
 
@@ -55,7 +55,7 @@ public class MySoulboundEffect : SoulboundEffect
 {
     public MySoulboundEffect(MySoulbound skill) : base(skill) { }
 
-    public override void OnSkillCasted(Character caster, ...)
+    public override void OnSkillCasted(SkillCastContext ctx)
     {
         double baseDamage = 500;
         double finalDamage = baseDamage * (1 + Improvement);
