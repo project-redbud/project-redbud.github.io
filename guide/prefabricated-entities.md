@@ -113,10 +113,9 @@ public class MySoulboundEffect : SoulboundEffect
     public override void OnSkillCasted(SkillCastContext ctx)
     {
         double baseDamage = 500;
-        double finalDamage = baseDamage * (1 + Improvement);  // 增强系数
+        double finalDamage = BaseDamage * (1 + Improvement);  // 增强系数
         // 100 EP → Improvement = 0       → 500 伤害
         // 200 EP → Improvement = 0.5     → 750 伤害
-        // 300 EP → Improvement = 1.0     → 1000 伤害
     }
 }
 ```
