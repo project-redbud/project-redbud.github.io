@@ -20,8 +20,8 @@ public abstract Dictionary<string, Skill> Skills { get; }
 // 技能工厂
 protected abstract Factory.EntityFactoryDelegate<Skill> SkillFactory();
 
-// 特效工厂
-protected abstract Factory.EntityFactoryDelegate<Effect> EffectFactory();
+// 特效工厂（v3.0 专用委托，签名镜像 Effect 受保护构造函数）
+protected abstract Factory.EffectFactoryDelegate EffectFactory();
 ```
 
 注册后可通过 `Factory.OpenFactory.GetInstance<Skill>(id, name, args)` 与 `GetInstance<Effect>(id, name, args)` 创建技能与特效。
@@ -64,13 +64,12 @@ public class ExampleSkillModule : SkillModule
         };
     }
 
-    protected override Factory.EntityFactoryDelegate<Effect> EffectFactory()
+    protected override Factory.EffectFactoryDelegate EffectFactory()
     {
-        return (id, name, args) =>
+        return (id, name, skill, args) =>
         {
-            Skill? skill = args.TryGetValue("skill", out object? v) && v is Skill s ? s : null;
-            skill ??= new OpenSkill(id, name, args);
-            return id == 1001 ? new ExampleOpenEffectExATK2(skill, args) : null;
+            skill ??= new OpenSkill(id, name, args ?? []);
+            return id == 1001 ? new ExampleOpenEffectExATK2(skill, args ?? []) : null;
         };
     }
 }

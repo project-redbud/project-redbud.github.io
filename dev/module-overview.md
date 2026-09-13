@@ -77,14 +77,13 @@ public class ExampleSkillModule : SkillModule
     }
 
     // 特效工厂：动态创建特效（JSON 配置创建实体时必须在此注册）
-    protected override Factory.EntityFactoryDelegate<Effect> EffectFactory()
+    // v3.0 使用特效专用委托 EffectFactoryDelegate（签名镜像 Effect 受保护构造函数）
+    protected override Factory.EffectFactoryDelegate EffectFactory()
     {
-        return (id, name, args) =>
+        return (id, name, skill, args) =>
         {
-            // args 中可携带 "skill" 等参数
-            Skill? skill = args.TryGetValue("skill", out object? v) && v is Skill s ? s : null;
-            skill ??= new OpenSkill(id, name, args);
-            return id == 1001 ? new ExampleOpenEffectExATK2(skill, args) : null;
+            skill ??= new OpenSkill(id, name, args ?? []);
+            return id == 1001 ? new ExampleOpenEffectExATK2(skill, args ?? []) : null;
         };
     }
 }

@@ -75,7 +75,7 @@ public class ExampleDamageBasedOnATKWithBasicDamage : Effect
 
     public override void OnSkillCasted(SkillCastContext ctx)
     {
-        if (ctx.Actor is Character caster)
+        if (ctx.Trigger is Character caster)
         {
             foreach (Character enemy in ctx.Targets)
                 DamageToEnemy(caster, enemy, DamageType, MagicType, Damage);
@@ -93,7 +93,7 @@ public class ExampleInterruptCastingEffect : Effect
 
     public override void OnSkillCasted(SkillCastContext ctx)
     {
-        if (ctx.Actor is not Character caster) return;
+        if (ctx.Trigger is not Character caster) return;
         foreach (Character target in ctx.Targets)
         {
             // 方式二：手动调用 CheckExemption
@@ -138,7 +138,7 @@ public class ExampleNonDirectionalSkill1Effect(Skill skill) : Effect(skill)
 {
     public override void OnSkillCasted(SkillCastContext ctx)
     {
-        if (ctx.Actor is Character caster && GamingQueue?.Map is GameMap map && ctx.Grids.Count > 0)
+        if (ctx.Trigger is Character caster && GamingQueue?.Map is GameMap map && ctx.Grids.Count > 0)
             map.CharacterMove(caster, map.GetCharacterCurrentGrid(caster), ctx.Grids[0]);
     }
 }
@@ -216,7 +216,7 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
     // 乘区2：嵌套普攻伤害折半
     public override double AlterActualDamageAfterCalculation(DamageContext ctx)
     {
-        if (ctx.Actor == Skill.Character && IsNested && ctx.IsNormalAttack)
+        if (ctx.Trigger == Skill.Character && IsNested && ctx.IsNormalAttack)
             return -(ctx.Damage / 2);
         return 0;
     }
@@ -224,7 +224,7 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
     // 伤害计算后：额外发动一次普通攻击
     public override void AfterDamageCalculation(DamageContext ctx)
     {
-        if (ctx.Actor is Character character && ctx.Enemy is Character enemy
+        if (ctx.Trigger is Character character && ctx.Enemy is Character enemy
             && character == Skill.Character && ctx.IsNormalAttack
             && CurrentCD == 0 && !IsNested && enemy.HP > 0)
         {
@@ -241,9 +241,9 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
     }
 
     // 普攻后减少硬直时间
-    public override void AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
+    public override AlterHardnessTimeResult AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        ctx.BaseHardnessTime *= 0.8;
+        return new AlterHardnessTimeResult { Factor = -0.2 };
     }
 }
 ```
@@ -285,7 +285,7 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
 
     public override void OnEffectGained(HookContext ctx)
     {
-        if (ctx.Actor is not Character character) return;
+        if (ctx.Trigger is not Character character) return;
         ActualATKBonus = ATKMultiplier * character.BaseATK;
         character.ExATK2 += ActualATKBonus;
         character.PhysicalPenetration += 0.1 + 0.03 * (Skill.Level - 1);
@@ -302,7 +302,7 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
 
     public override void OnEffectLost(HookContext ctx)
     {
-        if (ctx.Actor is not Character character) return;
+        if (ctx.Trigger is not Character character) return;
         character.ExATK2 -= ActualATKBonus;
         // 恢复所有...
         if (character.Effects.FirstOrDefault(
@@ -320,20 +320,20 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     // 乘区1：基于敏捷的普攻伤害加成
     public override double AlterExpectedDamageBeforeCalculation(DamageContext ctx)
     {
-        if (ctx.Actor == Skill.Character && ctx.IsNormalAttack)
-            return 1.2 * (1 + 0.5 * (Skill.Level - 1)) * ctx.Actor.AGI;
+        if (ctx.Trigger == Skill.Character && ctx.IsNormalAttack)
+            return 1.2 * (1 + 0.5 * (Skill.Level - 1)) * ctx.Trigger.AGI;
         return 0;
     }
 
     // 普攻硬直时间额外减免（与心灵之弦叠加）
-    public override void AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
+    public override AlterHardnessTimeResult AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        ctx.BaseHardnessTime *= 0.8;  // 最终 = 原硬直 * 0.8 * 0.8
+        return new AlterHardnessTimeResult { Factor = -0.2 };  // 与心灵之弦叠加：最终 = 原硬直 × 0.8 × 0.8
     }
 
     public override void OnSkillCasted(SkillCastContext ctx)
     {
-        if (ctx.Actor is not Character caster) return;
+        if (ctx.Trigger is not Character caster) return;
         // 不叠加效果：刷新持续时间
         RemainDuration = Duration;
         if (!caster.Effects.Contains(this))

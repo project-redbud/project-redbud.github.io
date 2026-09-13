@@ -32,11 +32,19 @@ protected Skill(SkillType type, Character? character = null)
 | `Enable` | `bool` | 是否启用（默认 true） |
 | `IsInEffect` | `bool` | 是否生效中（默认 false） |
 
+::: info 相等语义（v3.0+）
+`Equals`/`GetHashCode` 基于 **`Guid`**（实例身份）而非 Id+Name：同一局内复制的技能互为不同键，`Dictionary<Skill,...>`/`HashSet<Skill>` 按实例区分。
+:::
+
 ## 类型与消耗
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
 | `SkillType` | `SkillType` | 技能类型 |
+| `Source` | `SkillSource` | 技能来源（`None`/`Class`/`SubClass`/`CombatTalent`/`Item`/`MagicCardPack`/`Reward`）；技能受限时仅 Reward 来源的技能可用，核心天赋等级加成只作用于 None 来源 |
+| `RequiredSubClass` | `SubClass?` | 学习前置：流派 |
+| `RequiredAttribute` | `PrimaryAttribute?` | 学习前置：属性类型 |
+| `RequiredAttributeValue` | `double` | 学习前置：属性达标值（配合 RequiredAttribute） |
 | `IsActive` | `bool` | 是否为主动技能（只读）：`SkillType != Passive` |
 | `IsSuperSkill` | `bool` | 是否为爆发技（只读） |
 | `IsMagic` | `bool` | 是否为魔法（只读） |

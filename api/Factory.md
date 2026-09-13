@@ -23,16 +23,30 @@ public delegate T? EntityFactoryDelegate<T>(long id, string name, Dictionary<str
 |---|---|
 | `RegisterFactory<T>(EntityFactoryDelegate<T>)` | 注册实体工厂（模组 Load 时自动调用） |
 | `UnRegisterFactory<T>(EntityFactoryDelegate<T>)` | 注销实体工厂 |
-| `GetInstance<T>(long id, string name, Dictionary<string, object> args)` | 按 id 创建实体（无工厂命中时回退：Character 默认 `new`、Skill 默认 `OpenSkill`、Item 默认 `OpenItem`、Effect 默认 `new`） |
+| `GetInstance<T>(long id, string name, Dictionary<string, object> args)` | 按 id 创建实体（无工厂命中时回退：Character 默认 `new`、Skill 默认 `OpenSkill`、Item 默认 `OpenItem`） |
+| `RegisterFactory(EffectFactoryDelegate)` | 注册**特效专用**工厂（v3.0 分离，见下） |
+| `UnRegisterFactory(EffectFactoryDelegate)` | 注销特效专用工厂 |
+| `GetInstance(long id, string name, Skill skill, Dictionary<string, object>? args)` | 创建特效（非泛型，无工厂命中时回退 `new Effect()`） |
 
-支持类型：`Character`、`Inventory`、`Skill`、`Effect`、`Item`、`Room`、`User`。
+::: warning 特效工厂已从泛型路径分离（v3.0）
+`RegisterFactory<Effect>` / `UnRegisterFactory<Effect>` / `GetInstance<Effect>` 泛型路径现在会抛出 `NotSupportedInstanceClassException`。特效必须使用专用委托，其签名镜像 `Effect` 受保护构造函数的参数：
 
 ```csharp
-// 使用工厂创建（需先通过模组注册对应工厂）
-Character c = Factory.OpenFactory.GetInstance<Character>(1, "", []);
-Skill s = Factory.OpenFactory.GetInstance<Skill>(1001, "火之矢", args);
-Item i = Factory.OpenFactory.GetInstance<Item>(20001, "铁剑", args);
+public delegate Effect? EffectFactoryDelegate(long id, string name, Skill skill, Dictionary<string, object>? args);
+
+// 注册示例
+Factory.OpenFactory.RegisterFactory((id, name, skill, args) =>
+{
+    skill ??= new OpenSkill(id, name, args ?? []);
+    return id == 1001 ? new ExampleOpenEffectExATK2(skill, args ?? []) : null;
+});
+
+// 创建特效
+Effect e = Factory.OpenFactory.GetInstance(1001, "攻击力加成", skill, args);
 ```
+:::
+
+支持类型：`Character`、`Inventory`、`Skill`、`Item`、`Room`、`User`（泛型路径）+ `Effect`（专用路径）。
 
 ### JSON 配置文件
 

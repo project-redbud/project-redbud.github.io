@@ -138,6 +138,23 @@ var queue = new MixGamingQueue(characters, Console.WriteLine)
 | 拳套 | 1.05 | 0.05 | 8 | 1 |
 | 暗器 | 0.90 | 0.05 | 7 | 4 |
 
+## 职业系统（v3.0+）
+
+| 属性 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `MaxClassLevel` | `int` | 10 | 职业等级上限 |
+| `MaxClassCount` | `int` | 0（不限） | 兼职最多职业数 |
+| `MinCharacterLevelForMulticlass` | `int` | 1 | 兼职所需最低角色等级 |
+| `MinLevelCanModifyDefaultClass` | `int` | 20 | 修改默认职业/洗点完全重选的最低角色等级 |
+| `InitialAllocationOnlyForFirstClass` | `bool` | true | 仅首个职业发放 1 级初始分配权 |
+| `ClassPointsGetterList` | `HashSet<int>` | `[1,5,10,...,55]` | 角色升级获得职业点数的等级表 |
+| `ClassLevelUpRewards` | `Dictionary<int, ClassLevelUpReward>` | 默认路线图 | 职业 1–10 级升级奖励 |
+| `InitialAttributeBudget` | `ClassAttributeBudget` | 30 点 + 3.0 成长（受限） | 1 级初始分配额度 |
+| `NumericBoostBudget` | `ClassAttributeBudget` | 9 点 + 0.9 成长（不限） | 数值提升单次额度 |
+| `RoleMOV_Core` / `Vanguard` / `Guardian` / `Support` / `Medic` | `int` | 3 / 6 / 5 / 4 / 3 | 各定位的移动距离（主要定位决定取值） |
+
+详见 [职业规划系统](/guide/class-plan)。
+
 ## 一次性应用到实体
 
 ```csharp

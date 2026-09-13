@@ -10,10 +10,11 @@
 
 ```csharp
 // 无角色列表（后续用 InitCharacters 加载）
-public GamingQueue(Action<string>? writer = null, GameMap? map = null)
+// seed：确定性随机种子（null 时随机生成）；enableAI：是否启用内置 AI 控制器
+public GamingQueue(Action<string>? writer = null, GameMap? map = null, int? seed = null, bool enableAI = true)
 
 // 带角色列表
-public GamingQueue(List<Character> characters, Action<string>? writer = null, GameMap? map = null)
+public GamingQueue(List<Character> characters, Action<string>? writer = null, GameMap? map = null, int? seed = null, bool enableAI = true)
 ```
 
 ## 属性
@@ -25,6 +26,9 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `GameplayEquilibriumConstant` | `EquilibriumConstant` | 游戏平衡常数（规则见 [EquilibriumConstant](/api/EquilibriumConstant)） |
 | `WriteLine` | `Action<string>` | 日志输出委托（只读） |
 | `IsDebug` | `bool` | 调试模式 |
+| `Seed` | `int` | 确定性随机种子（只读，v3.0+；复现对局时传入相同 seed 可得到相同随机序列） |
+| `Random` | `Random` | 队列的确定性随机数（只读；角色/技能/特效绑定队列后经 `Random` 属性共享同一实例） |
+| `EnableAI` | `bool` | 是否启用内置 AI 控制器（false 时清空 AI，仅走模组事件与概率决策） |
 | `Guid` | `Guid` | 本队列唯一标识（外发数据包的 `g` 字段） |
 | `UseQueueProtected` | `bool` | 是否启用插队保护 |
 | `MaxCutQueueTimes` | `int` | 插队保护最多被插队次数（-1 默认 = 队列长度，最少 5；0 不保护） |
@@ -36,7 +40,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `AllCharacters` | `List<Character>` | 参与游戏的所有角色 |
 | `Original` | `Dictionary<Guid, Character>` | 原始角色字典（用于复活还原） |
 | `Queue` | `List<Character>` | 当前行动顺序（规则见 [行动顺序表](/guide/action-queue)） |
-| `HardnessTime` | `Dictionary<Character, double>` | 硬直时间表 |
+| `HardnessTime` | `IReadOnlyDictionary<Character, double>` | 硬直时间表（只读视图；修改硬直请走 `AddCharacter`/`ChangeCharacterHardnessTime`） |
 | `Eliminated` | `List<Character>` | 已死亡角色（按死亡顺序，规则见 [死亡机制](/guide/characters-death)） |
 | `CharactersInAI` | `List<Character>` | 处于 AI 控制的角色 |
 | `TotalTime` | `double` | 游戏运行时间 |
@@ -154,7 +158,6 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `SetNotDamageAssistTime(Character, params Character[])` | 设置不计算助攻时间 |
 | `SetOnlyMoveHardnessTime(Character, DecisionPoints, ref double)` | 纯移动的硬直时间 |
 | `DecisionPointsRecovery(Character)` | 决策点恢复（规则见 [决策点](/guide/decision-points)） |
-| `Inquiry(Character, InquiryOptions)` | 向角色/玩家询问 |
 
 ### 回合奖励
 
@@ -162,12 +165,13 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 |---|---|
 | `InitRoundRewards(maxRound, maxRewardsInRound, effects, factoryEffects?)` | 初始化回合奖励表（规则见 [回合奖励](/guide/round-bonus)） |
 
-### 工具（static）
+### 工具
 
 | 方法 | 说明 |
 |---|---|
-| `GetActionType(DecisionPoints, pUseItem, pCastSkill, pNormalAttack)` | 根据概率决定行动类型 |
-| `GetEP(double a, double b, double max)` | 计算获得的爆发能量 |
+| `GetActionType(DecisionPoints, pUseItem, pCastSkill, pNormalAttack)` | 根据概率决定行动类型（v3.0+ 实例方法，使用确定性 `Random`） |
+| `GetEP(double a, double b, double max)` | 计算获得的爆发能量（v3.0+ 实例方法） |
+| `Inquiry(Character, InquiryOptions)` | 向角色/玩家询问（v3.0+ 流程：外部事件 → 特效钩子 → `FallbackResolver` → AI → 内置默认；答复写入 `RoundRecord.Inquiries`） |
 
 ## 扩展点（protected 虚方法）
 

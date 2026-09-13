@@ -2,8 +2,8 @@
 
 基于官方示例 `Library/Module/Example/ExampleSkill.cs` 和 `ExampleItem.cs`。
 
-::: info v3.0 起统一上下文参数
-所有特效钩子接收单一**参数上下文对象**（如 `SkillCastContext`、`DamageContext`），主角色从 `ctx.Actor` 获取，原 `ref` 参数改为上下文可写属性，返回值语义不变。详见 [HookContext 参数上下文族](/api/HookContext)。
+::: info v3.0 起统一上下文参数与结构体回读
+所有特效钩子接收单一**参数上下文对象**（如 `SkillCastContext`、`DamageContext`），主角色从 `ctx.Trigger` 获取；上下文属性只读（`internal set`），原 `ref` 参数与 `bool` 返回值改为返回**结果结构体**（如 `AlterHardnessTimeResult`、`BeforeHealToTargetResult`），由框架聚合后写回。详见 [HookContext 参数上下文族](/api/HookContext) 与 [EffectResult](/api/EffectResult)。
 :::
 
 ---
@@ -64,7 +64,7 @@ public class ExampleDamageBasedOnATKWithBasicDamage : Effect
 
     public override void OnSkillCasted(SkillCastContext ctx)
     {
-        if (ctx.Actor is Character caster)
+        if (ctx.Trigger is Character caster)
         {
             foreach (Character enemy in ctx.Targets)
             {
@@ -95,7 +95,7 @@ public class ExampleInterruptCastingEffect : Effect
 
     public override void OnSkillCasted(SkillCastContext ctx)
     {
-        if (ctx.Actor is Character caster)
+        if (ctx.Trigger is Character caster)
         {
             foreach (Character target in ctx.Targets)
             {
@@ -125,7 +125,7 @@ public class ExampleNonDirectionalSkill1Effect(Skill skill) : Effect(skill)
     public override void OnSkillCasted(SkillCastContext ctx)
     {
         // 只有地图模式才有效
-        if (ctx.Actor is Character caster && GamingQueue?.Map is GameMap map && ctx.Grids.Count > 0)
+        if (ctx.Trigger is Character caster && GamingQueue?.Map is GameMap map && ctx.Grids.Count > 0)
         {
             map.CharacterMove(caster,
                 map.GetCharacterCurrentGrid(caster), ctx.Grids[0]);
@@ -152,18 +152,18 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
     private bool IsNested = false;
 
     // 乘区2钩子：调整伤害计算后的实际伤害
-    public override double AlterActualDamageAfterCalculation(DamageContext ctx)
+    public override AlterActualDamageResult AlterActualDamageAfterCalculation(DamageContext ctx)
     {
-        // 嵌套普攻伤害折半
-        if (ctx.Actor == Skill.Character && IsNested && ctx.IsNormalAttack && ctx.Damage > 0)
-            return -(ctx.Damage / 2);  // 返回负值即削减
-        return 0;
+        // 嵌套普攻伤害折半（DamageDelta 为 SUM 聚合，负值即削减）
+        if (ctx.Trigger == Skill.Character && IsNested && ctx.IsNormalAttack && ctx.Damage > 0)
+            return new AlterActualDamageResult { DamageDelta = -(ctx.Damage / 2) };
+        return default;
     }
 
     // 伤害计算后钩子：额外发动一次普通攻击
     public override void AfterDamageCalculation(DamageContext ctx)
     {
-        if (ctx.Actor is Character character && ctx.Enemy is Character enemy
+        if (ctx.Trigger is Character character && ctx.Enemy is Character enemy
             && character == Skill.Character && ctx.IsNormalAttack
             && CurrentCD == 0 && !IsNested && GamingQueue != null && enemy.HP > 0)
         {
@@ -173,7 +173,7 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
             character.NormalAttack.Attack(GamingQueue, character, null, enemy);
         }
 
-        if (ctx.Actor == Skill.Character && IsNested)
+        if (ctx.Trigger == Skill.Character && IsNested)
             IsNested = false;
     }
 
@@ -187,10 +187,10 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
         }
     }
 
-    // 普攻后硬直时间减免
-    public override void AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
+    // 普攻后硬直时间减免（Factor 连乘聚合：最终硬直 = 基础 × (1 + Factor)）
+    public override AlterHardnessTimeResult AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        ctx.BaseHardnessTime *= 0.8;  // ref 变量 → 可写属性
+        return new AlterHardnessTimeResult { Factor = -0.2 };  // 即 × 0.8
     }
 }
 ```
@@ -230,7 +230,7 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     // 特效施加：修改角色属性
     public override void OnEffectGained(HookContext ctx)
     {
-        if (ctx.Actor is not Character character) return;
+        if (ctx.Trigger is not Character character) return;
         ActualATKBonus = ATKBonus;
         ActualPhysicalPenetrationBonus = PhysicalPenetrationBonus;
         ActualEvadeRateBonus = EvadeRateBonus;
@@ -251,7 +251,7 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     // 特效移除：恢复角色属性
     public override void OnEffectLost(HookContext ctx)
     {
-        if (ctx.Actor is not Character character) return;
+        if (ctx.Trigger is not Character character) return;
         character.ExATK2 -= ActualATKBonus;
         character.PhysicalPenetration -= ActualPhysicalPenetrationBonus;
         character.ExEvadeRate -= ActualEvadeRateBonus;
@@ -265,30 +265,33 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     }
 
     // AI 决策偏好：提高普攻积极性
-    public override CharacterActionType AlterActionTypeBeforeAction(DecisionContext ctx)
+    public override AlterActionTypeResult AlterActionTypeBeforeAction(DecisionContext ctx)
     {
-        ctx.PNormalAttack += 0.1;
-        return CharacterActionType.None;
+        return new AlterActionTypeResult
+        {
+            ActionType = CharacterActionType.None,
+            PNormalAttack = ctx.PNormalAttack + 0.1  // 覆盖后者胜：基于 ctx 最新值链式叠加
+        };
     }
 
     // 乘区1钩子：普攻伤害加成（基于敏捷）
     public override double AlterExpectedDamageBeforeCalculation(DamageContext ctx)
     {
-        if (ctx.Actor == Skill.Character && ctx.IsNormalAttack)
+        if (ctx.Trigger == Skill.Character && ctx.IsNormalAttack)
             return Coefficient * (Skill.Character?.AGI ?? 0);
         return 0;
     }
 
     // 普攻后硬直时间减免
-    public override void AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
+    public override AlterHardnessTimeResult AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        ctx.BaseHardnessTime *= 0.8;
+        return new AlterHardnessTimeResult { Factor = -0.2 };
     }
 
     // 技能释放时：不叠加效果刷新持续时间
     public override void OnSkillCasted(SkillCastContext ctx)
     {
-        if (ctx.Actor is not Character caster) return;
+        if (ctx.Trigger is not Character caster) return;
         ActualATKBonus = 0;
         ActualPhysicalPenetrationBonus = 0;
         ActualEvadeRateBonus = 0;
@@ -323,7 +326,7 @@ public class ExampleOpenEffectExATK2 : Effect
     // 特效施加
     public override void OnEffectGained(HookContext ctx)
     {
-        if (ctx.Actor is not Character character) return;
+        if (ctx.Trigger is not Character character) return;
         if (Durative && RemainDuration == 0)
             RemainDuration = Duration;
         else if (RemainDurationTurn == 0)
@@ -336,7 +339,7 @@ public class ExampleOpenEffectExATK2 : Effect
     // 特效移除
     public override void OnEffectLost(HookContext ctx)
     {
-        if (ctx.Actor is not Character character) return;
+        if (ctx.Trigger is not Character character) return;
         character.ExATKPercentage -= BonusFactor;
     }
 
@@ -379,10 +382,10 @@ public class ExampleOpenEffectExATK2 : Effect
 | `OnTimeElapsed(TimeLapseContext)` | 时间流逝 | `ExamplePassiveSkillEffect` |
 | `OnAttributeChanged(HookContext)` | 属性变化时刷新 | `ExATK2` |
 | `AfterDamageCalculation(DamageContext)` | 伤害计算后 | `ExamplePassiveSkillEffect` |
-| `AlterActualDamageAfterCalculation(DamageContext)` | 乘区2调整（返回加值） | `ExamplePassiveSkillEffect` |
+| `AlterActualDamageAfterCalculation(DamageContext)` | 乘区2调整（返回 `AlterActualDamageResult`） | `ExamplePassiveSkillEffect` |
 | `AlterExpectedDamageBeforeCalculation(DamageContext)` | 乘区1调整（返回加值） | `ExampleSuperSkillEffect` |
-| `AlterHardnessTimeAfterNormalAttack(HardnessContext)` | 普攻后调整硬直（`ctx.BaseHardnessTime` 可写） | `ExamplePassiveSkillEffect`, `ExampleSuperSkillEffect` |
-| `AlterActionTypeBeforeAction(DecisionContext)` | AI 决策偏好调整 | `ExampleSuperSkillEffect` |
+| `AlterHardnessTimeAfterNormalAttack(HardnessContext)` | 普攻后调整硬直（返回 `AlterHardnessTimeResult`，Factor 连乘） | `ExamplePassiveSkillEffect`, `ExampleSuperSkillEffect` |
+| `AlterActionTypeBeforeAction(DecisionContext)` | AI 决策偏好调整（返回 `AlterActionTypeResult`） | `ExampleSuperSkillEffect` |
 | `BeforeSkillCasted(SkillCastContext)` | 技能释放前（读取 `ctx.MPCost`/`ctx.EPCost`） | `SoulboundEffect` |
 | `AfterSkillCasted(SkillCastContext)` | 技能释放后 | `SoulboundEffect` |
 

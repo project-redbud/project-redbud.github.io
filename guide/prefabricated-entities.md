@@ -157,7 +157,29 @@ public class BowMasteryEffect(Skill skill) : NeuralCalibrationEffect
 
 ---
 
-## 四种预制实体的关系
+## SwitchCombatTalentSkill — 转换战斗天赋
+
+战斗内切换当前生效战斗天赋的战技（v3.0 新增）。角色学满 2 个战斗天赋后由 `ClassPlanner` 自动授予。
+
+- `TargetRoleType`：切换到该定位下尚未激活的已学天赋；null 自动循环切换
+- `TargetTalentId`：精确指定天赋 IdName（优先于 TargetRoleType）
+
+```csharp
+public class MyTalentSwitch : SwitchCombatTalentSkill
+{
+    public MyTalentSwitch(Character? c = null) : base(c)
+    {
+        Id = 9001;
+        Name = "转换战斗天赋";
+    }
+}
+```
+
+切换后主要定位随之变化（影响 MOV 等按定位取值的属性）。详见 [SwitchCombatTalentSkill API](/api/SwitchCombatTalentSkill)。
+
+---
+
+## 预制实体的关系
 
 ```
 MagicCardPack（魔法卡包）

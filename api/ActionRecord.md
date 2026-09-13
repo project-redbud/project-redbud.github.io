@@ -23,6 +23,7 @@ public ActionRecord(int round)
 | `IsSuccess` | `bool` | 是否成功 |
 | `FailReason` | `string` | 失败原因 |
 | `Messages` | `List<string>` | 行动消息 |
+| `Inquiries` | `List<InquiryRecord>` | 本次操作触发的询问记录（v3.0+） |
 
 ### 消耗
 
@@ -42,6 +43,8 @@ public ActionRecord(int round)
 |---|---|---|
 | `Targets` | `List<Character>` | 目标角色 |
 | `Damages` | `Dictionary<Character, double>` | 各目标受到的伤害 |
+| `DamageDetails` | `Dictionary<Character, Dictionary<DamageType, double>>` | 伤害类型分桶（物理/魔法/真实，v3.0+） |
+| `Dice` | `Dictionary<Character, double>` | 检定骰子值（v3.0+） |
 | `IsCritical` / `IsEvaded` / `IsImmune` | `Dictionary<Character, bool>` | 暴击 / 闪避 / 免疫标记 |
 | `Heals` | `Dictionary<Character, double>` | 各目标的治疗量 |
 | `ApplyEffects` | `Dictionary<Character, List<EffectType>>` | 各角色被施加的特效类型 |
@@ -51,6 +54,7 @@ public ActionRecord(int round)
 | 方法 | 说明 |
 |---|---|
 | `AddApplyEffects(Character, params EffectType[])` | 记录角色被施加的特效类型 |
+| `AddInquiry(Character, InquiryOptions, InquiryResponse)` | 记录一次询问（v3.0+） |
 | `Snapshot()` | 生成结构快照（集合独立副本、实体引用共享），用于外发 |
 | `ToString()` | 渲染操作文本 |
 

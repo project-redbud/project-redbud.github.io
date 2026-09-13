@@ -15,7 +15,7 @@ GamingQueue queue = new MixGamingQueue(characters, WriteLine);
 
 // 游戏级
 queue.GameStartEvent += (ctx) => { /* 游戏开始 */ };
-queue.GameEndEvent += (ctx) => { /* 游戏结束，胜者 ctx.Actor */ return true; };
+queue.GameEndEvent += (ctx) => { /* 游戏结束，胜者 ctx.Trigger */ return true; };
 
 // 回合级
 queue.TurnStartEvent += Queue_TurnStart;
@@ -38,8 +38,8 @@ queue.CharacterInquiryEvent += Queue_CharacterInquiry;
 queue.CharacterMoveEvent += Queue_CharacterMove;
 
 // 战斗（可选）
-queue.DamageToEnemyEvent += (ctx) => { /* 动画：ctx.Actor 对 ctx.Enemy 造成 ctx.ActualDamage */ };
-queue.DeathCalculationEvent += (ctx) => { /* 特效：ctx.Killer 击杀 ctx.Actor */ return true; };
+queue.DamageToEnemyEvent += (ctx) => { /* 动画：ctx.Trigger 对 ctx.Enemy 造成 ctx.ActualDamage */ };
+queue.DeathCalculationEvent += (ctx) => { /* 特效：ctx.Killer 击杀 ctx.Trigger */ return true; };
 
 // 加载地图（可选）
 queue.LoadGameMap(gameMap);
@@ -128,7 +128,7 @@ private List<Character> Queue_SelectSkillTargets(SelectionContext ctx)
     // AI 控制时不会进入此方法
     // 只在玩家控制时触发
     return SyncAwaiter.WaitResult(
-        Controller.RequestTargetSelection(ctx.Actor!, ctx.Skill!,
+        Controller.RequestTargetSelection(ctx.Trigger!, ctx.Skill!,
             ctx.AllEnemys, ctx.AllTeammates, ctx.Enemys, ctx.Teammates));
 }
 ```

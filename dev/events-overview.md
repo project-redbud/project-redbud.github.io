@@ -5,7 +5,7 @@ GamingQueue 通过 **31 个事件** 将整个游戏循环暴露给外部，让�
 > 参考项目：`FunGame.Testing/Desktop/GameMapTesting` — WPF 实现的完整回合制演示，展示了所有事件的 UI 绑定模式。
 
 ::: info v3.0 起统一上下文参数
-所有事件委托均接收单一**参数上下文对象**，队列实例从 `ctx.Queue` 获取（旧版首参 `GamingQueue queue` 已移除），主角色从 `ctx.Actor` 获取。上下文类与特效钩子共享同一族，详见 [HookContext 参数上下文族](/api/HookContext)。
+所有事件委托均接收单一**参数上下文对象**，队列实例从 `ctx.Queue` 获取（旧版首参 `GamingQueue queue` 已移除），主角色从 `ctx.Trigger` 获取。上下文类与特效钩子共享同一族，详见 [HookContext 参数上下文族](/api/HookContext)。
 :::
 
 ---
@@ -58,7 +58,7 @@ GamingQueue.ProcessTurn()
 | 事件 | 签名 | 返回值 |
 |---|---|---|
 | `GameStartEvent` | `(HookContext ctx)` | void |
-| `GameEndEvent` | `(HookContext ctx)`，胜者为 `ctx.Actor` | `bool` |
+| `GameEndEvent` | `(HookContext ctx)`，胜者为 `ctx.Trigger` | `bool` |
 
 ### 二、回合生命周期（3 个）
 
@@ -78,7 +78,7 @@ GamingQueue.ProcessTurn()
 | `SelectSkillTargetsEvent` | `(SelectionContext ctx)`，含 Skill / AllEnemys / AllTeammates / CastRange | `List<Character>` | 选指向性技能目标 |
 | `SelectNonDirectionalSkillTargetsEvent` | `(SelectionContext ctx)`，含 Skill / Enemys / Teammates / CastRange | `List<Grid>` | 选非指向性格子 |
 | `SelectTargetGridEvent` | `(SelectionContext ctx)`，含 Map / MoveRange | `Grid` | 选移动目标格子 |
-| `CharacterInquiryEvent` | `(InquiryContext ctx)`，含 DP / Options | `InquiryResponse` | 询问玩家 |
+| `CharacterInquiryEvent` | `(InquiryContext ctx)`，含 DP / Options | `InquiryResponse?`（写入 `ctx.Response`；v3.0+ 无订阅者返回 null，询问依次经外部事件 → 特效钩子 → FallbackResolver → AI → 内置默认） | 询问玩家 |
 
 ### 四、动作执行事件（8 个）— 通知型
 

@@ -121,18 +121,17 @@ public class ExampleSkillModule : SkillModule
         };
     }
 
-    // ═══ 特效工厂 ═══
-    protected override Factory.EntityFactoryDelegate<Effect> EffectFactory()
+    // ═══ 特效工厂（v3.0 专用委托 EffectFactoryDelegate）═══
+    protected override Factory.EffectFactoryDelegate EffectFactory()
     {
-        return (id, name, args) =>
+        return (id, name, skill, args) =>
         {
-            // args 中可携带 "skill" 参数（JSON 反序列化时自动传入所属技能）
-            Skill? skill = args.TryGetValue("skill", out object? v) && v is Skill s ? s : null;
-            skill ??= new OpenSkill(id, name, args);
+            // skill：所属技能（JSON 反序列化时自动传入；无则回退 OpenSkill）
+            skill ??= new OpenSkill(id, name, args ?? []);
             return id switch
             {
-                1001 => new ExATK(skill, args),
-                1002 => new ExDEF(skill, args),
+                1001 => new ExATK(skill, args ?? []),
+                1002 => new ExDEF(skill, args ?? []),
                 _ => null
             };
         };

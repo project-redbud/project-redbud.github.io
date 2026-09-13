@@ -70,7 +70,7 @@ private CharacterActionType Queue_DecideAction(TurnContext ctx)
 
     // 请求 UI 显示行动按钮
     return SyncAwaiter.WaitResult(
-        Controller.RequestActionType(ctx.Actor!, ctx.Items));
+        Controller.RequestActionType(ctx.Trigger!, ctx.Items));
 }
 ```
 
@@ -82,7 +82,7 @@ private Skill? Queue_SelectSkill(SelectionContext ctx)
     if (!IsPlayer_OnlyTest(ctx)) return null;
 
     Skill? skill = SyncAwaiter.WaitResult(
-        Controller.RequestSkillSelection(ctx.Actor!, ctx.Skills));
+        Controller.RequestSkillSelection(ctx.Trigger!, ctx.Skills));
     SyncAwaiter.Wait(Controller.ResolveSkillSelection(skill));
     return ctx.Skills.Any(s => s == skill) ? skill : null;
 }
@@ -97,7 +97,7 @@ private List<Character> Queue_SelectNormalAttackTargets(SelectionContext ctx)
 
     List<Character> targets = SyncAwaiter.WaitResult(
         Controller.RequestTargetSelection(
-            ctx.Actor!, ctx.NormalAttack!, ctx.AllEnemys, ctx.AllTeammates,
+            ctx.Trigger!, ctx.NormalAttack!, ctx.AllEnemys, ctx.AllTeammates,
             ctx.Enemys, ctx.Teammates, ctx.CastRange));
     SyncAwaiter.Wait(Controller.ResolveTargetSelection(targets));
     return targets ?? [];
@@ -113,7 +113,7 @@ private List<Character> Queue_SelectSkillTargets(SelectionContext ctx)
 
     List<Character> targets = SyncAwaiter.WaitResult(
         Controller.RequestTargetSelection(
-            ctx.Actor!, ctx.Skill!, ctx.AllEnemys, ctx.AllTeammates,
+            ctx.Trigger!, ctx.Skill!, ctx.AllEnemys, ctx.AllTeammates,
             ctx.Enemys, ctx.Teammates, ctx.CastRange));
     SyncAwaiter.Wait(Controller.ResolveTargetSelection(targets));
     return targets ?? [];
@@ -134,7 +134,7 @@ private List<Grid> Queue_SelectNonDirectionalSkillTargets(SelectionContext ctx)
 
     List<Grid> targets = SyncAwaiter.WaitResult(
         Controller.RequestTargetGridsSelection(
-            ctx.Actor!, ctx.Skill!, ctx.Enemys, ctx.Teammates, current, ctx.CastRange));
+            ctx.Trigger!, ctx.Skill!, ctx.Enemys, ctx.Teammates, current, ctx.CastRange));
     SyncAwaiter.Wait(Controller.ResolveTargetGridsSelection(targets));
     return targets ?? [];
 }
@@ -152,7 +152,7 @@ private Grid Queue_SelectTargetGrid(SelectionContext ctx)
 
     Grid? target = SyncAwaiter.WaitResult(
         Controller.RequestTargetGridSelection(
-            ctx.Actor!, current, ctx.Map!.GetGridsByRange(current, ctx.Actor!.MOV)));
+            ctx.Trigger!, current, ctx.Map!.GetGridsByRange(current, ctx.Trigger!.MOV)));
     SyncAwaiter.Wait(Controller.ResolveTargetGridSelection(target));
     return target ?? Grid.Empty;
 }

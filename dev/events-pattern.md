@@ -105,7 +105,7 @@ private List<Character> Queue_SelectSkillTargets(SelectionContext ctx)
     // 使用 SyncAwaiter.WaitResult 桥接
     List<Character>? selectedTargets = SyncAwaiter.WaitResult(
         Controller.RequestTargetSelection(
-            ctx.Actor!, ctx.Skill!,
+            ctx.Trigger!, ctx.Skill!,
             ctx.AllEnemys, ctx.AllTeammates,
             ctx.Enemys, ctx.Teammates));
 

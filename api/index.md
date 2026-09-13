@@ -12,11 +12,15 @@ FunGame.Core 的核心 API 一览。
 | [EquilibriumConstant](/api/EquilibriumConstant) | `FunGame.Core.Model.Framework` | 游戏平衡常数（全部可配置） |
 | [Character](/api/Character) | `FunGame.Core.Entity` | 角色实体 |
 | [Skill](/api/Skill) | `FunGame.Core.Entity` | 技能基类 |
-| [Effect](/api/Effect) | `FunGame.Core.Entity` | 特效基类 |
+| [Effect](/api/Effect) | `FunGame.Core.Entity` | 特效基类（上下文钩子） |
+| [HookContext](/api/HookContext) | `FunGame.Core.Model.EffectContext` | 特效钩子/队列事件的统一参数上下文族 |
+| [EffectResult](/api/EffectResult) | `FunGame.Core.Model.EffectResult` | 特效钩子返回值结构体族 |
 | [NormalAttack](/api/NormalAttack) | `FunGame.Core.Entity` | 普通攻击 |
 | [OpenSkill](/api/OpenSkill) | `FunGame.Core.Entity` | 开放技能（运行时动态创建） |
 | [Item](/api/Item) | `FunGame.Core.Entity` | 物品/装备 |
 | [Factory](/api/Factory) | `FunGame.Core.Api` | 全局工厂（创建角色/技能/特效/物品） |
+| [ClassPlanner](/api/ClassPlanner) | `FunGame.Core.Model` | 职业规划器（选职业/升级/学技能/属性分配/洗点） |
+| [SwitchCombatTalentSkill](/api/SwitchCombatTalentSkill) | `FunGame.Core.Model.PrefabricatedEntity` | 转换战斗天赋战技 |
 
 ## 核心接口
 

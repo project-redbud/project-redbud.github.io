@@ -87,14 +87,14 @@ public class ExampleOpenEffectExATK2 : Effect
 
     public override void OnEffectGained(HookContext ctx)
     {
-        if (ctx.Actor is not Character character) return;
+        if (ctx.Trigger is not Character character) return;
         ActualBonus = character.BaseATK * BonusFactor;
         character.ExATKPercentage += BonusFactor;
     }
 
     public override void OnEffectLost(HookContext ctx)
     {
-        if (ctx.Actor is not Character character) return;
+        if (ctx.Trigger is not Character character) return;
         character.ExATKPercentage -= BonusFactor;
     }
 

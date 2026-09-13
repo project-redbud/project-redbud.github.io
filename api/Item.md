@@ -14,6 +14,10 @@ public Item(ItemType type, bool isInGame = true)
 public Item()
 ```
 
+::: info 相等语义（v3.0+）
+`Equals`/`GetHashCode` 基于 **`Guid`**（实例身份）而非 Id+Name：同一局内复制的物品互为不同键，`Dictionary<Item,...>`/`HashSet<Item>` 按实例区分。
+:::
+
 ## 属性
 
 ### 基础信息

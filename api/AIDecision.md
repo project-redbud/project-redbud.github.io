@@ -15,13 +15,18 @@ AI 决策数据，位于 `FunGame.Core.Model.Framework`。由 `AIController.Deci
 | `Score` | `double` | 决策评分 |
 | `ProbabilityWeight` | `double` | 概率权重 |
 | `IsPureMove` | `bool` | 是否纯移动行动 |
+| `HasCandidate` | `bool` | AI 是否评估出了可行行动；false 表示只有 EndTurn 占位，宿主应回退到事件与概率决策 |
 
 ## 使用示例
 
 ```csharp
 // AIController 决策（AIController 在 FunGame.Core.Controller 命名空间）
+// v3.0+：map 可空（支持非战棋模式）；startGrid 可空
 AIDecision decision = aiController.DecideAIAction(
     character, dp, startGrid, allPossibleMoveGrids, skills, items, ...);
+
+// AI 决策顺序（GamingQueue 内部）：模组 DecideActionEvent 优先 → AI 控制器 → 概率决策
+// 仅当 decision.HasCandidate 时才采纳 AI 结果
 
 if (decision.ActionType == CharacterActionType.Move)
 {

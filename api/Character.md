@@ -23,10 +23,17 @@ public Character()
 | `Profile` | `CharacterProfile` | 角色档案 |
 | `EquipSlot` | `EquipSlot` | 装备栏 |
 | `MagicType` | `MagicType` | 魔法属性 |
-| `FirstRoleType` / `SecondRoleType` / `ThirdRoleType` | `RoleType` | 角色定位（最多三个） |
+| `PrimaryRoleType` | `RoleType` | **主要定位**：当前生效战斗天赋所属定位；未激活为 `None`（v3.0 取代旧 `FirstRoleType`） |
+| `SecondaryRoleTypes` | `List<RoleType>` | **次要定位**：由流派自动推导，至多 2 个（v3.0 取代旧 `SecondRoleType`/`ThirdRoleType`） |
 | `Promotion` | `int` | 段位（默认 100） |
 | `RoleRating` | `RoleRating` | 评级（由 Promotion 计算，只读） |
 | `PrimaryAttribute` | `PrimaryAttribute` | 核心属性（STR/AGI/INT） |
+| `AttributeLimit` | `ClassAttributeLimit?` | 角色模板核心属性分配上下限（与职业模板取交集，约束 1 级初始分配） |
+| `Class` | `CharacterClass` | 职业计划（职业规划系统挂载点，见 [ClassPlanner](/api/ClassPlanner)） |
+
+::: info 相等语义（v3.0+）
+`Equals`/`GetHashCode` 基于 **`Guid`**（实例身份）而非 Id+Name：同一局内复制的角色互为不同键，`Dictionary<Character,...>`/`HashSet<Character>` 按实例区分。
+:::
 
 ## 等级与经验
 
@@ -229,6 +236,7 @@ public Character()
 | `GetEquipSlotInfo()` | 装备栏信息 |
 | `GetBackpackItemsInfo()` | 背包信息 |
 | `GetMagicResistanceInfo()` | 魔法抗性信息 |
+| `GetAttributeValues()` | 全部属性键值对（检查点快照 `Attributes` 的数据源） |
 | `ToString()` 系列 | 多种文本输出（含用户/等级等变体） |
 
 ## 继承示例
@@ -252,7 +260,7 @@ public class MyWarrior : Character
         InitialMR = 2;
 
         InitialSTR = 30;  STRGrowth = 3;
-        FirstRoleType = RoleType.Guardian;
+        PrimaryRoleType = RoleType.Guardian;
     }
 }
 ```

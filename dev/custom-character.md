@@ -38,7 +38,7 @@ public class MyWarrior : Character
         INTGrowth = 0;
 
         // 角色定位
-        FirstRoleType = RoleType.Guardian;
+        PrimaryRoleType = RoleType.Guardian;
     }
 }
 ```
@@ -59,7 +59,7 @@ Character c = new()
     InitialHP = 60,
     InitialATK = 15,
     InitialSPD = 110,
-    FirstRoleType = RoleType.Core
+    PrimaryRoleType = RoleType.Core
 };
 
 // 或通过工厂动态创建（注册了角色工厂后按 id 创建对应实体类）
@@ -184,7 +184,7 @@ public class OshimaShiya : Character
         FirstName = "Shiya";
         NickName = "大島シヤ";
         PrimaryAttribute = PrimaryAttribute.STR;
-        FirstRoleType = RoleType.Core;
+        PrimaryRoleType = RoleType.Core;
         MagicType = MagicType.None;
 
         // 初始能力值

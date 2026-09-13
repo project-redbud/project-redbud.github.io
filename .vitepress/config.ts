@@ -50,6 +50,7 @@ export default defineConfig({
             { text: '决策点', link: '/guide/decision-points' },
             { text: '伤害计算', link: '/guide/damage' },
             { text: '回合奖励', link: '/guide/round-bonus' },
+            { text: '职业规划系统', link: '/guide/class-plan' },
           ],
         },
         {
@@ -155,10 +156,14 @@ export default defineConfig({
             { text: 'Character', link: '/api/Character' },
             { text: 'Skill', link: '/api/Skill' },
             { text: 'Effect', link: '/api/Effect' },
+            { text: 'HookContext', link: '/api/HookContext' },
+            { text: 'EffectResult', link: '/api/EffectResult' },
             { text: 'Item', link: '/api/Item' },
             { text: 'NormalAttack', link: '/api/NormalAttack' },
             { text: 'OpenSkill', link: '/api/OpenSkill' },
             { text: 'Factory', link: '/api/Factory' },
+            { text: 'ClassPlanner', link: '/api/ClassPlanner' },
+            { text: 'SwitchCombatTalentSkill', link: '/api/SwitchCombatTalentSkill' },
           ],
         },
         {
