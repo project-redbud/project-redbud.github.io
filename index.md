@@ -63,7 +63,7 @@ features:
 
 - **轻量零依赖**：纯 BCL 实现，不依赖任何第三方库，`dotnet add package FunGame.Core` 即可接入任何 .NET 项目
 - **策略深度**：行动顺序表、决策点、六乘区伤害、技能/特效/驱散/免疫等机制开箱即用，为战棋玩法提供完整的战斗底层
-- **接口驱动、极易扩展**：`IGamingQueue` 定义全部契约，继承 `GamingQueue` 即可定制游戏模式；31 个事件覆盖整个游戏循环，UI、AI、网络层可独立介入
+- **接口驱动、极易扩展**：`IGamingQueue` 定义全部契约，继承 `GamingQueue` 即可定制游戏模式；37 个事件覆盖整个游戏循环，UI、AI、网络层可独立介入
 - **实体可动态化**：Factory 工厂 + JSON 配置文件支持免编码动态创建角色、技能、特效与物品，模组化分发游戏内容
 - **数据可观测**：回合记录以不可变快照沉淀，支持即时外发到专用服务器，用于观战、回放与战斗状态重建
 
@@ -113,12 +113,12 @@ while (queue.NextCharacter() is Character actor)
 |---|---|---|
 | **规则书** | 回合制 / 行动顺序表 / 决策点 / 伤害计算 / 角色 / 技能 / 特效 / 物品 全机制详解 | [游戏机制](/guide/turn-based) · [角色系统](/guide/characters) · [技能系统](/guide/skills) · [特效系统](/guide/effects) |
 | **开发者指南** | 快速开始 / 自定义角色·技能·特效·物品 / 事件驱动 / 模组开发 / 即时外发 | [快速开始](/dev/getting-started) · [事件模式](/dev/events-overview) · [模组开发](/dev/module-overview) · [即时外发](/dev/outbound) |
-| **API 参考** | 核心类与接口的完整代码级 API：GamingQueue / Character / Skill / Effect / Item / 外发通道等 33 个页面 | [API 参考](/api/) |
+| **API 参考** | 核心类与接口的完整代码级 API：GamingQueue / Character / Skill / Effect / Item / 外发通道等 37 个页面 | [API 参考](/api/) |
 
 ## ✨ 核心能力
 
 - **接口驱动**：`IGamingQueue` 定义全部契约，继承即可定制游戏模式
-- **事件总线**：31 个事件覆盖整个游戏循环，UI / AI / 网络可独立介入
+- **事件总线**：37 个事件覆盖整个游戏循环，UI / AI / 网络可独立介入
 - **可扩展实体**：Factory 工厂 + JSON 配置文件，免编码动态创建角色、技能、特效与物品
 - **数据外发**：回合记录实时 POST 到专用服务器，支持观战、回放与状态重建
 - **零依赖**：纯 BCL 实现，`dotnet add package FunGame.Core` 即可接入

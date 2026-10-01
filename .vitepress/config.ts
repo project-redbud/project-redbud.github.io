@@ -184,6 +184,7 @@ export default defineConfig({
           items: [
             { text: 'HookContext', link: '/api/HookContext' },
             { text: 'RoundRecord', link: '/api/RoundRecord' },
+            { text: 'RoundRewardRecord', link: '/api/RoundRewardRecord' },
             { text: 'ActionRecord', link: '/api/ActionRecord' },
             { text: 'CharacterStateSnapshot', link: '/api/CharacterStateSnapshot' },
             { text: 'CharacterStatistics', link: '/api/CharacterStatistics' },

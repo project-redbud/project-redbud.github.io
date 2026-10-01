@@ -16,6 +16,7 @@ public RoundRecord(int round)
 |---|---|---|
 | `Round` | `int` | 回合数 |
 | `Actor` | `Character` | 本回合的行动角色 |
+| `Seed` | `int` | 本局游戏的随机种子（每回合持久化，供存档/回放复现；见 `GamingQueue.Seed`） |
 | `Actions` | `List<ActionRecord>` | 本回合已发生的操作记录列表 |
 | `ActionTypes` | `HashSet<CharacterActionType>` | 本回合出现的行动类型集合 |
 | `CastTime` | `double` | 吟唱时间 |
@@ -36,7 +37,7 @@ public RoundRecord(int round)
 | `Inquiries` | `List<InquiryRecord>` | 本回合的询问记录（含答复与来源，v3.0+） |
 | `IsCritical` / `IsEvaded` / `IsImmune` | `Dictionary<Character, bool>` | 暴击 / 闪避 / 免疫标记 |
 | `Heals` | `Dictionary<Character, double>` | 各目标的治疗量 |
-| `Effects` | `Dictionary<Character, Skill>` | 施加特效的角色与技能 |
+| `Effects` | `Dictionary<Character, List<Skill>>` | 各角色在本回合触发过特效的技能列表（按首次触发顺序去重；v3.0 起由单技能改为技能列表） |
 | `ApplyEffects` | `Dictionary<Character, List<EffectType>>` | 各角色被施加的特效类型 |
 | `Assists` | `List<Character>` | 助攻角色 |
 | `OtherMessages` | `List<string>` | 其他消息 |
@@ -49,7 +50,8 @@ public RoundRecord(int round)
 | `DeathContinuousKilling` | `List<string>` | 死亡角色连续击杀记录 |
 | `RespawnCountdowns` | `Dictionary<Character, double>` | 复活倒计时 |
 | `Respawns` | `List<Character>` | 本回合复活的角色 |
-| `RoundRewards` | `List<Skill>` | 本回合奖励的技能 |
+| `RoundRewards` | `List<Skill>` | 本回合奖励的技能（一行汇总，兼容旧存档） |
+| `RoundRewardEvents` | `List<RoundRewardRecord>` | 本回合的全部回合奖励事件流（发放/移除/夺取，按发生顺序；只读，结构见 [RoundRewardRecord](/api/RoundRewardRecord)） |
 
 ### 全局信息
 
@@ -66,9 +68,10 @@ public RoundRecord(int round)
 | 方法 | 说明 |
 |---|---|
 | `AddApplyEffects(Character, params EffectType[])` | 记录角色被施加的特效类型 |
+| `AddEffectTriggered(Character, Skill?)` | 记录角色触发了某技能的特效（按技能 Guid 去重，保留首次触发顺序；框架在特效钩子触发时自动调用） |
 | `AddInquiry(Character, InquiryOptions, InquiryResponse)` | 记录一次询问（v3.0+） |
 | `Snapshot()` | 生成结构快照（集合独立副本、实体引用共享），用于外发 |
-| `ToString()` | 渲染回合文本 |
+| `ToString()` | 渲染回合文本（有奖励事件流时按事件渲染，否则退化为旧的奖励一行汇总） |
 
 ## 关联
 

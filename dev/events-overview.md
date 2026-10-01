@@ -1,6 +1,6 @@
 # GamingQueue 事件模式
 
-GamingQueue 通过 **31 个事件** 将整个游戏循环暴露给外部，让开发者可以在客户端（UI 渲染）、服务端（网络同步）或 AI 系统中介入每个决策点。
+GamingQueue 通过 **37 个事件** 将整个游戏循环暴露给外部，让开发者可以在客户端（UI 渲染）、服务端（网络同步）或 AI 系统中介入每个决策点。
 
 > 参考项目：`FunGame.Testing/Desktop/GameMapTesting` — WPF 实现的完整回合制演示，展示了所有事件的 UI 绑定模式。
 
@@ -14,6 +14,8 @@ GamingQueue 通过 **31 个事件** 将整个游戏循环暴露给外部，让�
 
 ```
 GamingQueue.ProcessTurn()
+    │
+    ├──→ GamingRoundRewardGainedBefore/After  ← 回合奖励发放（TurnStart 之前）
     │
     ├──→ TurnStartEvent         ← 回合开始（可取消）
     │       │
@@ -93,7 +95,7 @@ GamingQueue.ProcessTurn()
 | `CharacterDoNothingEvent` | `ActionContext`（DP） | 主动结束回合 |
 | `CharacterGiveUpEvent` | `ActionContext`（DP） | 放弃行动 |
 
-### 五、战斗事件（7 个）— 通知型
+### 五、战斗事件（8 个）— 通知型
 
 | 事件 | 上下文 | 触发时机 |
 |---|---|---|
@@ -113,3 +115,13 @@ GamingQueue.ProcessTurn()
 | `QueueUpdatedEvent` | `QueueUpdatedContext`（含 Characters / HardnessTime / Reason / Message） | 顺序表变化 |
 | `CharacterActionTakenEvent` | `ActionContext`（含 DP / ActionType / Record 回合快照） | 行动完成 |
 | `CharacterDecisionCompletedEvent` | `ActionContext`（含 DP / Record） | 决策完成 |
+
+### 七、回合奖励事件（6 个）— 通知型
+
+回合奖励的发放 / 移除 / 夺取各有一对 Before / After 事件，上下文均为 [RoundRewardContext](/api/HookContext#roundrewardcontext)（同一实例依次流经 事件 → 特效钩子，并写入回合日志事件流）。规则见 [回合奖励](/guide/round-bonus)。
+
+| 事件 | 触发时机 |
+|---|---|
+| `GamingRoundRewardGainedBefore` / `After` | 回合奖励被发放到角色（回合开始，TurnStart 事件之前） |
+| `GamingRoundRewardLostBefore` / `After` | 回合奖励从角色身上被移除（回合结束回收、吟唱顺延清算、被打断/施法者死亡、特效主动移除） |
+| `GamingRoundRewardStolenBefore` / `After` | 回合奖励被夺取（原持有者与夺取者的特效钩子都会触发） |

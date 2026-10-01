@@ -215,6 +215,16 @@ public Effect()
 | `AfterCharacterCastSkill(SkillCastContext)` | Skill/Targets | 角色释放技能后 |
 | `AfterCharacterUseItem(ItemUseContext)` | Item/Skill/Targets | 角色使用物品后 |
 
+### 回合奖励
+
+| 方法 | 上下文要点 | 触发时机 |
+|---|---|---|
+| `OnRoundRewardGained(RoundRewardContext)` | Binding/TurnKey/Skills（此刻 Thief/From 为 null） | 回合奖励被发放到角色时 |
+| `OnRoundRewardLost(RoundRewardContext)` | Binding/TurnKey/Skills/IsCarryOver | 回合奖励从角色身上被移除时（回合结束回收、吟唱被打断/施法者死亡时清理顺延奖励、特效主动移除） |
+| `OnRoundRewardStolen(RoundRewardContext)` | Skills（全部被夺取项）/Thief/From | 回合奖励被夺取时（**原持有者与夺取者**的特效都会被触发，通过 `ctx.Trigger` 为原持有者、`ctx.Thief` 为夺取者判定归属） |
+
+上下文结构见 [RoundRewardContext](/api/HookContext#roundrewardcontext)，奖励规则见 [回合奖励](/guide/round-bonus)。
+
 ---
 
 ## 钩子触发机制
@@ -236,7 +246,12 @@ public Effect()
 | `CheckSkilledImmune(character, target, skill, item?)` | 技能免疫检定 |
 | `InterruptCasting(caster, interrupter)` | 打断目标施法 |
 | `Dispel(dispeller, target, isEnemy)` | 执行驱散 |
-| `AddToCharacter(Character)` / `RemoveFromCharacter(Character)` | 添加/移除特效到角色 |
+| `AddToCharacter(Character)` / `RemoveFromCharacter(Character)` | 添加/移除特效到角色（添加前会判重：目标身上已存在同一特效时不重复施加、不触发 `OnEffectGained`） |
+| `QueryRoundReward(target, actionTurnOffset)` | 查询目标未来第 `offset` 个行动回合的回合奖励（仅角色绑定，召唤物折算到 Master） |
+| `AddRoundReward(owner, actionTurnOffset, skill)` | 为目标追加一条未来行动回合的回合奖励 |
+| `RemoveRoundReward(target, actionTurnOffset, skill)` | 移除目标未来某行动回合中的一条回合奖励 |
+| `RemoveRoundRewards(target, actionTurnOffset, out removed)` | 一次性移除目标未来某行动回合的全部回合奖励 |
+| `StealRoundReward(target, fromOffset, thief, toOffset, out stolen)` | 夺取目标某行动回合的全部奖励，并入夺取者的指定行动回合 |
 | `Activate(caster, targets?, grids?, others?)` | 只触发 `OnSkillCasted`（不含完整施放流程） |
 | `AddEffectStatesToCharacter / AddEffectTypeToCharacter / AddImmuneTypesToCharacter` | 施加状态/类型/免疫到角色 |
 | `RemoveEffectStatesFromCharacter / RemoveEffectTypesFromCharacter / RemoveImmuneTypesFromCharacter` | 移除角色状态/类型/免疫 |

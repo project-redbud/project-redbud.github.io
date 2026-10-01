@@ -10,11 +10,11 @@
 
 ```csharp
 // 无角色列表（后续用 InitCharacters 加载）
-// seed：确定性随机种子（null 时随机生成）；enableAI：是否启用内置 AI 控制器
-public GamingQueue(Action<string>? writer = null, GameMap? map = null, int? seed = null, bool enableAI = true)
+// enableAI：是否启用内置 AI 控制器；seed：确定性随机种子（null 时随机生成）
+public GamingQueue(Action<string>? writer = null, GameMap? map = null, bool enableAI = true, int? seed = null)
 
 // 带角色列表
-public GamingQueue(List<Character> characters, Action<string>? writer = null, GameMap? map = null, int? seed = null, bool enableAI = true)
+public GamingQueue(List<Character> characters, Action<string>? writer = null, GameMap? map = null, bool enableAI = true, int? seed = null)
 ```
 
 ## 属性
@@ -70,7 +70,8 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `LastRound` | `RoundRecord` | 上回合记录（见 [RoundRecord](/api/RoundRecord)） |
 | `CurrentAction` | `ActionRecord?` | 当前操作记录（只读） |
 | `Rounds` | `List<RoundRecord>` | 所有回合记录 |
-| `RoundRewards` | `Dictionary<int, List<Skill>>` | 回合奖励表（规则见 [回合奖励](/guide/round-bonus)） |
+| `RoundRewards` | `IReadOnlyDictionary<int, IReadOnlyList<Skill>>` | 回合绑定的奖励表只读投影（键 = 全局回合；规则见 [回合奖励](/guide/round-bonus)） |
+| `CharacterRoundRewards` | `IReadOnlyDictionary<Character, IReadOnlyDictionary<int, IReadOnlyList<Skill>>>` | 角色绑定的奖励表只读投影（键 = 角色 → 行动回合序号；未启用角色绑定时为空表） |
 | `CheckpointInterval` | `int` | 状态检查点生成间隔（回合数），默认 50；0 或负数不生成 |
 | `RoundRecordSink` | `IRoundRecordSink?` | 回合记录外发通道（见 [即时外发](/dev/outbound)） |
 
@@ -163,7 +164,18 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 
 | 方法 | 说明 |
 |---|---|
-| `InitRoundRewards(maxRound, maxRewardsInRound, effects, factoryEffects?)` | 初始化回合奖励表（规则见 [回合奖励](/guide/round-bonus)） |
+| `InitRoundRewards(effects, bindToCharacter = false, factoryEffects?)` | 初始化回合奖励：`effects` 为特效池（key = 特效数字标识符，value = 是否主动技能特效）；`bindToCharacter` 为 true 时启用角色绑定表（规则见 [回合奖励](/guide/round-bonus)） |
+| `QueryRoundRewards(character, actionTurnOffset)` | 查询角色未来第 `offset` 个行动回合的奖励（仅角色绑定，召唤物折算到 Master） |
+| `AddRoundReward(character, actionTurnOffset, skill)` | 为角色追加一条未来行动回合的奖励（仅角色绑定） |
+| `RemoveRoundReward(character, actionTurnOffset, skill, out removed)` | 移除未来某行动回合中的一条奖励（仅角色绑定） |
+| `RemoveRoundRewards(character, actionTurnOffset, out removed)` | 一次性移除未来某行动回合的全部奖励（仅角色绑定） |
+| `StealRoundReward(target, fromOffset, thief, toOffset, out stolen)` | 夺取目标某行动回合的全部奖励，并入夺取者的指定行动回合（仅角色绑定） |
+
+::: warning 破坏性变更
+`InitRoundRewards` 不再接收 `maxRound` / `maxRewardsInRound` 参数：奖励表改为稀疏步进 + 1000 键窗口（`RoundRewardWindowSize`）滚动惰性物化，每个命中键位固定 1 个奖励，无需预先指定总回合数。
+:::
+
+奖励的发放（`GrantRoundRewards`）与结算（`SettleRoundRewards`）由队列在回合循环中自动完成，被动奖励在吟唱回合顺延到结算回合。
 
 ### 工具
 
@@ -188,7 +200,8 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `AfterSendRoundEndData()` | 回合结束后额外外发（团队模式在此外发团队数据） |
 | `ProcessCharacterDeath()` | 处理角色死亡 |
 | `CreateStateCheckpoint()` | 生成全角色状态快照（检查点） |
-| `GetRoundRewards(int round, Character)` / `RemoveRoundRewards(...)` | 回合奖励发放/移除 |
+| `GrantRoundRewards(Character)` | 回合开始发放回合奖励（返回本回合实际发放的奖励） |
+| `SettleRoundRewards(Character, List<Skill>)` | 回合结束结算奖励（含吟唱顺延规则） |
 | `WillPreCastSuperSkill()` | 预释放爆发技处理 |
 
 ## 即时外发
@@ -237,7 +250,7 @@ public class MyGameMode : GamingQueue
 }
 ```
 
-## 31 个事件
+## 37 个事件
 
 详见 [GamingQueue 事件模式](/dev/events-overview)。
 

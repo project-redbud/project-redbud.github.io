@@ -53,6 +53,7 @@ public class HookContext(IGamingQueue? queue, Character? trigger)
 | `MoveContext` | DP、Target | `AfterCharacterMove` | `CharacterMoveEvent` |
 | `NormalAttackContext` | DP、NormalAttack、Targets | `AfterCharacterNormalAttack` | `CharacterNormalAttackEvent` |
 | `ItemUseContext` | DP、Item、Skill、Targets | `AfterCharacterUseItem` | `CharacterUseItemEvent` |
+| `RoundRewardContext` | Binding、TurnKey、Skills、Thief、From、IsCarryOver | `OnRoundRewardGained`、`OnRoundRewardLost`、`OnRoundRewardStolen` | 回合奖励的 6 个前后事件（见 [回合奖励](/guide/round-bonus#事件与钩子)） |
 | `LevelUpContext` | Level | `OnSkillLevelUp`、`OnOwnerLevelUp` | — |
 | `QueueUpdatedContext` | Characters、DP、HardnessTime、Reason、Message | — | `QueueUpdatedEvent` |
 
@@ -61,6 +62,21 @@ public class HookContext(IGamingQueue? queue, Character? trigger)
 
 **修改类列表属性例外**：`TurnContext` 与 `SelectionContext` 的列表字段（如 `Enemys`、`Skills`、`CastRange`）是普通可变集合，事件处理器与特效钩子可以**就地修改**（Add/Remove/Clear）——这是唯一的直接修改途径。
 :::
+
+## RoundRewardContext
+
+回合奖励域上下文：发放（获得）、移除、夺取。框架在奖励管线的每个节点构造一次实例，同一实例依次流经 [ 队列事件 → 特效钩子 ]，并写入回合日志事件流（见 [RoundRewardRecord](/api/RoundRewardRecord)）。
+
+| 属性 | 类型 | 说明 |
+|---|---|---|
+| `Binding` | `RoundRewardBinding` | 本次涉及的奖励绑定方式（回合 / 角色） |
+| `TurnKey` | `int` | 奖励键：回合绑定时为全局回合；角色绑定时为该角色的行动回合序号 |
+| `Skills` | `IReadOnlyList<Skill>` | 涉及的全部奖励（夺取时为全部被夺取项） |
+| `Thief` | `Character?` | 夺取者（仅 `OnRoundRewardStolen` 有值） |
+| `From` | `Character?` | 原持有者（仅 `OnRoundRewardStolen` 有值） |
+| `IsCarryOver` | `bool` | 是否为「吟唱回合顺延到结算回合」的被动奖励 |
+
+各钩子触发时 `ctx.Trigger` 的含义：`OnRoundRewardGained` / `OnRoundRewardLost` 为获得/失去奖励的角色；`OnRoundRewardStolen` 为**原持有者**（夺取者的特效同样会被触发，通过 `ctx.Thief` 判定归属）。
 
 ## v3.0 破坏性变更：改名与合并的钩子
 
