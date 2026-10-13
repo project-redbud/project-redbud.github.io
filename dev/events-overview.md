@@ -1,11 +1,11 @@
 # GamingQueue 事件模式
 
-GamingQueue 通过 **37 个事件** 将整个游戏循环暴露给外部，让开发者可以在客户端（UI 渲染）、服务端（网络同步）或 AI 系统中介入每个决策点。
+GamingQueue 通过 **38 个事件** 将整个游戏循环暴露给外部，让开发者可以在客户端（UI 渲染）、服务端（网络同步）或 AI 系统中介入每个决策点。
 
 > 参考项目：`FunGame.Testing/Desktop/GameMapTesting` — WPF 实现的完整回合制演示，展示了所有事件的 UI 绑定模式。
 
 ::: info v3.0 起统一上下文参数
-所有事件委托均接收单一**参数上下文对象**，队列实例从 `ctx.Queue` 获取（旧版首参 `GamingQueue queue` 已移除），主角色从 `ctx.Trigger` 获取。上下文类与特效钩子共享同一族，详见 [HookContext 参数上下文族](/api/HookContext)。
+除 `SelectChainActionEvent` 接收回合角色与申请列表外，事件委托均接收单一**参数上下文对象**，队列实例从 `ctx.Queue` 获取（旧版首参 `GamingQueue queue` 已移除），主角色从 `ctx.Trigger` 获取。上下文类与特效钩子共享同一族，详见 [HookContext 参数上下文族](/api/HookContext)。
 :::
 
 ---
@@ -15,13 +15,13 @@ GamingQueue 通过 **37 个事件** 将整个游戏循环暴露给外部，让�
 ```
 GamingQueue.ProcessTurn()
     │
-    ├──→ GamingRoundRewardGainedBefore/After  ← 回合奖励发放（TurnStart 之前）
+    ├──→ RoundRewardGainedBeforeEvent / RoundRewardGainedAfterEvent  ← 回合奖励发放（TurnStart 之前）
     │
     ├──→ TurnStartEvent         ← 回合开始（可取消）
     │       │
-    │       ├── AI 模式：自动决策
+    │       ├── 宿主事件优先，AI 模式按需回退到自动决策
     │       │
-    │       └── 玩家模式：
+    │       └── 行动与目标选择：
     │               DecideActionEvent    ← 选择行动类型
     │               SelectSkillEvent      ← 选择技能
     │               SelectItemEvent       ← 选择物品
@@ -29,6 +29,7 @@ GamingQueue.ProcessTurn()
     │               SelectSkillTargetsEvent          ← 选择技能目标
     │               SelectNonDirectionalSkillTargetsEvent ← 选择非指向性目标
     │               SelectTargetGridEvent ← 选择移动目标
+    │               SelectChainActionEvent ← 选择协同申请
     │               CharacterInquiryEvent ← 询问玩家反应
     │
     ├──→ CharacterNormalAttackEvent    ← 普攻执行
@@ -70,7 +71,7 @@ GamingQueue.ProcessTurn()
 | `DecideActionEvent` | `(TurnContext ctx)` | `CharacterActionType` |
 | `TurnEndEvent` | `(TurnContext ctx)`，含 DP | void |
 
-### 三、交互式选择事件（7 个）— 需要用户/UI 输入
+### 三、交互式选择事件（8 个）— 需要用户/UI 输入
 
 | 事件 | 签名 | 返回值 | 用途 |
 |---|---|---|---|
@@ -80,6 +81,7 @@ GamingQueue.ProcessTurn()
 | `SelectSkillTargetsEvent` | `(SelectionContext ctx)`，含 Skill / AllEnemys / AllTeammates / CastRange | `List<Character>` | 选指向性技能目标 |
 | `SelectNonDirectionalSkillTargetsEvent` | `(SelectionContext ctx)`，含 Skill / Enemys / Teammates / CastRange | `List<Grid>` | 选非指向性格子 |
 | `SelectTargetGridEvent` | `(SelectionContext ctx)`，含 Map / MoveRange | `Grid` | 选移动目标格子 |
+| `SelectChainActionEvent` | `(Character turnActor, IReadOnlyList<ChainActionRequest> pending)` | `Guid?` | 选择协同请求；接入见 [协同行动](/dev/chain-action) |
 | `CharacterInquiryEvent` | `(InquiryContext ctx)`，含 DP / Options | `InquiryResponse?`（写入 `ctx.Response`；v3.0+ 无订阅者返回 null，询问依次经外部事件 → 特效钩子 → FallbackResolver → AI → 内置默认） | 询问玩家 |
 
 ### 四、动作执行事件（8 个）— 通知型
@@ -122,6 +124,6 @@ GamingQueue.ProcessTurn()
 
 | 事件 | 触发时机 |
 |---|---|
-| `GamingRoundRewardGainedBefore` / `After` | 回合奖励被发放到角色（回合开始，TurnStart 事件之前） |
-| `GamingRoundRewardLostBefore` / `After` | 回合奖励从角色身上被移除（回合结束回收、吟唱顺延清算、被打断/施法者死亡、特效主动移除） |
-| `GamingRoundRewardStolenBefore` / `After` | 回合奖励被夺取（原持有者与夺取者的特效钩子都会触发） |
+| `RoundRewardGainedBeforeEvent` / `RoundRewardGainedAfterEvent` | 回合奖励被发放到角色（回合开始，TurnStart 事件之前） |
+| `RoundRewardLostBeforeEvent` / `RoundRewardLostAfterEvent` | 回合奖励从角色身上被移除（回合结束回收、吟唱顺延清算、被打断/施法者死亡、特效主动移除） |
+| `RoundRewardStolenBeforeEvent` / `RoundRewardStolenAfterEvent` | 回合奖励被夺取（原持有者与夺取者的特效钩子都会触发） |

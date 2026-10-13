@@ -48,6 +48,7 @@ FunGame.Core 的核心 API 一览。
 | [RoundRecord](/api/RoundRecord) | `FunGame.Core.Model.Framework` | 回合记录（含行动流与汇总） |
 | [RoundRewardRecord](/api/RoundRewardRecord) | `FunGame.Core.Model.Framework` | 回合奖励事件记录（发放/移除/夺取事件流） |
 | [ActionRecord](/api/ActionRecord) | `FunGame.Core.Model.Framework` | 单次操作记录 |
+| [ChainActionRequest / ChainActionResult](/api/ChainActionRequest) | `FunGame.Core.Model.Framework` | 协同请求与确认结果 |
 | [CharacterStateSnapshot](/api/CharacterStateSnapshot) | `FunGame.Core.Model.Framework` | 角色状态快照（检查点/回放） |
 | [CharacterStatistics](/api/CharacterStatistics) | `FunGame.Core.Entity` | 角色统计数据 |
 | [DecisionPoints](/api/DecisionPoints) | `FunGame.Core.Model.Framework` | 决策点数据 |

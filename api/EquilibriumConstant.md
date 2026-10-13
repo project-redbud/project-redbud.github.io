@@ -121,6 +121,11 @@ var queue = new MixGamingQueue(characters, Console.WriteLine)
 | `DecisionPointsCostSuperSkillOutOfTurn` | 3 | 爆发技（回合外）消耗 |
 | `DecisionPointsCostMagic` | 2 | 魔法消耗 |
 | `DecisionPointsCostItem` | 1 | 物品消耗 |
+| `DecisionPointsCostChainAction` | 1 | 协同确认者的决策点消耗 |
+| `ChainActionHardnessTime` | 3 | 协同确认的固定硬直贡献 |
+| `CastFailureHardnessTime` | 3 | 吟唱失败尝试的补偿硬直 |
+
+这三个协同与失败常数独立配置。回合内目标丢失使用补偿上限，回合外目标丢失与主动打断的规则见 [魔法](/guide/skills-magic#吟唱终止)。
 
 ## 武器属性速查
 

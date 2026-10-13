@@ -41,7 +41,9 @@
 | 正常结束（含事件接管整回合） | 全部回收 |
 | 以**吟唱**或**预释放爆发技**结束 | 主动奖励照常回收；**被动奖励顺延**到该吟唱的结算回合 |
 | 顺延后的结算回合结束 | 顺延奖励一并清除（无论该回合如何结束） |
-| 吟唱被打断 / 施法者死亡 | 已顺延的被动奖励**立即清除** |
+| 吟唱终止（打断、全部目标丢失、释放失败、预释放覆盖）或施法者死亡/移出队列 | 已顺延的被动奖励**立即清除** |
+
+普通与协同魔法的结算都会领取该结算回合的奖励，并增加角色绑定奖励使用的行动回合计数；提前协作的即时动作不单独领取协作方的回合奖励。
 
 ::: info 技能受限时的例外（v3.0+）
 回合奖励技能被标记为 `SkillSource.Reward` 来源。角色处于**技能受限**状态时，其他技能不可用，但 **Reward 来源的奖励技能仍可释放**。
@@ -72,9 +74,9 @@
 
 | 节点 | 队列事件（Before / After） | 特效钩子 |
 |---|---|---|
-| 获得奖励 | `GamingRoundRewardGainedBefore/After` | `OnRoundRewardGained` |
-| 失去奖励 | `GamingRoundRewardLostBefore/After` | `OnRoundRewardLost` |
-| 奖励被夺取 | `GamingRoundRewardStolenBefore/After` | `OnRoundRewardStolen`（原持有者与夺取者的特效都会触发） |
+| 获得奖励 | `RoundRewardGainedBeforeEvent / RoundRewardGainedAfterEvent` | `OnRoundRewardGained` |
+| 失去奖励 | `RoundRewardLostBeforeEvent / RoundRewardLostAfterEvent` | `OnRoundRewardLost` |
+| 奖励被夺取 | `RoundRewardStolenBeforeEvent / RoundRewardStolenAfterEvent` | `OnRoundRewardStolen`（原持有者与夺取者的特效都会触发） |
 
 特效内部也可用 `QueryRoundReward` / `AddRoundReward` / `RemoveRoundReward(s)` / `StealRoundReward` 等保护方法操作奖励，见 [Effect](/api/Effect#特效内部可用方法)。
 

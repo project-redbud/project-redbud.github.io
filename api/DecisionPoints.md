@@ -11,8 +11,8 @@
 | `GameplayEquilibriumConstant` | `EquilibriumConstant` | 游戏平衡常数 |
 | `CurrentDecisionPoints` | `int` | 当前决策点（默认初始值） |
 | `MaxDecisionPoints` | `int` | 决策点上限（默认初始值，最高 7） |
-| `RecoverDecisionPointsPerRound` | `int` | 每回合恢复量 |
-| `DecisionPointsRecovery` | `int` | 额外恢复量（特效可修改） |
+| `RecoverDecisionPointsPerRound` | `int` | 恢复量配置；主循环按角色状态与上限的一半计算恢复量 |
+| `DecisionPointsRecovery` | `int` | 本回合实际恢复的决策点 |
 | `DecisionPointsCost` | `int` | 本回合已消耗的决策点 |
 | `ActionsTaken` | `int` | 本回合已行动次数 |
 | `CourageCommandSkill` | `bool` | 是否使用了勇气指令（不结束回合） |
@@ -21,7 +21,7 @@
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
-| `TempActionQuotaAllRound` | `int` | 临时全能配额（可转换为任意指定配额） |
+| `TempActionQuotaAllRound` | `int` | 临时全能配额（魔法不享受此配额） |
 | `TempActionQuotaNormalAttack` | `int` | 临时普攻配额 |
 | `TempActionQuotaSuperSkill` | `int` | 临时爆发技配额 |
 | `TempActionQuotaSkill` | `int` | 临时战技配额 |
@@ -38,8 +38,8 @@
 ### 索引器
 
 ```csharp
-// 获取/设置某行动类型的配额
-public int this[CharacterActionType type] { get; set; }
+// 获取某行动类型的配额
+public int this[CharacterActionType type] { get; }
 ```
 
 ## 主要方法
@@ -50,7 +50,8 @@ public int this[CharacterActionType type] { get; set; }
 | `ClearTempActionQuota()` | 清空临时配额（回合结束时调用） |
 | `AddActionType(CharacterActionType, Skill?, bool addActionTaken = true)` | 记录行动类型 |
 | `CheckActionTypeQuota(CharacterActionType)` | 检查是否还有该行动的配额 |
-| `GetActionPointCost(CharacterActionType, Skill?)` | 获取该行动消耗的决策点 |
+| `GetActionPointCost(CharacterActionType, Skill? skill = null, bool chainAction = false)` | 获取行动消耗；协同参与者传入 `chainAction: true` |
+| `ConsumeChainAction(CharacterActionType, Skill?)` | 扣除协同参与者自己的决策点并记录类型，不增加自己的行动次数、回合消耗统计或硬直列表 |
 | `GetDecisionPointsInfo()` | 输出决策点信息文本 |
 
 ## 决策点消耗
@@ -61,6 +62,9 @@ public int this[CharacterActionType type] { get; set; }
 | 战技 / 魔法 | 2 |
 | 物品 | 1 |
 | 回合内爆发技 / 回合外爆发技 | 2 / 3 |
+| 协同确认 | 1（确认者支付） |
+
+协同参与者另付自己的行动消耗；协同爆发技按回合内价格 2 计算。吟唱结算回合不恢复决策点：普通吟唱沿用已消耗配额，协同吟唱清除旧行动计数后结算。释放失败不再次支付决策点，可在剩余决策点和配额内继续决策。
 
 ## 关联
 

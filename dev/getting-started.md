@@ -62,21 +62,14 @@ queue.InitActionQueue();
 queue.SetCharactersToAIControl(cancel: false, characters);
 
 // 5. 游戏循环
-int round = 0;
-while (round < 100)
+while (!queue.GameOver && queue.TotalRound < 100)
 {
     Character? actor = queue.NextCharacter();
-    if (actor != null)
-    {
-        Console.WriteLine($"=== 回合 {++round} ===");
-        Console.WriteLine($"现在是 [ {actor} ] 的回合！");
-
-        bool isGameEnd = queue.ProcessTurn(actor);
-        if (isGameEnd) break;
-
-        queue.DisplayQueue();
-    }
-    queue.TimeLapse();
+    if (actor is null) break;
+    Console.WriteLine($"=== 回合 {queue.TotalRound} ===");
+    Console.WriteLine($"现在是 [ {actor} ] 的回合！");
+    if (queue.ProcessTurn(actor)) break;
+    queue.DisplayQueue();
 }
 
 Console.WriteLine("--- 游戏结束 ---");

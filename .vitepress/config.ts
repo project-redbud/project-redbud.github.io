@@ -48,6 +48,7 @@ export default defineConfig({
             { text: '回合制系统', link: '/guide/turn-based' },
             { text: '行动顺序表', link: '/guide/action-queue' },
             { text: '决策点', link: '/guide/decision-points' },
+            { text: '协同行动', link: '/guide/chain-action' },
             { text: '伤害计算', link: '/guide/damage' },
             { text: '回合奖励', link: '/guide/round-bonus' },
             { text: '职业规划系统', link: '/guide/class-plan' },
@@ -120,6 +121,7 @@ export default defineConfig({
           items: [
             { text: '事件总览', link: '/dev/events-overview' },
             { text: '事件绑定与游戏循环', link: '/dev/events-game-loop' },
+            { text: '协同行动接入', link: '/dev/chain-action' },
             { text: 'SyncAwaiter 同步模式', link: '/dev/events-pattern' },
             { text: 'WPF Demo 完整示例', link: '/dev/events-wpf-demo' },
           ],
@@ -186,6 +188,7 @@ export default defineConfig({
             { text: 'RoundRecord', link: '/api/RoundRecord' },
             { text: 'RoundRewardRecord', link: '/api/RoundRewardRecord' },
             { text: 'ActionRecord', link: '/api/ActionRecord' },
+            { text: 'ChainActionRequest / Result', link: '/api/ChainActionRequest' },
             { text: 'CharacterStateSnapshot', link: '/api/CharacterStateSnapshot' },
             { text: 'CharacterStatistics', link: '/api/CharacterStatistics' },
             { text: 'DecisionPoints', link: '/api/DecisionPoints' },
@@ -242,7 +245,7 @@ export default defineConfig({
 
     // 编辑链接
     editLink: {
-      pattern: 'https://github.com/project-redbud/FunGame-Core/edit/main/docs/:path',
+      pattern: 'https://github.com/project-redbud/project-redbud.github.io/edit/main/:path',
       text: '在 GitHub 上编辑此页',
     },
 

@@ -16,6 +16,9 @@ public ActionRecord(int round)
 |---|---|---|
 | `Round` | `int` | 回合数 |
 | `Actor` | `Character` | 行动角色 |
+| `TurnActor` | `Character?` | 协同动作所属回合的角色 |
+| `ChainActionRequestId` | `Guid?` | 关联的协同请求 ID |
+| `ChainActor` | `Character?` | 协同参与者 |
 | `ActionIndex` | `int` | 操作序号（从 1 开始） |
 | `ActionType` | `CharacterActionType` | 行动类型（普通攻击/战技/魔法/物品等） |
 | `Skill` | `Skill?` | 使用的技能 |
@@ -34,14 +37,15 @@ public ActionRecord(int round)
 | `EPCost` | `double` | 爆发能量消耗 |
 | `SkillCD` | `double` | 技能冷却时间 |
 | `DecisionPointsCost` | `double` | 决策点消耗 |
-| `CastTime` | `double` | 吟唱时间 |
-| `HardnessTime` | `double` | 硬直时间 |
+| `CastTime` | `double` | 本次操作的实际吟唱时间 |
+| `HardnessTime` | `double` | 本次操作贡献的硬直，在外发前写入；不含回合末汇总与协同原硬直 |
 
 ### 目标与结算
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
 | `Targets` | `List<Character>` | 目标角色 |
+| `NonDamageAssistTargets` | `List<Character>` | 本次操作登记的非伤害助攻目标 |
 | `Damages` | `Dictionary<Character, double>` | 各目标受到的伤害 |
 | `DamageDetails` | `Dictionary<Character, Dictionary<DamageType, double>>` | 伤害类型分桶（物理/魔法/真实，v3.0+） |
 | `Dice` | `Dictionary<Character, double>` | 检定骰子值（v3.0+） |
@@ -57,6 +61,14 @@ public ActionRecord(int round)
 | `AddInquiry(Character, InquiryOptions, InquiryResponse)` | 记录一次询问（v3.0+） |
 | `Snapshot()` | 生成结构快照（集合独立副本、实体引用共享），用于外发 |
 | `ToString()` | 渲染操作文本 |
+
+## 协同与失败记录
+
+协同记录的 `Actor` 是实际执行动作的角色，`TurnActor` 是确认者。协同吟唱释放时仍关联原请求；失败后重新决策产生的新魔法不继承原请求归属。
+
+打断、目标丢失、资源不足会生成归属于吟唱角色的失败记录。预释放爆发技覆盖、移出队列和死亡只记录终止原因。回合外终止产生独立记录，不覆盖当前行动者的操作记录。
+
+读取最终回合硬直请使用 `RoundRecord.HardnessTime`；读取角色当前排队时间请使用 `GamingQueue.HardnessTime`。
 
 ## 关联
 

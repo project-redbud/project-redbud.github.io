@@ -66,29 +66,13 @@ queue.CustomData["player"] = player;
 ## 第三步：游戏循环
 
 ```csharp
-double totalTime = 0;
-int round = 1;
-
-while (round < maxRound)
+while (!queue.GameOver && queue.TotalRound < maxRound)
 {
-    // 获取下一个要行动的角色
+    // NextCharacter 内部推进时间，直到下一个角色可以行动
     Character? characterToAct = queue.NextCharacter();
-    DecisionPoints dp = GetDP(queue);
-
-    if (characterToAct != null)
-    {
-        WriteLine($"=== 回合 {round++} ===");
-        WriteLine($"现在是 [ {characterToAct} ] 的回合！");
-
-        // ⭐ ProcessTurn 内部会触发所有事件
-        bool isGameEnd = queue.ProcessTurn(characterToAct);
-
-        if (isGameEnd) break;
-        queue.DisplayQueue();
-    }
-
-    // 时间流逝 → 硬直时间减少 → 下一个可行动的角色出现
-    totalTime += queue.TimeLapse();
+    if (characterToAct is null) break;
+    if (queue.ProcessTurn(characterToAct)) break;
+    queue.DisplayQueue();
 }
 ```
 
@@ -118,15 +102,13 @@ foreach (Character character in queue.CharacterStatistics
 | `SetCharactersToAIControl(false, chars)` | chars 由 AI 自动决策 |
 | `SetCharactersToAIControl(true, player)` | player 由事件驱动（玩家控制） |
 
-当角色由 **AI 控制** 时，选择型事件**不会被触发**——GamingQueue 内部自动决策。
-当角色由 **玩家控制** 时，事件被触发，外部必须返回有效值。
+宿主事件优先于内置 AI 回退。AI 控制的角色也可能触发选择事件，例如需要补齐目标时；处理器应按角色与界面状态决定是否交互。玩家控制时，宿主负责返回有效选择。
 
 ```csharp
 // 示例：事件处理器中判断是否是玩家
 private List<Character> Queue_SelectSkillTargets(SelectionContext ctx)
 {
-    // AI 控制时不会进入此方法
-    // 只在玩家控制时触发
+    if (ctx.Queue.IsCharacterInAIControlling(ctx.Trigger!)) return [];
     return SyncAwaiter.WaitResult(
         Controller.RequestTargetSelection(ctx.Trigger!, ctx.Skill!,
             ctx.AllEnemys, ctx.AllTeammates, ctx.Enemys, ctx.Teammates));
@@ -159,5 +141,5 @@ StartGame()
        │    ├─ TurnEndEvent           → UI 清理状态
        │    └─ QueueUpdatedEvent      → UI 刷新顺序表
        │
-       └─ queue.TimeLapse()         → 硬直时间衰减
+       └─ 回到 NextCharacter()，推进时间并获取下一角色
 ```

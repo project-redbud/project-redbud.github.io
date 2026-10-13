@@ -69,6 +69,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 |---|---|---|
 | `LastRound` | `RoundRecord` | 上回合记录（见 [RoundRecord](/api/RoundRecord)） |
 | `CurrentAction` | `ActionRecord?` | 当前操作记录（只读） |
+| `ChainActionTurnId` | `Guid?` | 当前协同请求窗口 ID；无窗口时为 null |
 | `Rounds` | `List<RoundRecord>` | 所有回合记录 |
 | `RoundRewards` | `IReadOnlyDictionary<int, IReadOnlyList<Skill>>` | 回合绑定的奖励表只读投影（键 = 全局回合；规则见 [回合奖励](/guide/round-bonus)） |
 | `CharacterRoundRewards` | `IReadOnlyDictionary<Character, IReadOnlyDictionary<int, IReadOnlyList<Skill>>>` | 角色绑定的奖励表只读投影（键 = 角色 → 行动回合序号；未启用角色绑定时为空表） |
@@ -84,7 +85,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `InitCharacters(List<Character>)` | 初始化角色列表（复制原角色、初始化统计/助攻） |
 | `InitActionQueue()` | 初始化行动顺序表（按速度排位，规则见 [行动顺序表 - 排位顺序](/guide/action-queue#排位顺序)） |
 | `AddCharacter(Character, double hardnessTime, bool isCheckProtected = true)` | 添加角色到队列（含插队保护） |
-| `RemoveCharacterFromQueue(params Character[])` | 从队列移除角色 |
+| `RemoveCharacterFromQueue(params IEnumerable<Character>)` | 移出队列，并清理吟唱、预释放、协同上下文及顺延奖励 |
 | `ClearQueue()` | 清空队列 |
 | `DisplayQueue()` | 输出队列信息 |
 
@@ -95,6 +96,22 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `NextCharacter()` | 获取下一个可行动角色（硬直时间归零） |
 | `TimeLapse()` | 时间流逝：硬直/冷却/特效持续时间衰减，回血回蓝（规则见 [回合制系统 - 时间](/guide/turn-based#时间)） |
 | `ProcessTurn(Character)` | 处理角色回合（触发事件，返回是否游戏结束） |
+
+普通与协同吟唱的释放均进入 `ProcessTurn` 的主循环，触发正常回合事件与奖励结算。`TurnStartEvent` 返回 false 可接管本回合并延迟释放；宿主需负责后续排队与推进。不可嵌套调用 `ProcessTurn`。
+
+### 协同行动
+
+| 方法 | 返回值与说明 |
+|---|---|
+| `GetAvailableChainActors(Character turnActor)` | `IReadOnlyList<Character>`，可参与协同的连续同阵营角色 |
+| `GetPendingChainActions(Character turnActor)` | `IReadOnlyList<ChainActionRequest>`，过滤失效请求后的待确认列表 |
+| `SubmitChainAction(Character turnActor, Character actor, CharacterActionType type, IEnumerable<Character> targets, out string failReason, Skill? skill = null, Item? item = null, IEnumerable<Grid>? targetGrids = null)` | 成功返回请求，失败返回 null 并写入原因；同一参与者的新请求替换旧请求 |
+| `WithdrawChainAction(Character actor, Guid requestId)` | `bool`，参与者撤回自己的申请 |
+| `ConfirmChainAction(Character turnActor, Guid requestId)` | `ChainActionResult`，确认并执行；吟唱开始成功不代表最终释放成功 |
+
+`SelectChainActionEvent` 的签名为 `Func<Character, IReadOnlyList<ChainActionRequest>, Guid?>`，返回选中的请求 ID。标准接入由 `DecideActionEvent` 返回 `CharacterActionType.ChainAction`，交给主循环结算。
+
+直接调用 `ConfirmChainAction` 时，宿主还需承担确认者的硬直汇总与回合收尾。完整说明见 [协同行动接入](/dev/chain-action)，结果字段见 [ChainActionRequest / ChainActionResult](/api/ChainActionRequest)。
 
 ### 地图
 
@@ -122,7 +139,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 |---|---|
 | `UseItem(Item, Character, DecisionPoints, ...)` | 使用物品 |
 | `CharacterMove(Character, DecisionPoints, Grid, Grid?)` | 角色移动 |
-| `CheckCanCast(Character, Skill, out cost)` | 检查能否释放技能（消耗） |
+| `CheckCanCast(Character, Skill, out cost)` | 检查 MP / EP 是否足够；不检查冷却、配额或目标有效性 |
 | `CheckCanCast(Character, Item, out costMP, out costEP)` | 检查能否使用物品 |
 | `GetTurnStartNeedyList(...)` | 获取回合开始所需列表 |
 | `GetSelectedSkillTargetsList(...)` | 获取技能目标列表 |
@@ -152,11 +169,12 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `IsCharacterInAIControllingBySystem(Character)` / `IsCharacterInAIControllingByUser(Character)` | 系统/玩家 AI 控制判定 |
 | `CheckSkilledImmune(...)` | 技能免疫检定（规则见 [免疫 & 豁免](/guide/effects-immunity)） |
 | `CheckExemption(...)` | 豁免检定（规则见 [免疫 & 豁免](/guide/effects-immunity)） |
-| `InterruptCasting(caster, interrupter)` / `InterruptCasting(interrupter)` | 打断施法 |
+| `InterruptCasting(caster, interrupter)` | 主动打断指定角色的魔法；普通打断不能清除预释放爆发技 |
+| `InterruptCasting(interrupter)` | 从各吟唱的目标中移除该角色；仅当全部目标失效且不满足空地施法条件时终止 |
 | `ChangeCharacterHardnessTime(character, addValue, isPercentage, isCheckProtected)` | 修改硬直时间 |
 | `SetCharacterRespawn(Character)` | 设置角色复活 |
 | `SetCharacterPreCastSuperSkill(Character, Skill)` | 设置预释放爆发技（规则见 [爆发技](/guide/skills-ultimate)） |
-| `SetNotDamageAssistTime(Character, params Character[])` | 设置不计算助攻时间 |
+| `SetNotDamageAssistTime(Character, params Character[])` | 为非伤害协助登记助攻有效时间 |
 | `SetOnlyMoveHardnessTime(Character, DecisionPoints, ref double)` | 纯移动的硬直时间 |
 | `DecisionPointsRecovery(Character)` | 决策点恢复（规则见 [决策点](/guide/decision-points)） |
 
@@ -175,7 +193,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 `InitRoundRewards` 不再接收 `maxRound` / `maxRewardsInRound` 参数：奖励表改为稀疏步进 + 1000 键窗口（`RoundRewardWindowSize`）滚动惰性物化，每个命中键位固定 1 个奖励，无需预先指定总回合数。
 :::
 
-奖励的发放（`GrantRoundRewards`）与结算（`SettleRoundRewards`）由队列在回合循环中自动完成，被动奖励在吟唱回合顺延到结算回合。
+奖励的发放（`GrantRoundRewards`）与结算（`SettleRoundRewards`）由队列在回合循环中自动完成，被动奖励在吟唱回合顺延到结算回合。吟唱终止、预释放覆盖、死亡或移出队列会立即清理顺延奖励；协同吟唱正常释放时按参与者自己的回合结算奖励。
 
 ### 工具
 
@@ -250,7 +268,7 @@ public class MyGameMode : GamingQueue
 }
 ```
 
-## 37 个事件
+## 38 个事件
 
 详见 [GamingQueue 事件模式](/dev/events-overview)。
 

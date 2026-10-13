@@ -35,7 +35,7 @@ public class HookContext(IGamingQueue? queue, Character? trigger)
 | 上下文类 | 关键属性 | 服务的特效钩子 | 服务的 GamingQueue 事件 |
 |---|---|---|---|
 | `HookContext`（基类直用） | Queue、Trigger | `OnEffectGained`、`OnEffectLost`、`OnGameStart`、`OnAttributeChanged` | `GameStartEvent`、`GameEndEvent`（Trigger 为胜者） |
-| `TurnContext` | DP、Enemys、Teammates、Skills、Items | `OnTurnStart`、`OnTurnEnd` | `TurnStartEvent`、`TurnEndEvent`、`DecideActionEvent` |
+| `TurnContext` | DP、Enemys、Teammates、Skills、Items、ChainActions | `OnTurnStart`、`OnTurnEnd` | `TurnStartEvent`、`TurnEndEvent`、`DecideActionEvent` |
 | `DecisionContext` | DP、State、CanUseItem / CanCastSkill / PUseItem / PCastSkill / PNormalAttack / ForceAction | `AlterActionTypeBeforeAction` | — |
 | `SelectionContext` | Skill、NormalAttack、Skills、Items、AllEnemys、AllTeammates、Enemys、Teammates、CastRange、Map、MoveRange、ContinuousKilling、EarnedMoney | `AlterSelectListBeforeAction`、`AlterSelectListBeforeSelection`、`BeforeSelectTargetGrid` | 全部 6 个选择型事件 |
 | `DamageContext` | Enemy、Damage、ActualDamage、IsNormalAttack、DamageType、MagicType、DamageResult、IsEvaded、ShieldMessage、OriginalMessage、TotalDamageBonus、BaseEP、Dice、ThrowingBonus | 伤害计算前后修改、伤害应用、免疫/闪避/暴击检定、能量获取修改（共 13 个钩子） | `DamageToEnemyEvent` |
@@ -56,6 +56,8 @@ public class HookContext(IGamingQueue? queue, Character? trigger)
 | `RoundRewardContext` | Binding、TurnKey、Skills、Thief、From、IsCarryOver | `OnRoundRewardGained`、`OnRoundRewardLost`、`OnRoundRewardStolen` | 回合奖励的 6 个前后事件（见 [回合奖励](/guide/round-bonus#事件与钩子)） |
 | `LevelUpContext` | Level | `OnSkillLevelUp`、`OnOwnerLevelUp` | — |
 | `QueueUpdatedContext` | Characters、DP、HardnessTime、Reason、Message | — | `QueueUpdatedEvent` |
+
+`TurnContext.ChainActions` 的类型为 `IReadOnlyList<ChainActionRequest>`，提供当前可确认的协同请求。请求的提交、撤回与确认应通过队列 API 完成，接入方式见 [协同行动](/dev/chain-action)。
 
 ::: tip 同域共享
 参数形状相同的钩子与事件共享同一个上下文类。例如 `TurnContext` 同时服务 `Effect.OnTurnStart` 钩子与 `TurnStartEvent` 事件；事件处理器修改的上下文与特效钩子收到的是同一实例。

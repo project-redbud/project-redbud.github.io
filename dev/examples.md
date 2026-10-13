@@ -1,6 +1,6 @@
 # 完整示例
 
-基于官方示例 `Library/Module/Example/ExampleGameModule.cs`（`ExampleSkill.cs`、`ExampleItem.cs`）。
+基于官方示例 `src/Library/Module/Example/ExampleGameModule.cs`（`ExampleSkill.cs`、`ExampleItem.cs`）。
 
 ## 创建自定义游戏模式
 
@@ -73,30 +73,17 @@ public class MyGameMode : GamingQueue
 ## 完整的游戏循环
 
 ```csharp
-double totalTime = 0;
-int round = 1;
-
-while (round < 999)
+while (!queue.GameOver && queue.TotalRound < 999)
 {
-    // 获取下一个可行动的角色（硬直时间归零）
+    // 内部推进时间，获取下一个可行动角色
     Character? actor = queue.NextCharacter();
-
-    if (actor != null)
-    {
-        Console.WriteLine($"=== 回合 {round++} ===");
-
-        // ProcessTurn 内部会触发所有事件
-        bool isGameEnd = queue.ProcessTurn(actor);
-        if (isGameEnd) break;
-
-        queue.DisplayQueue();
-    }
-
-    // 时间流逝 → 硬直时间衰退
-    totalTime += queue.TimeLapse();
+    if (actor is null) break;
+    Console.WriteLine($"=== 回合 {queue.TotalRound} ===");
+    if (queue.ProcessTurn(actor)) break;
+    queue.DisplayQueue();
 }
 
-Console.WriteLine($"总游戏时长：{totalTime:0.##}");
+Console.WriteLine($"总游戏时长：{queue.TotalTime:0.##}");
 ```
 
 > 手动控制（玩家决策）需把事件绑定到 UI，见 [事件绑定与游戏循环](/dev/events-game-loop)。

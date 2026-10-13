@@ -17,6 +17,12 @@ AI 决策数据，位于 `FunGame.Core.Model.Framework`。由 `AIController.Deci
 | `IsPureMove` | `bool` | 是否纯移动行动 |
 | `HasCandidate` | `bool` | AI 是否评估出了可行行动；false 表示只有 EndTurn 占位，宿主应回退到事件与概率决策 |
 
+## 协同决策
+
+`AIController.SelectChainAction(Character actor)` 返回首个有效申请的 `Guid?`，没有申请时返回 null。正常 AI 行动决策前，队列会为连续同队区间内符合资格的角色评估原地协同动作，保留已有有效申请；不会为协作移动。
+
+宿主 `DecideActionEvent` 优先，未指定动作时依次尝试协同确认、自身 AI 行动与概率回退。手动回合不自动代交，但 AI 回合可为手动控制的队友代交。接入见 [协同行动](/dev/chain-action)。
+
 ## 确定性
 
 AI 决策完全由 `GamingQueue.Seed` 驱动，同种子 + 同局面下决策序列可复现：
