@@ -54,5 +54,5 @@ config.SaveConfig();                      // 保存（覆盖）
 
 ## 关联
 
-- JSON 配置详解 → [实体模组 - JSON 配置文件](/dev/module-registration#json-配置文件-entitymoduleconfig)
-- 工厂快捷方法 → [Factory](/api/Factory)
+- JSON 配置详解 → [实体模组 - JSON 配置文件](../dev/module-registration.md#json-配置文件-entitymoduleconfig)
+- 工厂快捷方法 → [Factory](./Factory.md)

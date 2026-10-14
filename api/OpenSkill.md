@@ -47,9 +47,9 @@ Skill skill = new OpenSkill(2001, "木杖", new()
 Skill skill2 = Factory.OpenFactory.GetInstance<Skill>(2001, "木杖", args);
 ```
 
-> JSON 反序列化创建物品时，其关联技能即为 `OpenSkill`。见 [自定义物品 - JSON 动态创建](/dev/custom-item)。
+> JSON 反序列化创建物品时，其关联技能即为 `OpenSkill`。见 [自定义物品 - JSON 动态创建](../dev/custom-item.md)。
 
 ## 关联
 
-- 动态创建物品（含 OpenSkill） → [自定义物品](/dev/custom-item)
-- 技能基类 → [Skill](/api/Skill)
+- 动态创建物品（含 OpenSkill） → [自定义物品](../dev/custom-item.md)
+- 技能基类 → [Skill](./Skill.md)

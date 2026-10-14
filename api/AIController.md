@@ -1,6 +1,6 @@
 # AIController
 
-AI 控制器位于 `FunGame.Core.Controller`。通常使用启用 AI 的 `GamingQueue.AI`，由队列派发普通行动与协同申请。模式和估值说明见 [AI 规划](/dev/ai-planning)。
+AI 控制器位于 `FunGame.Core.Controller`。通常使用启用 AI 的 `GamingQueue.AI`，由队列派发普通行动与协同申请。模式和估值说明见 [AI 规划](../dev/ai-planning.md)。
 
 队列更换地图时会自动重建控制器，模式与实例事件应在加载地图后配置。
 
@@ -36,7 +36,7 @@ public AIDecision DecideAIAction(
 
 先评估角色绑定策略，取得动作则返回；未命中时按 `SelectionMode` 规划。类别概率不大于 0 时相应类别禁用，策略也不能绕过。`isChainAction` 使用协同预算且禁止移动，`rejectedRules` 跳过当前尝试中执行重验失败的规则。
 
-`SelectChainAction(Character actor)` 返回首个有效申请的 `Guid?`，没有申请时为 null。决策输出字段见 [AIDecision](/api/AIDecision)，队列调用优先级见 [决策表规则](/guide/decision-tables#何时使用)。
+`SelectChainAction(Character actor)` 返回首个有效申请的 `Guid?`，没有申请时为 null。决策输出字段见 [AIDecision](./AIDecision.md)，队列调用优先级见 [决策表规则](../guide/decision-tables.md#何时使用)。
 
 ## 估值事件
 

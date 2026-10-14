@@ -16,7 +16,7 @@ public class HookContext(IGamingQueue? queue, Character? trigger)
 | `Trigger` | `Character?` | 触发钩子/事件的主角色（只读） |
 
 ::: warning 上下文属性只读（internal set）
-所有派生上下文的属性均为 `{ get; internal set; }`——**模组代码不能直接写 `ctx.X = y`**。需要修改结算行为时，通过钩子的**返回值结构体**（见 [EffectResult](/api/EffectResult)）声明干预意图，由框架聚合后写回上下文。唯一例外：`InquiryContext.Response` 为 public set（in-out 契约）。
+所有派生上下文的属性均为 `{ get; internal set; }`——**模组代码不能直接写 `ctx.X = y`**。需要修改结算行为时，通过钩子的**返回值结构体**（见 [EffectResult](./EffectResult.md)）声明干预意图，由框架聚合后写回上下文。唯一例外：`InquiryContext.Response` 为 public set（in-out 契约）。
 :::
 
 ## 可变语义约定
@@ -53,11 +53,11 @@ public class HookContext(IGamingQueue? queue, Character? trigger)
 | `MoveContext` | DP、Target | `AfterCharacterMove` | `CharacterMoveEvent` |
 | `NormalAttackContext` | DP、NormalAttack、Targets | `AfterCharacterNormalAttack` | `CharacterNormalAttackEvent` |
 | `ItemUseContext` | DP、Item、Skill、Targets | `AfterCharacterUseItem` | `CharacterUseItemEvent` |
-| `RoundRewardContext` | Binding、TurnKey、Skills、Thief、From、IsCarryOver | `OnRoundRewardGained`、`OnRoundRewardLost`、`OnRoundRewardStolen` | 回合奖励的 6 个前后事件（见 [回合奖励](/guide/round-bonus#事件与钩子)） |
+| `RoundRewardContext` | Binding、TurnKey、Skills、Thief、From、IsCarryOver | `OnRoundRewardGained`、`OnRoundRewardLost`、`OnRoundRewardStolen` | 回合奖励的 6 个前后事件（见 [回合奖励](../guide/round-bonus.md#事件与钩子)） |
 | `LevelUpContext` | Level | `OnSkillLevelUp`、`OnOwnerLevelUp` | — |
 | `QueueUpdatedContext` | Characters、DP、HardnessTime、Reason、Message | — | `QueueUpdatedEvent` |
 
-`TurnContext.ChainActions` 的类型为 `IReadOnlyList<ChainActionRequest>`，提供当前可确认的协同请求。请求的提交、撤回与确认应通过队列 API 完成，接入方式见 [协同行动](/dev/chain-action)。
+`TurnContext.ChainActions` 的类型为 `IReadOnlyList<ChainActionRequest>`，提供当前可确认的协同请求。请求的提交、撤回与确认应通过队列 API 完成，接入方式见 [协同行动](../dev/chain-action.md)。
 
 ::: tip 同域共享
 参数形状相同的钩子与事件共享同一个上下文类。例如 `TurnContext` 同时服务 `Effect.OnTurnStart` 钩子与 `TurnStartEvent` 事件；事件处理器修改的上下文与特效钩子收到的是同一实例。
@@ -67,7 +67,7 @@ public class HookContext(IGamingQueue? queue, Character? trigger)
 
 ## RoundRewardContext
 
-回合奖励域上下文：发放（获得）、移除、夺取。框架在奖励管线的每个节点构造一次实例，同一实例依次流经 [ 队列事件 → 特效钩子 ]，并写入回合日志事件流（见 [RoundRewardRecord](/api/RoundRewardRecord)）。
+回合奖励域上下文：发放（获得）、移除、夺取。框架在奖励管线的每个节点构造一次实例，同一实例依次流经 [ 队列事件 → 特效钩子 ]，并写入回合日志事件流（见 [RoundRewardRecord](./RoundRewardRecord.md)）。
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
@@ -156,7 +156,7 @@ public override OnApplyDamageResult OnApplyDamage(DamageContext ctx)
 
 ## 关联
 
-- 全部钩子清单 → [Effect](/api/Effect)
-- 返回值结构体 → [EffectResult](/api/EffectResult)
-- 全部事件签名 → [GamingQueue 事件模式](/dev/events-overview)
-- 自定义特效实战 → [自定义特效](/dev/custom-effect)
+- 全部钩子清单 → [Effect](./Effect.md)
+- 返回值结构体 → [EffectResult](./EffectResult.md)
+- 全部事件签名 → [GamingQueue 事件模式](../dev/events-overview.md)
+- 自定义特效实战 → [自定义特效](../dev/custom-effect.md)

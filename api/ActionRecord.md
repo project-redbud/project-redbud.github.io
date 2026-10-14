@@ -72,5 +72,5 @@ public ActionRecord(int round)
 
 ## 关联
 
-- 回合记录 → [RoundRecord](/api/RoundRecord)
-- 外发事件 `"0"` → [即时外发功能](/dev/outbound)
+- 回合记录 → [RoundRecord](./RoundRecord.md)
+- 外发事件 `"0"` → [即时外发功能](../dev/outbound.md)

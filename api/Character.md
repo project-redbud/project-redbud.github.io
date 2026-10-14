@@ -29,7 +29,7 @@ public Character()
 | `RoleRating` | `RoleRating` | 评级（由 Promotion 计算，只读） |
 | `PrimaryAttribute` | `PrimaryAttribute` | 核心属性（STR/AGI/INT） |
 | `AttributeLimit` | `ClassAttributeLimit?` | 角色模板核心属性分配上下限（与职业模板取交集，约束 1 级初始分配） |
-| `Class` | `CharacterClass` | 职业计划（职业规划系统挂载点，见 [ClassPlanner](/api/ClassPlanner)） |
+| `Class` | `CharacterClass` | 职业计划（职业规划系统挂载点，见 [ClassPlanner](./ClassPlanner.md)） |
 
 ::: info 相等语义（v3.0+）
 `Equals`/`GetHashCode` 基于 **`Guid`**（实例身份）而非 Id+Name：同一局内复制的角色互为不同键，`Dictionary<Character,...>`/`HashSet<Character>` 按实例区分。
@@ -42,7 +42,7 @@ public Character()
 | `DecisionTableId` | `string?` | 持久化策略 ID；更改后清除旧运行时绑定 |
 | `DecisionPolicy` | `IDecisionPolicy?` | 运行时策略，外部只读，通过 `DecisionTableLoader.Bind` 设置；不参与 JSON 持久化 |
 
-角色复制、`CharacterBuilder` 与模板恢复继承 ID 及可共享策略，JSON 读回后需重新 Bind。队列初始化会复制模板，推荐先绑定模板；队列已创建时绑定实际参战实例。配置与加载方式见 [编写决策表](/dev/decision-tables#角色复制与持久化)。
+角色复制、`CharacterBuilder` 与模板恢复继承 ID 及可共享策略，JSON 读回后需重新 Bind。队列初始化会复制模板，推荐先绑定模板；队列已创建时绑定实际参战实例。配置与加载方式见 [编写决策表](../dev/decision-tables.md#角色复制与持久化)。
 
 ## 等级与经验
 
@@ -276,6 +276,6 @@ public class MyWarrior : Character
 
 ## 关联
 
-- 角色规则 → [角色概述](/guide/characters) / [能力值详解](/guide/characters-stats)
-- 自定义角色 → [自定义角色](/dev/custom-character)
-- 工厂创建 → [Factory](/api/Factory)
+- 角色规则 → [角色概述](../guide/characters.md) / [能力值详解](../guide/characters-stats.md)
+- 自定义角色 → [自定义角色](../dev/custom-character.md)
+- 工厂创建 → [Factory](./Factory.md)

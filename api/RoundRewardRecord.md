@@ -34,7 +34,7 @@
 
 ## 文本渲染
 
-`ToString()` 渲染为一行日志文本，回合日志与 [RoundRecordRenderer](/api/RoundRecordRenderer) 均使用它：
+`ToString()` 渲染为一行日志文本，回合日志与 [RoundRecordRenderer](./RoundRecordRenderer.md) 均使用它：
 
 ```text
 [ 米理 ] 获得回合奖励（全局回合 10）：暴击强化
@@ -45,6 +45,6 @@
 
 ## 关联
 
-- 事件流宿主 → [RoundRecord](/api/RoundRecord)
-- 奖励规则 → [回合奖励](/guide/round-bonus)
-- 上下文对象 → [RoundRewardContext](/api/HookContext)
+- 事件流宿主 → [RoundRecord](./RoundRecord.md)
+- 奖励规则 → [回合奖励](../guide/round-bonus.md)
+- 上下文对象 → [RoundRewardContext](./HookContext.md)

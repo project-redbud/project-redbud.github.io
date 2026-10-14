@@ -65,5 +65,5 @@ public class MySoulboundEffect : SoulboundEffect
 
 ## 关联
 
-- 特性详解 → [预制实体 - 灵魂绑定](/guide/prefabricated-entities#soulboundskill-—-灵魂绑定爆发技)
-- 爆发技规则 → [爆发技](/guide/skills-ultimate)
+- 特性详解 → [预制实体 - 灵魂绑定](../guide/prefabricated-entities.md#soulboundskill-—-灵魂绑定爆发技)
+- 爆发技规则 → [爆发技](../guide/skills-ultimate.md)

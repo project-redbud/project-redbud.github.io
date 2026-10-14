@@ -151,7 +151,7 @@ protected Skill(SkillType type, Character? character = null)
 | `SelectNonDirectionalTargetsFrom(Character caster, Grid origin, Grid targetGrid, bool includeCharacter = false)`（virtual） | 显式假设施法起点的非指向性范围查询，不移动角色 |
 | `SelectTargetsByRangeFrom(Character caster, Grid origin, List<Character> allEnemys, List<Character> allTeammates, IEnumerable<Grid> range)`（virtual） | 以假设起点判定覆盖角色，包括施法者自身 |
 
-自定义范围、线形及方向相关技能应同时支持假设起点查询，否则尚未实际移动的站位可能产生错误覆盖。接入与优化边界见 [AI 规划](/dev/ai-planning#地图施法)。
+自定义范围、线形及方向相关技能应同时支持假设起点查询，否则尚未实际移动的站位可能产生错误覆盖。接入与优化边界见 [AI 规划](../dev/ai-planning.md#地图施法)。
 
 ## 被动技能特殊要求
 
@@ -194,6 +194,6 @@ public class ExampleSkill : Skill
 
 ## 关联
 
-- 自定义技能 → [自定义技能](/dev/custom-skill)
-- 技能规则 → [技能概述](/guide/skills)
-- 特效基类 → [Effect](/api/Effect)
+- 自定义技能 → [自定义技能](../dev/custom-skill.md)
+- 技能规则 → [技能概述](../guide/skills.md)
+- 特效基类 → [Effect](./Effect.md)

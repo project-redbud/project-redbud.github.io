@@ -57,6 +57,6 @@ character.EquipSlot.MagicCardPack = pack;
 
 ## 关联
 
-- 特性详解 → [预制实体 - 魔法卡包](/guide/prefabricated-entities#magiccardpack-—-魔法卡包)
-- 灵魂绑定 → [SoulboundSkill](/api/SoulboundSkill)
-- 神经校准 → [NeuralCalibrationEffect](/api/NeuralCalibrationEffect)
+- 特性详解 → [预制实体 - 魔法卡包](../guide/prefabricated-entities.md#magiccardpack-—-魔法卡包)
+- 灵魂绑定 → [SoulboundSkill](./SoulboundSkill.md)
+- 神经校准 → [NeuralCalibrationEffect](./NeuralCalibrationEffect.md)

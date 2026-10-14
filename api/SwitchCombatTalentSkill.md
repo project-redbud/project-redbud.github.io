@@ -64,6 +64,6 @@ ClassDefinitionRegistry.RegisterSwitchSkill("my.talent.switch", () => new MyTale
 
 ## 关联
 
-- 职业系统规则 → [职业规划系统](/guide/class-plan)
-- 规划器 → [ClassPlanner](/api/ClassPlanner)
-- 魔法卡包 → [MagicCardPack](/api/MagicCardPack)
+- 职业系统规则 → [职业规划系统](../guide/class-plan.md)
+- 规划器 → [ClassPlanner](./ClassPlanner.md)
+- 魔法卡包 → [MagicCardPack](./MagicCardPack.md)

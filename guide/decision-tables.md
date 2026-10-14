@@ -51,7 +51,7 @@
 
 ## 继续阅读
 
-- [编写、加载与绑定决策表](/dev/decision-tables)
-- [完整 BOSS 决策表](/dev/decision-table-boss)
-- [AI 模式与施法规划](/dev/ai-planning)
-- [协同行动](/guide/chain-action)
+- [编写、加载与绑定决策表](../dev/decision-tables.md)
+- [完整 BOSS 决策表](../dev/decision-table-boss.md)
+- [AI 模式与施法规划](../dev/ai-planning.md)
+- [协同行动](./chain-action.md)

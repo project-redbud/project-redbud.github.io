@@ -51,7 +51,7 @@ public RoundRecord(int round)
 | `RespawnCountdowns` | `Dictionary<Character, double>` | 复活倒计时 |
 | `Respawns` | `List<Character>` | 本回合复活的角色 |
 | `RoundRewards` | `List<Skill>` | 本回合奖励的技能（一行汇总，兼容旧存档） |
-| `RoundRewardEvents` | `List<RoundRewardRecord>` | 本回合的全部回合奖励事件流（发放/移除/夺取，按发生顺序；只读，结构见 [RoundRewardRecord](/api/RoundRewardRecord)） |
+| `RoundRewardEvents` | `List<RoundRewardRecord>` | 本回合的全部回合奖励事件流（发放/移除/夺取，按发生顺序；只读，结构见 [RoundRewardRecord](./RoundRewardRecord.md)） |
 
 ### 全局信息
 
@@ -75,6 +75,6 @@ public RoundRecord(int round)
 
 ## 关联
 
-- 单次操作记录 → [ActionRecord](/api/ActionRecord)
-- 外发时机 → [即时外发功能](/dev/outbound)
-- 状态快照 → [CharacterStateSnapshot](/api/CharacterStateSnapshot)
+- 单次操作记录 → [ActionRecord](./ActionRecord.md)
+- 外发时机 → [即时外发功能](../dev/outbound.md)
+- 状态快照 → [CharacterStateSnapshot](./CharacterStateSnapshot.md)

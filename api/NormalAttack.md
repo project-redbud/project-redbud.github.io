@@ -67,5 +67,5 @@ public class NormalAttackOfEffect(Effect effect, bool isMagic, MagicType type, i
 
 ## 关联
 
-- 普攻规则 → [普通攻击](/guide/skills-normal-attack)
-- 使用示例 → [完整示例](/dev/examples)
+- 普攻规则 → [普通攻击](../guide/skills-normal-attack.md)
+- 使用示例 → [完整示例](../dev/examples.md)

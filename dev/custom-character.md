@@ -2,7 +2,7 @@
 
 角色通过**继承 `Character` 类**来定义，在构造函数中设置初始属性。
 
-需要按条件控制角色行动时，可以为模板设置 `DecisionTableId` 并通过 Loader 绑定策略，随后交由 AI 控制。配置支持 JSON 与链式构建，见 [编写决策表](/dev/decision-tables)。
+需要按条件控制角色行动时，可以为模板设置 `DecisionTableId` 并通过 Loader 绑定策略，随后交由 AI 控制。配置支持 JSON 与链式构建，见 [编写决策表](./decision-tables.md)。
 
 ## 基本创建（继承方式）
 

@@ -3,7 +3,7 @@
 基于官方示例 `Library/Module/Example/ExampleSkill.cs` 和 `ExampleItem.cs`。
 
 ::: info v3.0 起统一上下文参数与结构体回读
-所有特效钩子接收单一**参数上下文对象**（如 `SkillCastContext`、`DamageContext`），主角色从 `ctx.Trigger` 获取；上下文属性只读（`internal set`），原 `ref` 参数与 `bool` 返回值改为返回**结果结构体**（如 `AlterHardnessTimeResult`、`BeforeHealToTargetResult`），由框架聚合后写回。详见 [HookContext 参数上下文族](/api/HookContext) 与 [EffectResult](/api/EffectResult)。
+所有特效钩子接收单一**参数上下文对象**（如 `SkillCastContext`、`DamageContext`），主角色从 `ctx.Trigger` 获取；上下文属性只读（`internal set`），原 `ref` 参数与 `bool` 返回值改为返回**结果结构体**（如 `AlterHardnessTimeResult`、`BeforeHealToTargetResult`），由框架聚合后写回。详见 [HookContext 参数上下文族](../api/HookContext.md) 与 [EffectResult](../api/EffectResult.md)。
 :::
 
 ---

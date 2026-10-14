@@ -70,7 +70,7 @@
 
 ## 事件与钩子
 
-奖励管线的每个节点（发放 / 移除 / 夺取）都会构造一份 `RoundRewardContext`，同一实例依次流经 **队列事件 → 特效钩子**，并写入回合日志的奖励事件流（见 [RoundRewardRecord](/api/RoundRewardRecord)）：
+奖励管线的每个节点（发放 / 移除 / 夺取）都会构造一份 `RoundRewardContext`，同一实例依次流经 **队列事件 → 特效钩子**，并写入回合日志的奖励事件流（见 [RoundRewardRecord](../api/RoundRewardRecord.md)）：
 
 | 节点 | 队列事件（Before / After） | 特效钩子 |
 |---|---|---|
@@ -78,9 +78,9 @@
 | 失去奖励 | `RoundRewardLostBeforeEvent / RoundRewardLostAfterEvent` | `OnRoundRewardLost` |
 | 奖励被夺取 | `RoundRewardStolenBeforeEvent / RoundRewardStolenAfterEvent` | `OnRoundRewardStolen`（原持有者与夺取者的特效都会触发） |
 
-特效内部也可用 `QueryRoundReward` / `AddRoundReward` / `RemoveRoundReward(s)` / `StealRoundReward` 等保护方法操作奖励，见 [Effect](/api/Effect#特效内部可用方法)。
+特效内部也可用 `QueryRoundReward` / `AddRoundReward` / `RemoveRoundReward(s)` / `StealRoundReward` 等保护方法操作奖励，见 [Effect](../api/Effect.md#特效内部可用方法)。
 
 ## 关联
 
-- API → [GamingQueue](/api/GamingQueue#回合奖励) / [RoundRewardRecord](/api/RoundRewardRecord) / [RoundRewardContext](/api/HookContext)
-- 奖励事件 → [GamingQueue 事件模式](/dev/events-overview#七、回合奖励事件-6-个-—-通知型)
+- API → [GamingQueue](../api/GamingQueue.md#回合奖励) / [RoundRewardRecord](../api/RoundRewardRecord.md) / [RoundRewardContext](../api/HookContext.md)
+- 奖励事件 → [GamingQueue 事件模式](../dev/events-overview.md#七、回合奖励事件-6-个-—-通知型)

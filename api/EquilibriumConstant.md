@@ -125,7 +125,7 @@ var queue = new MixGamingQueue(characters, Console.WriteLine)
 | `ChainActionHardnessTime` | 3 | 协同确认的固定硬直贡献 |
 | `CastFailureHardnessTime` | 3 | 吟唱失败尝试的补偿硬直 |
 
-这三个协同与失败常数独立配置。回合内目标丢失使用补偿上限，回合外目标丢失与主动打断的规则见 [魔法](/guide/skills-magic#吟唱终止)。
+这三个协同与失败常数独立配置。回合内目标丢失使用补偿上限，回合外目标丢失与主动打断的规则见 [魔法](../guide/skills-magic.md#吟唱终止)。
 
 ## 武器属性速查
 
@@ -158,7 +158,7 @@ var queue = new MixGamingQueue(characters, Console.WriteLine)
 | `NumericBoostBudget` | `ClassAttributeBudget` | 9 点 + 0.9 成长（不限） | 数值提升单次额度 |
 | `RoleMOV_Core` / `Vanguard` / `Guardian` / `Support` / `Medic` | `int` | 3 / 6 / 5 / 4 / 3 | 各定位的移动距离（主要定位决定取值） |
 
-详见 [职业规划系统](/guide/class-plan)。
+详见 [职业规划系统](../guide/class-plan.md)。
 
 ## 一次性应用到实体
 

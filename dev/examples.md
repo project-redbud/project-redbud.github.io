@@ -86,7 +86,7 @@ while (!queue.GameOver && queue.TotalRound < 999)
 Console.WriteLine($"总游戏时长：{queue.TotalTime:0.##}");
 ```
 
-> 手动控制（玩家决策）需把事件绑定到 UI，见 [事件绑定与游戏循环](/dev/events-game-loop)。
+> 手动控制（玩家决策）需把事件绑定到 UI，见 [事件绑定与游戏循环](./events-game-loop.md)。
 
 ---
 
@@ -161,12 +161,12 @@ MixGamingQueue queue = new(characters, Console.WriteLine)
 };
 ```
 
-详见 [即时外发功能](/dev/outbound)。
+详见 [即时外发功能](./outbound.md)。
 
 ---
 
 ## 下一步
 
-- 自定义角色 → [自定义角色](/dev/custom-character)
-- 模组化你的实体 → [模组开发总览](/dev/module-overview)
-- 事件驱动与 UI 交互 → [GamingQueue 事件模式](/dev/events-overview)
+- 自定义角色 → [自定义角色](./custom-character.md)
+- 模组化你的实体 → [模组开发总览](./module-overview.md)
+- 事件驱动与 UI 交互 → [GamingQueue 事件模式](./events-overview.md)

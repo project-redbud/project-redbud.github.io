@@ -1,6 +1,6 @@
 # 决策表 API
 
-配置与运行时模型位于 `FunGame.Core.Model.DecisionTable`，解析、构建、编译与加载入口位于 `FunGame.Core.Api`，代码策略接口位于 `FunGame.Core.Interface`。使用流程见 [编写决策表](/dev/decision-tables)。
+配置与运行时模型位于 `FunGame.Core.Model.DecisionTable`，解析、构建、编译与加载入口位于 `FunGame.Core.Api`，代码策略接口位于 `FunGame.Core.Interface`。使用流程见 [编写决策表](../dev/decision-tables.md)。
 
 ## 配置模型
 
@@ -13,7 +13,7 @@
 | `ActionConfig` | `Type`、`SkillId?`、`ItemId?`、`Target?`、`Movement = "ifNeeded"`、`PositionPreference = "current"`、`BindPlan?`、`MaxRisk?`、`Parameters` |
 | `DecisionDiagnostic` | 记录类型 `(string Path, string Message)` |
 
-`SkillId` / `ItemId` 为 `long?`，`Value` 为 `double`，`MaxRisk` 为 `double?`，扩展 `Parameters` 为 `Dictionary<string, JsonElement>`。完整字段值与条件语义见 [配置指南](/dev/decision-tables#动作字段)。
+`SkillId` / `ItemId` 为 `long?`，`Value` 为 `double`，`MaxRisk` 为 `double?`，扩展 `Parameters` 为 `Dictionary<string, JsonElement>`。完整字段值与条件语义见 [配置指南](../dev/decision-tables.md#动作字段)。
 
 ## 解析与生成
 
@@ -55,7 +55,7 @@ public sealed class DecisionTableLoader(DecisionTableCompiler? compiler = null)
 | `Get(string id)` | `IDecisionPolicy?`，找不到时为 null |
 | `Bind(Character character)` | 诊断列表；按 `DecisionTableId` 绑定，无 ID 解除，未知 ID 清除绑定并报错 |
 
-配置策略可共享，角色 JSON 仅保存 ID。角色属性与生命周期见 [Character](/api/Character#决策策略)。
+配置策略可共享，角色 JSON 仅保存 ID。角色属性与生命周期见 [Character](./Character.md#决策策略)。
 
 ## 代码策略与扩展
 
@@ -90,4 +90,4 @@ public interface IDecisionPolicy
 
 上下文配置为 `init` 属性，评估期间不得修改引用的战斗对象。`DecisionPlan.TargetCount` 来自 `Decision.Targets.Count`。
 
-`DecisionEvaluationResult` 是 `(AIDecision? Decision, string? RuleId, IReadOnlyList<DecisionDiagnostic> Diagnostics)`，`Matched` 表示 `Decision != null`；回退 `endTurn` 也属于有效决策，可没有命中规则 ID。指标见 [AIController](/api/AIController#诊断与统计)。
+`DecisionEvaluationResult` 是 `(AIDecision? Decision, string? RuleId, IReadOnlyList<DecisionDiagnostic> Diagnostics)`，`Matched` 表示 `Decision != null`；回退 `endTurn` 也属于有效决策，可没有命中规则 ID。指标见 [AIController](./AIController.md#诊断与统计)。

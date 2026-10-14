@@ -1,6 +1,6 @@
 # AI 模式与施法规划
 
-角色 [决策表](/dev/decision-tables) 优先选择动作；未命中并设置 `defaultAI` 时，才使用这里的默认 AI 模式。无需绑定决策表也能单独使用新模式。默认仍为 `Legacy`。
+角色 [决策表](./decision-tables.md) 优先选择动作；未命中并设置 `defaultAI` 时，才使用这里的默认 AI 模式。无需绑定决策表也能单独使用新模式。默认仍为 `Legacy`。
 
 ## 设置模式
 
@@ -67,7 +67,7 @@ Legacy 的既有评估事件可能并行调用，订阅者需线程安全。新�
 
 当前位置能触及所有目标或范围落点，且无需安全位置、风险限制或强制移动时，可只规划原地。规则含 `distance` 或自定义条件时保留位置搜索。
 
-`AIDecision.CastCenter` 是选择中心/方向参考格，`TargetGrids` 是实际影响格，二者不能互换。协同提交可携带 `castCenter`，队列重验中心射程并重算影响范围，见 [协同接入](/dev/chain-action)。
+`AIDecision.CastCenter` 是选择中心/方向参考格，`TargetGrids` 是实际影响格，二者不能互换。协同提交可携带 `castCenter`，队列重验中心射程并重算影响范围，见 [协同接入](./chain-action.md)。
 
 ## 搜索预算与扩展
 
@@ -83,4 +83,4 @@ Legacy 的既有评估事件可能并行调用，订阅者需线程安全。新�
 
 `LastMetrics` 记录位置、方案、中心与耗时；`CentersGenerated` 按位置累计，`CentersEvaluated` 仅统计完整投影和覆盖检查，缓存命中不会增加它。指标用于分析具体夹具，不应把某次测量当作普遍性能保证。
 
-接口与事件签名见 [AIController](/api/AIController)，决策输出见 [AIDecision](/api/AIDecision)。
+接口与事件签名见 [AIController](../api/AIController.md)，决策输出见 [AIDecision](../api/AIDecision.md)。

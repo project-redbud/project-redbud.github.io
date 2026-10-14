@@ -175,7 +175,7 @@ public class MyTalentSwitch : SwitchCombatTalentSkill
 }
 ```
 
-切换后主要定位随之变化（影响 MOV 等按定位取值的属性）。详见 [SwitchCombatTalentSkill API](/api/SwitchCombatTalentSkill)。
+切换后主要定位随之变化（影响 MOV 等按定位取值的属性）。详见 [SwitchCombatTalentSkill API](../api/SwitchCombatTalentSkill.md)。
 
 ---
 

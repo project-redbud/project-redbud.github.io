@@ -1,6 +1,6 @@
 # 编写决策表
 
-决策表配置使用 BCL JSON，既可直接编写，也可通过链式构建器生成。配置、编译策略和角色绑定是三个步骤。规则语义见 [决策表](/guide/decision-tables)，接口速查见 [决策表 API](/api/DecisionTable)。
+决策表配置使用 BCL JSON，既可直接编写，也可通过链式构建器生成。配置、编译策略和角色绑定是三个步骤。规则语义见 [决策表](../guide/decision-tables.md)，接口速查见 [决策表 API](../api/DecisionTable.md)。
 
 ## JSON 配置
 
@@ -108,7 +108,7 @@ static void ExportTable(DecisionTableConfig config, string path)
 
 配置动作 `castSkill` 统一映射到普通回合的 `PreCastSkill` 入口，再按技能类型执行战技、吟唱魔法或爆发技。协同申请使用对应动作类型和协同预算，禁止移动。规则不会绕过冷却、DP、配额、资源或宿主的选择列表限制。
 
-`current` 是低移动成本偏好，严格原地行动应使用 `movement: never`。规则中的位置偏好按配置执行；默认 AI 自动区分即时魔法与吟唱魔法的行为见 [AI 规划](/dev/ai-planning)。
+`current` 是低移动成本偏好，严格原地行动应使用 `movement: never`。规则中的位置偏好按配置执行；默认 AI 自动区分即时魔法与吟唱魔法的行为见 [AI 规划](./ai-planning.md)。
 
 ## 条件字段
 
@@ -142,6 +142,6 @@ static void ExportTable(DecisionTableConfig config, string path)
 
 也可实现 `IDecisionPolicy` 并用 `loader.Register(id, policy)` 注册代码策略。代码策略无法作为独立 JSON 规则导出；共享实现不得保存角色或战斗的可变状态。
 
-`AIController.PolicyEvaluatedEvent` 提供每次策略评估，包括协同申请；`LastPolicyResult` 和 `LastMetrics` 只保留最近一次。诊断可定位未命中的规则和原因，统计应在事件触发时立即保存。具体指标见 [AIController](/api/AIController)。
+`AIController.PolicyEvaluatedEvent` 提供每次策略评估，包括协同申请；`LastPolicyResult` 和 `LastMetrics` 只保留最近一次。诊断可定位未命中的规则和原因，统计应在事件触发时立即保存。具体指标见 [AIController](../api/AIController.md)。
 
-完整配置与使用场景见 [BOSS 决策表示例](/dev/decision-table-boss)。
+完整配置与使用场景见 [BOSS 决策表示例](./decision-table-boss.md)。

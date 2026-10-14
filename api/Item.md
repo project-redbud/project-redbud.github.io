@@ -122,6 +122,6 @@ public class ExampleItem : Item
 
 ## 关联
 
-- 自定义物品 → [自定义物品](/dev/custom-item)
-- 物品系统规则 → [物品与装备](/guide/items)
-- 运行时动态创建 → [OpenSkill](/api/OpenSkill)
+- 自定义物品 → [自定义物品](../dev/custom-item.md)
+- 物品系统规则 → [物品与装备](../guide/items.md)
+- 运行时动态创建 → [OpenSkill](./OpenSkill.md)

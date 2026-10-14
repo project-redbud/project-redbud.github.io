@@ -41,5 +41,5 @@ POST 到外部专用服务器的数据包格式，序列化字段为紧凑格式
 
 ## 关联
 
-- 服务器端协议与验签 → [专用服务器开发](/dev/outbound-server)
-- 事件 id 常量 → [RoundRecordSinkEventIds](/api/RoundRecordSinkEventIds)
+- 服务器端协议与验签 → [专用服务器开发](../dev/outbound-server.md)
+- 事件 id 常量 → [RoundRecordSinkEventIds](./RoundRecordSinkEventIds.md)

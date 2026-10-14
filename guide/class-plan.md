@@ -76,6 +76,6 @@ IClassRewardSettler（结算器，可替换扩展点；默认 DefaultClassReward
 
 ## 相关 API
 
-- 规划器与全部动作 → [ClassPlanner](/api/ClassPlanner)
-- 转换战斗天赋战技 → [SwitchCombatTalentSkill](/api/SwitchCombatTalentSkill)
-- 角色定位属性 → [Character](/api/Character)
+- 规划器与全部动作 → [ClassPlanner](../api/ClassPlanner.md)
+- 转换战斗天赋战技 → [SwitchCombatTalentSkill](../api/SwitchCombatTalentSkill.md)
+- 角色定位属性 → [Character](../api/Character.md)

@@ -68,5 +68,5 @@ public int this[CharacterActionType type] { get; }
 
 ## 关联
 
-- 决策点规则 → [决策点](/guide/decision-points)
-- 操作决策点 → [特效系统](/guide/effects)
+- 决策点规则 → [决策点](../guide/decision-points.md)
+- 操作决策点 → [特效系统](../guide/effects.md)

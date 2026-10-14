@@ -75,5 +75,5 @@ queue.CheckpointInterval = 10;
 
 ## 关联
 
-- 检查点机制 → [即时外发功能 - 检查点](/dev/outbound#检查点-checkpoint)
-- 状态推算 → [BattleStatePredictor](/api/BattleStatePredictor)
+- 检查点机制 → [即时外发功能 - 检查点](../dev/outbound.md#检查点-checkpoint)
+- 状态推算 → [BattleStatePredictor](./BattleStatePredictor.md)

@@ -32,9 +32,9 @@ CharacterStateSnapshot? state =
 
 - 推算基于最近的有效检查点（`RoundRecord.Checkpoint`）逐操作（`ActionRecord`）应用
 - 无检查点时从开局状态推算
-- 状态快照结构见 [CharacterStateSnapshot](/api/CharacterStateSnapshot)
+- 状态快照结构见 [CharacterStateSnapshot](./CharacterStateSnapshot.md)
 
 ## 关联
 
-- 回放与渲染 → [RoundRecordRenderer](/api/RoundRecordRenderer)
-- 检查点机制 → [即时外发功能 - 检查点](/dev/outbound#检查点-checkpoint)
+- 回放与渲染 → [RoundRecordRenderer](./RoundRecordRenderer.md)
+- 检查点机制 → [即时外发功能 - 检查点](../dev/outbound.md#检查点-checkpoint)

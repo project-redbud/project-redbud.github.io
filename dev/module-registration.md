@@ -12,7 +12,7 @@
 | `SkillModule` | 继承 `IModule` | `SkillFactory()` + `EffectFactory()` |
 | `ItemModule` | 继承 `IModule` | `ItemFactory()` |
 
-三者共享相同的生命周期（`Load`/`UnLoad`/`BeforeLoad`/`AfterLoad`），见 [模组开发总览](/dev/module-overview)。
+三者共享相同的生命周期（`Load`/`UnLoad`/`BeforeLoad`/`AfterLoad`），见 [模组开发总览](./module-overview.md)。
 
 ---
 
@@ -251,7 +251,7 @@ Factory.CreateGameModuleEntityConfig("module_name", "file_name", items);
 - 反序列化时，JSON 中未映射到转换器属性的字段自动进入实体的 `Values`/`Others` 字典。
 - 需要动态创建的特效类必须在 `EffectFactory()` 中按 id 注册（如上面的 `1001 => new ExATK(...)`）。
 
-> JSON 结构与完整示例见 [自定义物品 - JSON 动态创建](/dev/custom-item)。
+> JSON 结构与完整示例见 [自定义物品 - JSON 动态创建](./custom-item.md)。
 
 ---
 
@@ -269,6 +269,6 @@ Factory.CreateGameModuleEntityConfig("module_name", "file_name", items);
 
 ## 下一步
 
-- 三种模组的完整示例 → [完整示例](/dev/examples)
-- 模组体系与设计原则 → [模组开发总览](/dev/module-overview)
-- 编码实现一个技能/特效 → [自定义技能](/dev/custom-skill) / [自定义特效](/dev/custom-effect)
+- 三种模组的完整示例 → [完整示例](./examples.md)
+- 模组体系与设计原则 → [模组开发总览](./module-overview.md)
+- 编码实现一个技能/特效 → [自定义技能](./custom-skill.md) / [自定义特效](./custom-effect.md)

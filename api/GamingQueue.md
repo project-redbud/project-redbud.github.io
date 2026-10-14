@@ -4,7 +4,7 @@
 
 提供混战模式的默认实现，可继承扩展。`MixGamingQueue` 和 `TeamGamingQueue` 是开箱即用的子类。
 
-> 机制规则详见 [回合制系统](/guide/turn-based) 与 [行动顺序表](/guide/action-queue)。
+> 机制规则详见 [回合制系统](../guide/turn-based.md) 与 [行动顺序表](../guide/action-queue.md)。
 
 ## 构造函数
 
@@ -23,13 +23,13 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
-| `GameplayEquilibriumConstant` | `EquilibriumConstant` | 游戏平衡常数（规则见 [EquilibriumConstant](/api/EquilibriumConstant)） |
+| `GameplayEquilibriumConstant` | `EquilibriumConstant` | 游戏平衡常数（规则见 [EquilibriumConstant](./EquilibriumConstant.md)） |
 | `WriteLine` | `Action<string>` | 日志输出委托（只读） |
 | `IsDebug` | `bool` | 调试模式 |
 | `Seed` | `int` | 确定性随机种子（只读，v3.0+；复现对局时传入相同 seed 可得到相同随机序列） |
 | `Random` | `Random` | 队列的确定性随机数（只读；角色/技能/特效绑定队列后经 `Random` 属性共享同一实例） |
 | `EnableAI` | `bool` | 是否启用内置 AI 控制器（false 时清空 AI，仅走模组事件与概率决策） |
-| `AI` | `AIController?` | 当前控制器，关闭 AI 时为 null；配置模式与评估事件见 [AIController](/api/AIController) |
+| `AI` | `AIController?` | 当前控制器，关闭 AI 时为 null；配置模式与评估事件见 [AIController](./AIController.md) |
 | `Guid` | `Guid` | 本队列唯一标识（外发数据包的 `g` 字段） |
 | `UseQueueProtected` | `bool` | 是否启用插队保护 |
 | `MaxCutQueueTimes` | `int` | 插队保护最多被插队次数（-1 默认 = 队列长度，最少 5；0 不保护） |
@@ -40,20 +40,20 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 |---|---|---|
 | `AllCharacters` | `List<Character>` | 参与游戏的所有角色 |
 | `Original` | `Dictionary<Guid, Character>` | 原始角色字典（用于复活还原） |
-| `Queue` | `List<Character>` | 当前行动顺序（规则见 [行动顺序表](/guide/action-queue)） |
+| `Queue` | `List<Character>` | 当前行动顺序（规则见 [行动顺序表](../guide/action-queue.md)） |
 | `HardnessTime` | `IReadOnlyDictionary<Character, double>` | 硬直时间表（只读视图；修改硬直请走 `AddCharacter`/`ChangeCharacterHardnessTime`） |
-| `Eliminated` | `List<Character>` | 已死亡角色（按死亡顺序，规则见 [死亡机制](/guide/characters-death)） |
+| `Eliminated` | `List<Character>` | 已死亡角色（按死亡顺序，规则见 [死亡机制](../guide/characters-death.md)） |
 | `CharactersInAI` | `List<Character>` | 处于 AI 控制的角色 |
 | `TotalTime` | `double` | 游戏运行时间 |
 | `TotalRound` | `int` | 游戏总回合数 |
 | `GameOver` | `bool` | 游戏是否已结束（只读） |
-| `Map` | `GameMap?` | 使用的地图（见 [GameMap](/api/GameMap)） |
+| `Map` | `GameMap?` | 使用的地图（见 [GameMap](./GameMap.md)） |
 
 ### 战斗数据
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
-| `CharacterStatistics` | `Dictionary<Character, CharacterStatistics>` | 角色统计数据（见 [CharacterStatistics](/api/CharacterStatistics)） |
+| `CharacterStatistics` | `Dictionary<Character, CharacterStatistics>` | 角色统计数据（见 [CharacterStatistics](./CharacterStatistics.md)） |
 | `AssistDetails` | `Dictionary<Character, AssistDetail>` | 助攻明细 |
 | `EarnedMoney` | `Dictionary<Character, int>` | 金币奖励记录 |
 | `FirstKiller` | `Character?` | 首个击杀者 |
@@ -61,21 +61,21 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `RespawnTimes` | `Dictionary<Character, int>` | 各角色已复活次数 |
 | `RespawnCountdown` | `Dictionary<Character, double>` | 复活倒计时 |
 | `MaxScoreToWin` | `int` | 获胜所需分数 |
-| `CharacterDecisionPoints` | `Dictionary<Character, DecisionPoints>` | 角色决策点（规则见 [决策点](/guide/decision-points)） |
+| `CharacterDecisionPoints` | `Dictionary<Character, DecisionPoints>` | 角色决策点（规则见 [决策点](../guide/decision-points.md)） |
 | `CustomData` | `Dictionary<string, object>` | 自定义数据（事件间传参） |
 
 ### 回合记录与外发
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
-| `LastRound` | `RoundRecord` | 上回合记录（见 [RoundRecord](/api/RoundRecord)） |
+| `LastRound` | `RoundRecord` | 上回合记录（见 [RoundRecord](./RoundRecord.md)） |
 | `CurrentAction` | `ActionRecord?` | 当前操作记录（只读） |
 | `ChainActionTurnId` | `Guid?` | 当前协同请求窗口 ID；无窗口时为 null |
 | `Rounds` | `List<RoundRecord>` | 所有回合记录 |
-| `RoundRewards` | `IReadOnlyDictionary<int, IReadOnlyList<Skill>>` | 回合绑定的奖励表只读投影（键 = 全局回合；规则见 [回合奖励](/guide/round-bonus)） |
+| `RoundRewards` | `IReadOnlyDictionary<int, IReadOnlyList<Skill>>` | 回合绑定的奖励表只读投影（键 = 全局回合；规则见 [回合奖励](../guide/round-bonus.md)） |
 | `CharacterRoundRewards` | `IReadOnlyDictionary<Character, IReadOnlyDictionary<int, IReadOnlyList<Skill>>>` | 角色绑定的奖励表只读投影（键 = 角色 → 行动回合序号；未启用角色绑定时为空表） |
 | `CheckpointInterval` | `int` | 状态检查点生成间隔（回合数），默认 50；0 或负数不生成 |
-| `RoundRecordSink` | `IRoundRecordSink?` | 回合记录外发通道（见 [即时外发](/dev/outbound)） |
+| `RoundRecordSink` | `IRoundRecordSink?` | 回合记录外发通道（见 [即时外发](../dev/outbound.md)） |
 
 ## 主要方法
 
@@ -84,7 +84,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | 方法 | 说明 |
 |---|---|
 | `InitCharacters(List<Character>)` | 初始化角色列表（复制原角色、初始化统计/助攻） |
-| `InitActionQueue()` | 初始化行动顺序表（按速度排位，规则见 [行动顺序表 - 排位顺序](/guide/action-queue#排位顺序)） |
+| `InitActionQueue()` | 初始化行动顺序表（按速度排位，规则见 [行动顺序表 - 排位顺序](../guide/action-queue.md#排位顺序)） |
 | `AddCharacter(Character, double hardnessTime, bool isCheckProtected = true)` | 添加角色到队列（含插队保护） |
 | `RemoveCharacterFromQueue(params IEnumerable<Character>)` | 移出队列，并清理吟唱、预释放、协同上下文及顺延奖励 |
 | `ClearQueue()` | 清空队列 |
@@ -95,7 +95,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | 方法 | 说明 |
 |---|---|
 | `NextCharacter()` | 获取下一个可行动角色（硬直时间归零） |
-| `TimeLapse()` | 时间流逝：硬直/冷却/特效持续时间衰减，回血回蓝（规则见 [回合制系统 - 时间](/guide/turn-based#时间)） |
+| `TimeLapse()` | 时间流逝：硬直/冷却/特效持续时间衰减，回血回蓝（规则见 [回合制系统 - 时间](../guide/turn-based.md#时间)） |
 | `ProcessTurn(Character)` | 处理角色回合（触发事件，返回是否游戏结束） |
 
 普通与协同吟唱的释放均进入 `ProcessTurn` 的主循环，触发正常回合事件与奖励结算。`TurnStartEvent` 返回 false 可接管本回合并延迟释放；宿主需负责后续排队与推进。不可嵌套调用 `ProcessTurn`。
@@ -112,7 +112,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 
 `SelectChainActionEvent` 的签名为 `Func<Character, IReadOnlyList<ChainActionRequest>, Guid?>`，返回选中的请求 ID。标准接入由 `DecideActionEvent` 返回 `CharacterActionType.ChainAction`，交给主循环结算。
 
-直接调用 `ConfirmChainAction` 时，宿主还需承担确认者的硬直汇总与回合收尾。完整说明见 [协同行动接入](/dev/chain-action)，结果字段见 [ChainActionRequest / ChainActionResult](/api/ChainActionRequest)。
+直接调用 `ConfirmChainAction` 时，宿主还需承担确认者的硬直汇总与回合收尾。完整说明见 [协同行动接入](../dev/chain-action.md)，结果字段见 [ChainActionRequest / ChainActionResult](./ChainActionRequest.md)。
 
 ### 地图
 
@@ -126,9 +126,9 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 
 | 方法 | 说明 |
 |---|---|
-| `DamageToEnemy(actor, enemy, damage, isNormalAttack, ...)` | 造成伤害（完整流程：增伤→免疫→闪避→暴击→防御→护盾，规则见 [伤害计算](/guide/damage)） |
+| `DamageToEnemy(actor, enemy, damage, isNormalAttack, ...)` | 造成伤害（完整流程：增伤→免疫→闪避→暴击→防御→护盾，规则见 [伤害计算](../guide/damage.md)） |
 | `HealToTarget(actor, target, heal, ...)` | 治疗目标 |
-| `DeathCalculation(killer, death)` | 死亡结算（规则见 [死亡机制](/guide/characters-death)） |
+| `DeathCalculation(killer, death)` | 死亡结算（规则见 [死亡机制](../guide/characters-death.md)） |
 | `DeathCalculationByTeammate(killer, death)` | 队友击杀的死亡结算 |
 | `DealWithCharacterDied(killer, death, assists)` | 处理角色死亡（击杀/助攻/统计） |
 | `CalculatePhysicalDamage(...)` / `CalculateMagicalDamage(...)` | 物理/魔法伤害计算（返回 `DamageResult`） |
@@ -153,7 +153,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | 方法 | 说明 |
 |---|---|
 | `GetEnemies(Character)` | 获取敌人列表 |
-| `GetTeammates(Character)`（virtual） | 获取队友列表（可重写，规则见 [角色状态](/guide/characters-states)） |
+| `GetTeammates(Character)`（virtual） | 获取队友列表（可重写，规则见 [角色状态](../guide/characters-states.md)） |
 | `IsTeammate(Character, Character)` | 判断是否队友 |
 | `GetIsTeammateDictionary(Character, params Character[])` | 获取队友判定字典 |
 | `IsSameFactionAs(Character, Character?)`（static） | 判断是否同阵营（召唤物关系） |
@@ -168,22 +168,22 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `SetCharactersToAIControl(bool cancel, params Character[])` | 设置 AI/玩家控制（重载） |
 | `IsCharacterInAIControlling(Character)` | 是否处于 AI 控制 |
 | `IsCharacterInAIControllingBySystem(Character)` / `IsCharacterInAIControllingByUser(Character)` | 系统/玩家 AI 控制判定 |
-| `CheckSkilledImmune(...)` | 技能免疫检定（规则见 [免疫 & 豁免](/guide/effects-immunity)） |
-| `CheckExemption(...)` | 豁免检定（规则见 [免疫 & 豁免](/guide/effects-immunity)） |
+| `CheckSkilledImmune(...)` | 技能免疫检定（规则见 [免疫 & 豁免](../guide/effects-immunity.md)） |
+| `CheckExemption(...)` | 豁免检定（规则见 [免疫 & 豁免](../guide/effects-immunity.md)） |
 | `InterruptCasting(caster, interrupter)` | 主动打断指定角色的魔法；普通打断不能清除预释放爆发技 |
 | `InterruptCasting(interrupter)` | 从各吟唱的目标中移除该角色；仅当全部目标失效且不满足空地施法条件时终止 |
 | `ChangeCharacterHardnessTime(character, addValue, isPercentage, isCheckProtected)` | 修改硬直时间 |
 | `SetCharacterRespawn(Character)` | 设置角色复活 |
-| `SetCharacterPreCastSuperSkill(Character, Skill)` | 设置预释放爆发技（规则见 [爆发技](/guide/skills-ultimate)） |
+| `SetCharacterPreCastSuperSkill(Character, Skill)` | 设置预释放爆发技（规则见 [爆发技](../guide/skills-ultimate.md)） |
 | `SetNotDamageAssistTime(Character, params Character[])` | 为非伤害协助登记助攻有效时间 |
 | `SetOnlyMoveHardnessTime(Character, DecisionPoints, ref double)` | 纯移动的硬直时间 |
-| `DecisionPointsRecovery(Character)` | 决策点恢复（规则见 [决策点](/guide/decision-points)） |
+| `DecisionPointsRecovery(Character)` | 决策点恢复（规则见 [决策点](../guide/decision-points.md)） |
 
 ### 回合奖励
 
 | 方法 | 说明 |
 |---|---|
-| `InitRoundRewards(effects, bindToCharacter = false, factoryEffects?)` | 初始化回合奖励：`effects` 为特效池（key = 特效数字标识符，value = 是否主动技能特效）；`bindToCharacter` 为 true 时启用角色绑定表（规则见 [回合奖励](/guide/round-bonus)） |
+| `InitRoundRewards(effects, bindToCharacter = false, factoryEffects?)` | 初始化回合奖励：`effects` 为特效池（key = 特效数字标识符，value = 是否主动技能特效）；`bindToCharacter` 为 true 时启用角色绑定表（规则见 [回合奖励](../guide/round-bonus.md)） |
 | `QueryRoundRewards(character, actionTurnOffset)` | 查询角色未来第 `offset` 个行动回合的奖励（仅角色绑定，召唤物折算到 Master） |
 | `AddRoundReward(character, actionTurnOffset, skill)` | 为角色追加一条未来行动回合的奖励（仅角色绑定） |
 | `RemoveRoundReward(character, actionTurnOffset, skill, out removed)` | 移除未来某行动回合中的一条奖励（仅角色绑定） |
@@ -246,7 +246,7 @@ queue.RoundRecordSink = sink;  // 赋值瞬间发起签名验证握手
 
 > 团队模式下 `TeamGamingQueue` 还会额外外发 `SendTeams`（"5"）与 `SendEliminatedTeams`（"8"）。自定义队列可通过重写 `AfterSendRoundEndData()` 追加外发内容。
 
-详见 [即时外发功能](/dev/outbound) 与 [专用服务器开发](/dev/outbound-server)。
+详见 [即时外发功能](../dev/outbound.md) 与 [专用服务器开发](../dev/outbound-server.md)。
 
 ## 三种队列对比
 
@@ -271,10 +271,10 @@ public class MyGameMode : GamingQueue
 
 ## 38 个事件
 
-详见 [GamingQueue 事件模式](/dev/events-overview)。
+详见 [GamingQueue 事件模式](../dev/events-overview.md)。
 
 ## 关联
 
 - 规则书：回合制 / 行动顺序表 / 决策点 / 伤害计算 / 回合奖励 / 角色状态 / 死亡机制 / 技能 / 特效
 - 外发：即时外发功能 / 专用服务器开发
-- 相关 API：[Character](/api/Character) / [Skill](/api/Skill) / [Effect](/api/Effect) / [Item](/api/Item) / [GameMap](/api/GameMap) / [RoundRecord](/api/RoundRecord)
+- 相关 API：[Character](./Character.md) / [Skill](./Skill.md) / [Effect](./Effect.md) / [Item](./Item.md) / [GameMap](./GameMap.md) / [RoundRecord](./RoundRecord.md)

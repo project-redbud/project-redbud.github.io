@@ -15,7 +15,7 @@ public abstract class NeuralCalibrationEffect : Effect
 ## 说明
 
 - 当角色使用 `SupportedWeaponType` 指定的武器时，此特效生效
-- 通常由魔法卡包的 `NeuralCalibration` 属性提供（见 [MagicCardPack](/api/MagicCardPack)）
+- 通常由魔法卡包的 `NeuralCalibration` 属性提供（见 [MagicCardPack](./MagicCardPack.md)）
 
 ## 继承示例
 
@@ -39,5 +39,5 @@ public class BowMasteryEffect(Skill skill) : NeuralCalibrationEffect
 
 ## 关联
 
-- 特性详解 → [预制实体 - 神经校准](/guide/prefabricated-entities#neuralcalibrationeffect-—-神经校准)
-- 魔法卡包 → [MagicCardPack](/api/MagicCardPack)
+- 特性详解 → [预制实体 - 神经校准](../guide/prefabricated-entities.md#neuralcalibrationeffect-—-神经校准)
+- 魔法卡包 → [MagicCardPack](./MagicCardPack.md)

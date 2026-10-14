@@ -214,7 +214,7 @@ Factory.CreateGameModuleEntityConfig("module_name", "file_name", myItems);
 - 每个配置文件只保存**一种实体类型**。
 - 反序列化时，JSON 中未映射到转换器属性的字段自动进入实体的 `Values`/`Others` 字典；需要动态创建的特效类请在 `EffectFactory()` 中按 id 注册。
 
-> 适用于：动态扩展技能和物品、保存玩家的存档。详见 [自定义物品 - JSON 动态创建](/dev/custom-item)。
+> 适用于：动态扩展技能和物品、保存玩家的存档。详见 [自定义物品 - JSON 动态创建](./custom-item.md)。
 
 ---
 
@@ -291,12 +291,12 @@ JSON/配置文件动态创建
 
 ### 4. v3.0 变更说明
 
-v3.0 剥离了网络传输层（Socket/HTTP/WebSocket、`DataRequest` 等）与数据库代码，因此 v2.x 的 `GameModule`/`GameModuleServer`/`Plugin` 体系**已不存在**。核心库只保留数据契约与抽象；客户端↔服务端通信由外部项目自实现，游戏数据外发请使用 [即时外发功能](/dev/outbound)。
+v3.0 剥离了网络传输层（Socket/HTTP/WebSocket、`DataRequest` 等）与数据库代码，因此 v2.x 的 `GameModule`/`GameModuleServer`/`Plugin` 体系**已不存在**。核心库只保留数据契约与抽象；客户端↔服务端通信由外部项目自实现，游戏数据外发请使用 [即时外发功能](./outbound.md)。
 
 ---
 
 ## 下一步
 
-- 三种实体模组详解 → [实体模组 (EntityModule)](/dev/module-registration)
-- 完整示例代码 → [完整示例](/dev/examples)
-- 数据外发到专用服务器 → [即时外发功能](/dev/outbound)
+- 三种实体模组详解 → [实体模组 (EntityModule)](./module-registration.md)
+- 完整示例代码 → [完整示例](./examples.md)
+- 数据外发到专用服务器 → [即时外发功能](./outbound.md)

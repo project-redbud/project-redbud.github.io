@@ -5,7 +5,7 @@
 需继承并使用。一个 `Skill` 由多个 `Effect` 组合而成，每个 `Effect` 负责一种具体效果。特效承载技能的实际效果，可通过约 60 个虚方法（钩子）介入游戏的各个环节。
 
 ::: info v3.0 起统一上下文参数与结构体回读
-所有可重写钩子均接收单一**参数上下文对象**（`HookContext` 派生类，如 `DamageContext`、`SkillCastContext`），替代旧版的长参数列表与 `ref` 传参；需要回读结果的钩子返回 **`readonly record struct` 结果对象**（见 [EffectResult](/api/EffectResult)），`default` 即"不干预"。上下文定义见 [HookContext 参数上下文族](/api/HookContext)。
+所有可重写钩子均接收单一**参数上下文对象**（`HookContext` 派生类，如 `DamageContext`、`SkillCastContext`），替代旧版的长参数列表与 `ref` 传参；需要回读结果的钩子返回 **`readonly record struct` 结果对象**（见 [EffectResult](./EffectResult.md)），`default` 即"不干预"。上下文定义见 [HookContext 参数上下文族](./HookContext.md)。
 :::
 
 ## 构造函数
@@ -90,7 +90,7 @@ public Effect()
 
 ## 可重写钩子
 
-所有钩子均为单一上下文参数（括号内为上下文类型，主角色统一从 `ctx.Trigger` 获取）。带返回结构体的钩子按聚合规则合并（OR 短路 / SUM 累加 / 覆盖后者胜 / 连乘），见 [EffectResult](/api/EffectResult)。
+所有钩子均为单一上下文参数（括号内为上下文类型，主角色统一从 `ctx.Trigger` 获取）。带返回结构体的钩子按聚合规则合并（OR 短路 / SUM 累加 / 覆盖后者胜 / 连乘），见 [EffectResult](./EffectResult.md)。
 
 ### 生命周期
 
@@ -223,7 +223,7 @@ public Effect()
 | `OnRoundRewardLost(RoundRewardContext)` | Binding/TurnKey/Skills/IsCarryOver | 回合奖励从角色身上被移除时（回合结束回收、吟唱被打断/施法者死亡时清理顺延奖励、特效主动移除） |
 | `OnRoundRewardStolen(RoundRewardContext)` | Skills（全部被夺取项）/Thief/From | 回合奖励被夺取时（**原持有者与夺取者**的特效都会被触发，通过 `ctx.Trigger` 为原持有者、`ctx.Thief` 为夺取者判定归属） |
 
-上下文结构见 [RoundRewardContext](/api/HookContext#roundrewardcontext)，奖励规则见 [回合奖励](/guide/round-bonus)。
+上下文结构见 [RoundRewardContext](./HookContext.md#roundrewardcontext)，奖励规则见 [回合奖励](../guide/round-bonus.md)。
 
 ---
 
@@ -268,8 +268,8 @@ public Effect()
 
 ## 关联
 
-- 参数上下文族 → [HookContext](/api/HookContext)
-- 返回值结构体 → [EffectResult](/api/EffectResult)
-- 自定义特效 → [自定义特效](/dev/custom-effect)
-- 特效规则 → [特效概述](/guide/effects)
-- 技能基类 → [Skill](/api/Skill)
+- 参数上下文族 → [HookContext](./HookContext.md)
+- 返回值结构体 → [EffectResult](./EffectResult.md)
+- 自定义特效 → [自定义特效](../dev/custom-effect.md)
+- 特效规则 → [特效概述](../guide/effects.md)
+- 技能基类 → [Skill](./Skill.md)

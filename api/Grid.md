@@ -54,5 +54,5 @@ grid.CharacterEntered += c => Console.WriteLine($"{c} 进入了格子 {grid.Id}"
 
 ## 关联
 
-- 地图类 → [GameMap](/api/GameMap)
-- 取格方法 → [GameMap - 取格](/api/GameMap#取格范围计算)
+- 地图类 → [GameMap](./GameMap.md)
+- 取格方法 → [GameMap - 取格](./GameMap.md#取格-范围计算)

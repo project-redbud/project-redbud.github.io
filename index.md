@@ -67,7 +67,7 @@ features:
 - **实体可动态化**：Factory 工厂 + JSON 配置文件支持免编码动态创建角色、技能、特效与物品，模组化分发游戏内容
 - **数据可观测**：回合记录以不可变快照沉淀，支持即时外发到专用服务器，用于观战、回放与战斗状态重建
 
-> 库的安装与引用方式见 [快速开始](/dev/getting-started)。
+> 库的安装与引用方式见 [快速开始](./dev/getting-started.md)。
 
 ## 🚀 快速上手
 
@@ -104,15 +104,15 @@ while (!queue.GameOver && queue.NextCharacter() is Character actor)
 }
 ```
 
-> 完整示例见 [快速开始](/dev/getting-started) 与 [完整示例](/dev/examples)。
+> 完整示例见 [快速开始](./dev/getting-started.md) 与 [完整示例](./dev/examples.md)。
 
 ## 📚 文档导航
 
 | 模块 | 内容 | 入口 |
 |---|---|---|
-| **规则书** | 回合制 / 行动顺序表 / 决策点 / 伤害计算 / 角色 / 技能 / 特效 / 物品 全机制详解 | [游戏机制](/guide/turn-based) · [角色系统](/guide/characters) · [技能系统](/guide/skills) · [特效系统](/guide/effects) |
-| **开发者指南** | 快速开始 / 自定义角色·技能·特效·物品 / 事件驱动 / 模组开发 / 即时外发 | [快速开始](/dev/getting-started) · [事件模式](/dev/events-overview) · [模组开发](/dev/module-overview) · [即时外发](/dev/outbound) |
-| **API 参考** | 核心类与接口的完整代码级 API：GamingQueue / Character / Skill / Effect / Item / 协同行动 / 外发通道等 | [API 参考](/api/) |
+| **规则书** | 回合制 / 行动顺序表 / 决策点 / 伤害计算 / 角色 / 技能 / 特效 / 物品 全机制详解 | [游戏机制](./guide/turn-based.md) · [角色系统](./guide/characters.md) · [技能系统](./guide/skills.md) · [特效系统](./guide/effects.md) |
+| **开发者指南** | 快速开始 / 自定义角色·技能·特效·物品 / 事件驱动 / 模组开发 / 即时外发 | [快速开始](./dev/getting-started.md) · [事件模式](./dev/events-overview.md) · [模组开发](./dev/module-overview.md) · [即时外发](./dev/outbound.md) |
+| **API 参考** | 核心类与接口的完整代码级 API：GamingQueue / Character / Skill / Effect / Item / 协同行动 / 外发通道等 | [API 参考](./api/index.md) |
 
 ## ✨ 核心能力
 

@@ -69,5 +69,5 @@ foreach (Character character in queue.CharacterStatistics
 
 ## 关联
 
-- 赛后统计示例 → [完整示例](/dev/examples#赛后统计)
-- 外发事件 `"3"` → [即时外发功能](/dev/outbound)
+- 赛后统计示例 → [完整示例](../dev/examples.md#赛后统计)
+- 外发事件 `"3"` → [即时外发功能](../dev/outbound.md)

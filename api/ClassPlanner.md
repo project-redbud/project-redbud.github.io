@@ -138,6 +138,6 @@ planner.ApplyToCharacter();
 
 ## 关联
 
-- 系统规则 → [职业规划系统](/guide/class-plan)
-- 转换战技 → [SwitchCombatTalentSkill](/api/SwitchCombatTalentSkill)
-- 角色定位属性 → [Character](/api/Character)
+- 系统规则 → [职业规划系统](../guide/class-plan.md)
+- 转换战技 → [SwitchCombatTalentSkill](./SwitchCombatTalentSkill.md)
+- 角色定位属性 → [Character](./Character.md)

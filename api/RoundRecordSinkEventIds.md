@@ -31,5 +31,5 @@ DefaultRoundRecordSink sink = new("https://example.com/api/round",
 
 ## 关联
 
-- 外发功能 → [即时外发功能](/dev/outbound)
-- 数据包模型 → [RoundRecordPayload](/api/RoundRecordPayload)
+- 外发功能 → [即时外发功能](../dev/outbound.md)
+- 数据包模型 → [RoundRecordPayload](./RoundRecordPayload.md)

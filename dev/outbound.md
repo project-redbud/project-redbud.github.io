@@ -189,5 +189,5 @@ string text = RoundRecordRenderer.RenderAll(rounds);
 
 ## 下一步
 
-- 服务端如何接收与验证这些数据包？→ [专用服务器开发](/dev/outbound-server)
-- 回合记录结构详解 → [GamingQueue API 参考](/api/GamingQueue)
+- 服务端如何接收与验证这些数据包？→ [专用服务器开发](./outbound-server.md)
+- 回合记录结构详解 → [GamingQueue API 参考](../api/GamingQueue.md)

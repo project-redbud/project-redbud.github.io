@@ -17,7 +17,7 @@ FunGame.Core 是一个**回合制游戏框架库**，提供：
 - `Skill` / `Effect` — 技能与特效系统
 - `EquilibriumConstant` — 游戏平衡常数配置
 - `IGamingQueue` — 队列接口（可自定义实现）
-- 决策表 — JSON 或链式配置角色规则，见 [编写决策表](/dev/decision-tables)；默认 AI 的模式可独立配置，见 [AI 规划](/dev/ai-planning)
+- 决策表 — JSON 或链式配置角色规则，见 [编写决策表](./decision-tables.md)；默认 AI 的模式可独立配置，见 [AI 规划](./ai-planning.md)
 
 ## 第一个回合
 
@@ -97,7 +97,7 @@ queue.SelectSkillEvent += (queue, character, skills) =>
 
 ## 下一步
 
-- 学习如何 [自定义角色](/dev/custom-character)
-- 学习如何 [自定义技能](/dev/custom-skill)
-- 查看 [完整示例](/dev/examples)
-- 了解 [GamingQueue 事件模式](/dev/events-overview)
+- 学习如何 [自定义角色](./custom-character.md)
+- 学习如何 [自定义技能](./custom-skill.md)
+- 查看 [完整示例](./examples.md)
+- 了解 [GamingQueue 事件模式](./events-overview.md)

@@ -1,6 +1,6 @@
 # 完整 BOSS 决策表
 
-此配置与 Core #198 的五规则 BOSS 回归夹具一致。它演示按优先级选择治疗、范围压制、追击、安全吟唱与普攻。可[下载 JSON](/examples/boss-decision-table.json)，再用 [DecisionTableLoader](/api/DecisionTable#加载与绑定) 加载。
+此配置与 Core #198 的五规则 BOSS 回归夹具一致。它演示按优先级选择治疗、范围压制、追击、安全吟唱与普攻。可[下载 JSON](/examples/boss-decision-table.json)，再用 [DecisionTableLoader](../api/DecisionTable.md#加载与绑定) 加载。
 
 ## 所需技能
 
@@ -54,4 +54,4 @@ static void BindBoss(Character template, string path)
 }
 ```
 
-在队列初始化并复制模板前绑定；已创建参战实例时对实际实例 Bind。策略 ID 会随角色 JSON 保存，读回后须重新绑定。默认 AI 的回退模式独立配置，见 [AI 模式与施法规划](/dev/ai-planning)。
+在队列初始化并复制模板前绑定；已创建参战实例时对实际实例 Bind。策略 ID 会随角色 JSON 保存，读回后须重新绑定。默认 AI 的回退模式独立配置，见 [AI 模式与施法规划](./ai-planning.md)。

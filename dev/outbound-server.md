@@ -206,5 +206,5 @@ Dictionary<Guid, CharacterStateSnapshot> states =
 
 ## 下一步
 
-- 客户端配置与事件详情 → [即时外发功能](/dev/outbound)
-- 回合记录数据结构 → [GamingQueue API 参考](/api/GamingQueue)
+- 客户端配置与事件详情 → [即时外发功能](./outbound.md)
+- 回合记录数据结构 → [GamingQueue API 参考](../api/GamingQueue.md)

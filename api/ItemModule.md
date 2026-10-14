@@ -63,6 +63,6 @@ public class ExampleItemModule : ItemModule
 
 ## 关联
 
-- 模组体系 → [模组开发总览](/dev/module-overview)
-- 实体模组详解 → [实体模组 (EntityModule)](/dev/module-registration)
-- 物品基类 → [Item](/api/Item)
+- 模组体系 → [模组开发总览](../dev/module-overview.md)
+- 实体模组详解 → [实体模组 (EntityModule)](../dev/module-registration.md)
+- 物品基类 → [Item](./Item.md)

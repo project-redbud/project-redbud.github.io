@@ -63,5 +63,5 @@ public class MyInterruptEffect : Effect
 
 ## 关联
 
-- 使用这些结构体的钩子 → [Effect](/api/Effect)
-- 参数上下文族 → [HookContext](/api/HookContext)
+- 使用这些结构体的钩子 → [Effect](./Effect.md)
+- 参数上下文族 → [HookContext](./HookContext.md)

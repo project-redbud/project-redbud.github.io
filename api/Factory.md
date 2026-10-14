@@ -64,9 +64,9 @@ Dictionary<string, Item> items =
 Factory.CreateGameModuleEntityConfig("module_name", "file_name", items);
 ```
 
-> 仅支持继承 `BaseEntity` 的实体类型（`where T : BaseEntity`）。详见 [实体模组 - JSON 配置文件](/dev/module-registration#json-配置文件entitymoduleconfig)。
+> 仅支持继承 `BaseEntity` 的实体类型（`where T : BaseEntity`）。详见 [实体模组 - JSON 配置文件](../dev/module-registration.md#json-配置文件-entitymoduleconfig)。
 
 ## 关联
 
-- 模组如何注册工厂 → [实体模组 (EntityModule)](/dev/module-registration)
-- 模组体系 → [模组开发总览](/dev/module-overview)
+- 模组如何注册工厂 → [实体模组 (EntityModule)](../dev/module-registration.md)
+- 模组体系 → [模组开发总览](../dev/module-overview.md)

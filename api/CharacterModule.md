@@ -69,6 +69,6 @@ public class ExampleCharacterModule : CharacterModule
 
 ## 关联
 
-- 模组体系 → [模组开发总览](/dev/module-overview)
-- 实体模组详解 → [实体模组 (EntityModule)](/dev/module-registration)
-- 工厂 → [Factory](/api/Factory)
+- 模组体系 → [模组开发总览](../dev/module-overview.md)
+- 实体模组详解 → [实体模组 (EntityModule)](../dev/module-registration.md)
+- 工厂 → [Factory](./Factory.md)

@@ -17,7 +17,7 @@ public abstract class CourageCommandSkill(Character? character = null)
 
 - 属于主动战技（`SkillType.Skill`）
 - 使用后不结束回合，可继续执行其他行动
-- 通常由魔法卡包的 `CourageCommand` 属性提供（见 [MagicCardPack](/api/MagicCardPack)）
+- 通常由魔法卡包的 `CourageCommand` 属性提供（见 [MagicCardPack](./MagicCardPack.md)）
 
 ## 继承示例
 
@@ -34,5 +34,5 @@ public class MyCourageCommand : CourageCommandSkill
 
 ## 关联
 
-- 特性详解 → [预制实体 - 勇气指令](/guide/prefabricated-entities#couragecommandskill-—-勇气指令)
-- 魔法卡包 → [MagicCardPack](/api/MagicCardPack)
+- 特性详解 → [预制实体 - 勇气指令](../guide/prefabricated-entities.md#couragecommandskill-—-勇气指令)
+- 魔法卡包 → [MagicCardPack](./MagicCardPack.md)

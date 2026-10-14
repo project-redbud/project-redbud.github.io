@@ -59,6 +59,6 @@ queue.RoundRecordSink = sink;  // 赋值瞬间发起签名验证握手
 
 ## 关联
 
-- 使用指南 → [即时外发功能](/dev/outbound)
-- 接口定义 → [IRoundRecordSink](/api/IRoundRecordSink)
-- 服务器端验签实现 → [专用服务器开发](/dev/outbound-server)
+- 使用指南 → [即时外发功能](../dev/outbound.md)
+- 接口定义 → [IRoundRecordSink](./IRoundRecordSink.md)
+- 服务器端验签实现 → [专用服务器开发](../dev/outbound-server.md)

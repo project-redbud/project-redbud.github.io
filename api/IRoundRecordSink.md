@@ -37,6 +37,6 @@ public class MyMQSink : IRoundRecordSink
 
 ## 关联
 
-- 外发功能使用 → [即时外发功能](/dev/outbound)
-- 官方默认实现 → [DefaultRoundRecordSink](/api/DefaultRoundRecordSink)
-- 服务器端协议 → [专用服务器开发](/dev/outbound-server)
+- 外发功能使用 → [即时外发功能](../dev/outbound.md)
+- 官方默认实现 → [DefaultRoundRecordSink](./DefaultRoundRecordSink.md)
+- 服务器端协议 → [专用服务器开发](../dev/outbound-server.md)

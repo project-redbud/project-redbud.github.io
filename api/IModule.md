@@ -32,5 +32,5 @@ Load(objs)
 
 ## 关联
 
-- 模组体系 → [模组开发总览](/dev/module-overview)
-- 实体模组 → [CharacterModule](/api/CharacterModule) / [SkillModule](/api/SkillModule) / [ItemModule](/api/ItemModule)
+- 模组体系 → [模组开发总览](../dev/module-overview.md)
+- 实体模组 → [CharacterModule](./CharacterModule.md) / [SkillModule](./SkillModule.md) / [ItemModule](./ItemModule.md)

@@ -1,6 +1,6 @@
 # ChainActionRequest 与 ChainActionResult
 
-协同行动申请与执行结果，位于 `FunGame.Core.Model.Framework`。规则见[协同行动](/guide/chain-action)，接入见[开发者指南](/dev/chain-action)。
+协同行动申请与执行结果，位于 `FunGame.Core.Model.Framework`。规则见[协同行动](../guide/chain-action.md)，接入见[开发者指南](../dev/chain-action.md)。
 
 ## ChainActionRequest
 
@@ -41,4 +41,4 @@ public sealed record ChainActionResult(
 | `HardnessTime` | 协作方即时动作产生的硬直，开始吟唱时通常为 0；不是最终队列位置 |
 | `Record` | 协作方执行记录的结构快照，实体引用共享 |
 
-协作魔法的吟唱时间可读取 `Record.CastTime`，实际队列等待时间读取 `GamingQueue.HardnessTime`。直接确认不会替协调方入账确认硬直，宿主收尾契约见[接管整回合](/dev/chain-action#接管整回合时直接确认)。
+协作魔法的吟唱时间可读取 `Record.CastTime`，实际队列等待时间读取 `GamingQueue.HardnessTime`。直接确认不会替协调方入账确认硬直，宿主收尾契约见[接管整回合](../dev/chain-action.md#接管整回合时直接确认)。

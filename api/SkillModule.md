@@ -77,6 +77,6 @@ public class ExampleSkillModule : SkillModule
 
 ## 关联
 
-- 模组体系 → [模组开发总览](/dev/module-overview)
-- 实体模组详解 → [实体模组 (EntityModule)](/dev/module-registration)
-- 技能基类 → [Skill](/api/Skill)
+- 模组体系 → [模组开发总览](../dev/module-overview.md)
+- 实体模组详解 → [实体模组 (EntityModule)](../dev/module-registration.md)
+- 技能基类 → [Skill](./Skill.md)
