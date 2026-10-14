@@ -53,6 +53,16 @@ static void BindChainActions(
 
 非指向性规划结果还可传 `castCenter: decision.CastCenter`。中心是选择落点或方向参考格，`targetGrids` 是影响格；提供中心时队列重验中心射程并重算范围，未提供中心则沿用直接提交格子的校验契约。AI 代交申请会携带中心；[决策表](./decision-tables.md)也用于协作方规划，协同禁止移动，表内 `endTurn` 表示不提交申请。
 
+## AI 申请与玩家确认
+
+Core 在 `DecideActionEvent` 前调度连续同队区间内由 AI 控制的协作方，以协作方自己的预算、敌我列表及决策表规划申请。回合角色可以是手动玩家；宿主无需另外扫描队友或替 AI 手工挑选技能。手动协作方仍通过 `SubmitChainAction` 显式提交。
+
+宿主展示 `ctx.ChainActions` 或通过 `GetPendingChainActions(turnActor)` 查询有效列表。玩家主动选择协同时，返回 `CharacterActionType.ChainAction`，再由 `SelectChainActionEvent` 接收选中的申请 ID。不需要提醒或询问弹窗，也不应在列表加载时调用 `ConfirmChainAction`。
+
+展示申请者、动作、角色目标、施法中心与影响格，以及双方实际费用。A 的确认成本来自 `DecisionPointsCostChainAction`，确认硬直贡献来自 `ChainActionHardnessTime`；B 的 DP 成本可用 `GetActionPointCost(request.ActionType, request.Skill, chainAction: true)` 获取。魔法应说明确认后先吟唱、释放时扣 MP，不把申请列表当作已完成动作。
+
+无有效申请或 A 预算不足时禁用确认。选中项应仍存在于当前列表，提交时回传对应 ID；取消列表选择返回行动菜单。每次决策重新查询，已有有效申请保留，消费或失效后可重新规划。界面流程见 [手动确认与界面](../guide/chain-action.md#手动确认与界面)。
+
 ## 生命周期与取消
 
 `GetAvailableChainActors` 查询当前连续同队区间；`GetPendingChainActions` 返回仍有效的申请，并清除已失效的申请。协作方可用 `WithdrawChainAction` 撤回自己的申请。
@@ -80,3 +90,5 @@ static void BindChainActions(
 即时动作在确认记录上保存 `NonDamageAssistTargets`。魔法成功释放时才建立有效协调辅助；失败记录归施法者，不会把打断者的当前成功动作误记为失败。
 
 `ActionRecord.HardnessTime` / `CastTime` 是单次操作自身的值，在外发前填写。原队列位置 `x` 的还原属于回合或队列层，不计入单条释放记录硬直。外部终止的独立失败记录也可能在他人回合或时间流逝阶段外发。
+
+回放把 A 的记录称为“确认 B 的申请”，费用读取实际记录，不写死 1 DP；B 的记录展示实际执行者。开始吟唱与释放、失败分别展示，失败确认不能描述为已经接受并执行。单条硬直标注为本次贡献，最终等待时间读取回合或队列层。

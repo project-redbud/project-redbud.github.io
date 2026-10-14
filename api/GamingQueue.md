@@ -112,6 +112,8 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 
 `SelectChainActionEvent` 的签名为 `Func<Character, IReadOnlyList<ChainActionRequest>, Guid?>`，返回选中的请求 ID。标准接入由 `DecideActionEvent` 返回 `CharacterActionType.ChainAction`，交给主循环结算。
 
+在正常行动决策前，连续同队区间内的 AI 协作方自动规划并提交申请，与回合角色是否由 AI 控制无关。手动回合先得到申请列表，由玩家自行选择是否确认；手动协作方由宿主显式提交。申请不执行、不扣费，已有有效请求保持，失效或消费后可在后续决策重新规划。
+
 直接调用 `ConfirmChainAction` 时，宿主还需承担确认者的硬直汇总与回合收尾。完整说明见 [协同行动接入](../dev/chain-action.md)，结果字段见 [ChainActionRequest / ChainActionResult](./ChainActionRequest.md)。
 
 ### 地图

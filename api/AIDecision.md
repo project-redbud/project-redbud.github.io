@@ -22,9 +22,9 @@ AI 决策数据，位于 `FunGame.Core.Model.Framework`。由 `AIController.Deci
 
 ## 协同决策
 
-`AIController.SelectChainAction(Character actor)` 返回首个有效申请的 `Guid?`，没有申请时返回 null。正常 AI 行动决策前，队列会为连续同队区间内符合资格的角色评估原地协同动作，保留已有有效申请；不会为协作移动。
+`AIController.SelectChainAction(Character actor)` 返回首个有效申请的 `Guid?`，没有申请时返回 null。每次正常行动决策前，队列调度连续同队区间内符合资格的 AI 协作方，使用该协作方自己的预算、敌我列表和策略评估原地动作。已有有效申请保持，不为协作移动。
 
-宿主 `DecideActionEvent` 优先，未指定动作时依次尝试协同确认、自身 AI 行动与概率回退。手动回合不自动代交，但 AI 回合可为手动控制的队友代交。接入见 [协同行动](../dev/chain-action.md)。
+申请在 `DecideActionEvent` 前准备，与回合角色是否由 AI 控制无关；手动协作方不被 AI 代选。手动回合由玩家主动选择并确认申请。宿主 `DecideActionEvent` 优先，AI 回合未指定动作时依次尝试协同确认、自身 AI 行动与概率回退。接入见 [协同行动](../dev/chain-action.md)。
 
 ## 模式与策略
 

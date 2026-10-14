@@ -36,6 +36,8 @@ public AIDecision DecideAIAction(
 
 先评估角色绑定策略，取得动作则返回；未命中时按 `SelectionMode` 规划。类别概率不大于 0 时相应类别禁用，策略也不能绕过。`isChainAction` 使用协同预算且禁止移动，`rejectedRules` 跳过当前尝试中执行重验失败的规则。
 
+队列自动生成申请时只求值由 AI 控制的协作方，使用其自己的局面与策略；当前行动者可以是手动玩家。申请收集发生在行动类型选择前，确认仍由当前行动者决定。
+
 `SelectChainAction(Character actor)` 返回首个有效申请的 `Guid?`，没有申请时为 null。决策输出字段见 [AIDecision](./AIDecision.md)，队列调用优先级见 [决策表规则](../guide/decision-tables.md#何时使用)。
 
 ## 估值事件
