@@ -51,6 +51,8 @@ static void BindChainActions(
 
 地图中的非指向性技能用 `targetGrids`，符合空地施法条件时可传空的 `targets`。申请目标集合在提交时复制；实体引用仍共享。确认会重新校验，不要以界面上的旧申请替代实时校验结果。
 
+非指向性规划结果还可传 `castCenter: decision.CastCenter`。中心是选择落点或方向参考格，`targetGrids` 是影响格；提供中心时队列重验中心射程并重算范围，未提供中心则沿用直接提交格子的校验契约。AI 代交申请会携带中心；[决策表](/dev/decision-tables)也用于协作方规划，协同禁止移动，表内 `endTurn` 表示不提交申请。
+
 ## 生命周期与取消
 
 `GetAvailableChainActors` 查询当前连续同队区间；`GetPendingChainActions` 返回仍有效的申请，并清除已失效的申请。协作方可用 `WithdrawChainAction` 撤回自己的申请。

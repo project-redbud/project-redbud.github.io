@@ -18,6 +18,7 @@
 | `Item` | `Item?` | 使用的物品 |
 | `Targets` | `IReadOnlyList<Character>` | 提交时复制并去重的目标集合 |
 | `TargetGrids` | `IReadOnlyList<Grid>` | 提交时复制并去重的目标格集合 |
+| `CastCenter` | `Grid?` | 可选施法中心或方向参考格，用于重验中心射程与重算影响格 |
 
 所有属性只读，集合中的实体引用共享。申请只在所属回合有效；同一协作方的新申请会替换旧申请，查询及确认会移除失效申请。
 

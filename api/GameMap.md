@@ -65,6 +65,10 @@ public Grid? this[long id]                  // 按 Id 取格子
 |---|---|
 | `CharacterMove(Character, Grid? current, Grid target)` | 角色移动（检查可达性与占用） |
 | `CharacterMoveToClosestReachable(Character, Grid? current, Grid target)` | 移动到最接近的可达格子 |
+| `GetMovementSteps(Character, Grid origin, Grid target)`（virtual） | 只读最短路径步数，不可达返回 -1 |
+| `GetMovementCosts(Character, Grid origin)`（virtual） | `IReadOnlyDictionary<Grid, int>`，一次查询起点到所有连通格的最短步数 |
+
+决策规划复用同一角色与起点的路径成本表。派生地图应重写 `GetMovementCosts`，并保持查询与 `CharacterMove` 的规则一致；基础查询为八方向搜索。见 [AI 规划](/dev/ai-planning#搜索预算与扩展)。
 
 ### 静态工具
 

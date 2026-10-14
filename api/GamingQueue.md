@@ -29,6 +29,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `Seed` | `int` | 确定性随机种子（只读，v3.0+；复现对局时传入相同 seed 可得到相同随机序列） |
 | `Random` | `Random` | 队列的确定性随机数（只读；角色/技能/特效绑定队列后经 `Random` 属性共享同一实例） |
 | `EnableAI` | `bool` | 是否启用内置 AI 控制器（false 时清空 AI，仅走模组事件与概率决策） |
+| `AI` | `AIController?` | 当前控制器，关闭 AI 时为 null；配置模式与评估事件见 [AIController](/api/AIController) |
 | `Guid` | `Guid` | 本队列唯一标识（外发数据包的 `g` 字段） |
 | `UseQueueProtected` | `bool` | 是否启用插队保护 |
 | `MaxCutQueueTimes` | `int` | 插队保护最多被插队次数（-1 默认 = 队列长度，最少 5；0 不保护） |
@@ -105,7 +106,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 |---|---|
 | `GetAvailableChainActors(Character turnActor)` | `IReadOnlyList<Character>`，可参与协同的连续同阵营角色 |
 | `GetPendingChainActions(Character turnActor)` | `IReadOnlyList<ChainActionRequest>`，过滤失效请求后的待确认列表 |
-| `SubmitChainAction(Character turnActor, Character actor, CharacterActionType type, IEnumerable<Character> targets, out string failReason, Skill? skill = null, Item? item = null, IEnumerable<Grid>? targetGrids = null)` | 成功返回请求，失败返回 null 并写入原因；同一参与者的新请求替换旧请求 |
+| `SubmitChainAction(Character turnActor, Character actor, CharacterActionType type, IEnumerable<Character> targets, out string failReason, Skill? skill = null, Item? item = null, IEnumerable<Grid>? targetGrids = null, Grid? castCenter = null)` | 成功返回请求，失败返回 null 并写入原因；同一参与者的新请求替换旧请求；提供中心时重验射程与影响范围 |
 | `WithdrawChainAction(Character actor, Guid requestId)` | `bool`，参与者撤回自己的申请 |
 | `ConfirmChainAction(Character turnActor, Guid requestId)` | `ChainActionResult`，确认并执行；吟唱开始成功不代表最终释放成功 |
 

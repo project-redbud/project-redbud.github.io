@@ -48,6 +48,7 @@ export default defineConfig({
             { text: '回合制系统', link: '/guide/turn-based' },
             { text: '行动顺序表', link: '/guide/action-queue' },
             { text: '决策点', link: '/guide/decision-points' },
+            { text: '决策表', link: '/guide/decision-tables' },
             { text: '协同行动', link: '/guide/chain-action' },
             { text: '伤害计算', link: '/guide/damage' },
             { text: '回合奖励', link: '/guide/round-bonus' },
@@ -116,6 +117,15 @@ export default defineConfig({
           ],
         },
         {
+          text: '决策表与 AI',
+          collapsed: false,
+          items: [
+            { text: '编写决策表', link: '/dev/decision-tables' },
+            { text: '完整 BOSS 决策表', link: '/dev/decision-table-boss' },
+            { text: 'AI 模式与施法规划', link: '/dev/ai-planning' },
+          ],
+        },
+        {
           text: 'GamingQueue 事件模式',
           collapsed: false,
           items: [
@@ -155,6 +165,8 @@ export default defineConfig({
           items: [
             { text: 'EquilibriumConstant', link: '/api/EquilibriumConstant' },
             { text: 'GamingQueue', link: '/api/GamingQueue' },
+            { text: 'AIController', link: '/api/AIController' },
+            { text: '决策表 API', link: '/api/DecisionTable' },
             { text: 'Character', link: '/api/Character' },
             { text: 'Skill', link: '/api/Skill' },
             { text: 'Effect', link: '/api/Effect' },

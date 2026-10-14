@@ -12,6 +12,9 @@ AI 决策数据，位于 `FunGame.Core.Model.Framework`。由 `AIController.Deci
 | `ItemToUse` | `Item?` | 要使用的物品 |
 | `Targets` | `List<Character>` | 目标角色列表 |
 | `TargetGrids` | `List<Grid>` | 目标格子列表（非指向性技能） |
+| `CastCenter` | `Grid?` | 非指向性技能选择中心或方向参考格，与实际影响格 `TargetGrids` 区分 |
+| `RequiresValidation` | `bool` | 执行前需要重验目标、资源与位置；策略及新规划器的输出启用此标记 |
+| `RuleId` | `string?` | 命中的规则 ID，用于本次尝试失效后的跳过与诊断 |
 | `Score` | `double` | 决策评分 |
 | `ProbabilityWeight` | `double` | 概率权重 |
 | `IsPureMove` | `bool` | 是否纯移动行动 |
@@ -22,6 +25,12 @@ AI 决策数据，位于 `FunGame.Core.Model.Framework`。由 `AIController.Deci
 `AIController.SelectChainAction(Character actor)` 返回首个有效申请的 `Guid?`，没有申请时返回 null。正常 AI 行动决策前，队列会为连续同队区间内符合资格的角色评估原地协同动作，保留已有有效申请；不会为协作移动。
 
 宿主 `DecideActionEvent` 优先，未指定动作时依次尝试协同确认、自身 AI 行动与概率回退。手动回合不自动代交，但 AI 回合可为手动控制的队友代交。接入见 [协同行动](/dev/chain-action)。
+
+## 模式与策略
+
+角色策略先求值，未命中后回退到默认 AI；默认 `Legacy`，可切换 `Deterministic` 或 `WeightedNearBest`。下面的随机评分与候选并行说明针对 Legacy；新模式使用有界目标驱动规划，规则与新模式均在单次决策内串行评估。
+
+配置、语义估值和预算见 [AI 规划](/dev/ai-planning)，完整调用签名见 [AIController](/api/AIController#决策入口)。
 
 ## 确定性
 

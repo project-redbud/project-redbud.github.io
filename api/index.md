@@ -7,6 +7,8 @@ FunGame.Core 的核心 API 一览。
 | 类 | 命名空间 | 说明 |
 |---|---|---|
 | [GamingQueue](/api/GamingQueue) | `FunGame.Core.Model.Queue` | 回合制队列基类（可继承扩展） |
+| [AIController](/api/AIController) | `FunGame.Core.Controller` | AI 模式、估值、策略求值与规划指标 |
+| [决策表 API](/api/DecisionTable) | `FunGame.Core.Api` / `FunGame.Core.Model.DecisionTable` | JSON、构建、编译、加载、绑定与求值模型 |
 | [MixGamingQueue](/api/GamingQueue#三种队列对比) | `FunGame.Core.Model.Queue` | 混战模式队列 |
 | [TeamGamingQueue](/api/GamingQueue#三种队列对比) | `FunGame.Core.Model.Queue` | 团队模式队列 |
 | [EquilibriumConstant](/api/EquilibriumConstant) | `FunGame.Core.Model.Framework` | 游戏平衡常数（全部可配置） |
@@ -27,6 +29,7 @@ FunGame.Core 的核心 API 一览。
 | 接口 | 命名空间 | 说明 |
 |---|---|---|
 | [IGamingQueue](/api/GamingQueue) | `FunGame.Core.Interface.Base` | 回合制队列接口 |
+| [IDecisionPolicy](/api/DecisionTable#代码策略与扩展) | `FunGame.Core.Interface` | 只读角色策略求值接口 |
 | [IModule](/api/IModule) | `FunGame.Core.Interface.Base` | 模组接口（Name/Version/Author + Load/UnLoad） |
 | [IRoundRecordSink](/api/IRoundRecordSink) | `FunGame.Core.Interface.Base` | 回合记录外发通道接口（9 个外发方法） |
 

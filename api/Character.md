@@ -35,6 +35,15 @@ public Character()
 `Equals`/`GetHashCode` 基于 **`Guid`**（实例身份）而非 Id+Name：同一局内复制的角色互为不同键，`Dictionary<Character,...>`/`HashSet<Character>` 按实例区分。
 :::
 
+## 决策策略
+
+| 属性 | 类型 | 说明 |
+|---|---|---|
+| `DecisionTableId` | `string?` | 持久化策略 ID；更改后清除旧运行时绑定 |
+| `DecisionPolicy` | `IDecisionPolicy?` | 运行时策略，外部只读，通过 `DecisionTableLoader.Bind` 设置；不参与 JSON 持久化 |
+
+角色复制、`CharacterBuilder` 与模板恢复继承 ID 及可共享策略，JSON 读回后需重新 Bind。队列初始化会复制模板，推荐先绑定模板；队列已创建时绑定实际参战实例。配置与加载方式见 [编写决策表](/dev/decision-tables#角色复制与持久化)。
+
 ## 等级与经验
 
 | 属性 | 类型 | 说明 |
