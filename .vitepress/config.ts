@@ -7,6 +7,10 @@ export default defineConfig({
   lang: 'zh-CN',
   base: '/',
 
+  sitemap: {
+    hostname: 'https://project-redbud.github.io',
+  },
+
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['style', {}, `
