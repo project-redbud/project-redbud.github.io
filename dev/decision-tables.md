@@ -2,6 +2,8 @@
 
 决策表配置使用 BCL JSON，既可直接编写，也可通过链式构建器生成。配置、编译策略和角色绑定是三个步骤。规则语义见 [决策表](../guide/decision-tables.md)，接口速查见 [决策表 API](../api/DecisionTable.md)。
 
+也可使用 Testing-v3 的[可视化决策表编辑器](./decision-table-editor.md)编排规则并导出 JSON，再通过下面的 Loader 接入角色。
+
 ## JSON 配置
 
 下面的治疗策略先治疗生命比例低于 30% 的合法友方，没有可执行方案时回退到默认 AI。`1001` 是示例技能 ID，需替换为模组中实际提供的治疗技能。
@@ -93,6 +95,8 @@ static void ExportTable(DecisionTableConfig config, string path)
 
 `Save` 默认拒绝覆盖已有文件，显式传 `overwrite: true` 才覆盖。`Load` 解析、校验、编译并注册一张表，返回带路径的诊断。重复 ID 不会覆盖已有策略；需要替换整套配置时可创建新的 Loader 后重新绑定角色。`GetJson` 可导出文本，`TryParse` 只检查 JSON 格式，语义校验由 Compiler 完成。
 
+`Load` 将文件路径格式、I/O、读取权限和 JSON 格式错误转为诊断；文件读取之外的编程异常继续抛出。文件输入出错不会替换已注册策略。
+
 ## 动作字段
 
 | 字段 | 值与用途 |
@@ -128,7 +132,15 @@ static void ExportTable(DecisionTableConfig config, string path)
 | `plan.risk` | 引用方案绑定；当前站位的近似威胁值，需地图 |
 | `parameters` | 扩展条件的 JSON 参数对象 |
 
-例如 `bindPlan: "cluster"` 必须与 `plan.targetCount` 条件的 `target: "cluster"` 一致。绑定不能跨规则引用。最多 256 条规则，条件树最多 16 层，单个组合最多 64 个子条件；无效数值、未知类型和无效绑定会返回配置路径诊断。
+例如 `bindPlan: "cluster"` 必须与 `plan.targetCount` 条件的 `target: "cluster"` 一致。绑定不能跨规则引用。`plan.risk` 与 `maxRisk` 在 `current`、`coverage`、`safe` 下均使用实际位置风险，求值风险不额外开启位置搜索。
+
+规则列表不可为 null，允许空表，最多 256 条。条件根节点深度为 0，最多嵌套 16 级；单个 `all` / `any` 最多 64 个直接子条件。JSON 对象和数组的最大深度为 64，包含扩展 `parameters`，与条件语义深度独立。无效数值、未知类型和无效绑定返回配置路径诊断。
+
+## 规则预算
+
+规则共用策略阶段的方案总额度，每条按剩余额度与待规划规则数分配，未用额度顺延。禁用、被拒及内置条件预判不成立的规则不占额度；`endTurn` 不消耗搜索额度但仍检查条件。低额度下，高优先级规则可能只搜索部分候选，后序规则也可能没有额度，应结合 `budget.truncated` / `budget.exhausted` 判断未命中的含义。
+
+表未命中时，`defaultAI` 使用独立预算，策略搜索耗尽不会挤占这份额度。算法和默认数值见 [搜索预算与扩展](./ai-planning.md#搜索预算与扩展)。
 
 ## 角色复制与持久化
 
@@ -140,8 +152,10 @@ static void ExportTable(DecisionTableConfig config, string path)
 
 `DecisionTableRegistry.RegisterCondition` / `RegisterAction` 注册 `module:name` 扩展，配置仅保存标识和 JSON 参数；构建器 lambda 只在构建阶段执行，不导出 C# 委托。编译器复制配置与注册表，扩展回调应只读，不得改变战斗状态。
 
+Registry 重复注册扩展抛出 `ArgumentException`；Loader 重复注册配置或代码策略返回 `id` 诊断。两者均保留已有内容。自定义动作须按上下文额度规划，框架截断超额返回，同一方案实例不重复计费。
+
 也可实现 `IDecisionPolicy` 并用 `loader.Register(id, policy)` 注册代码策略。代码策略无法作为独立 JSON 规则导出；共享实现不得保存角色或战斗的可变状态。
 
-`AIController.PolicyEvaluatedEvent` 提供每次策略评估，包括协同申请；`LastPolicyResult` 和 `LastMetrics` 只保留最近一次。诊断可定位未命中的规则和原因，统计应在事件触发时立即保存。具体指标见 [AIController](../api/AIController.md)。
+`AIController.PolicyEvaluatedEvent` 提供每次策略评估及当时的独立统计快照，包括协同申请；`LastPolicyResult` 保存最近一次策略结果，`LastPlanningDiagnostics` 和 `LastMetrics` 汇总最近一次完整决策。后续默认 AI 不改写事件快照。诊断代码及指标见 [决策表 API](../api/DecisionTable.md#运行诊断)和 [AIController](../api/AIController.md#诊断与统计)。
 
 完整配置与使用场景见 [BOSS 决策表示例](./decision-table-boss.md)。

@@ -121,6 +121,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '编写决策表', link: '/dev/decision-tables' },
+            { text: '可视化决策表编辑器', link: '/dev/decision-table-editor' },
             { text: '完整 BOSS 决策表', link: '/dev/decision-table-boss' },
             { text: 'AI 模式与施法规划', link: '/dev/ai-planning' },
           ],

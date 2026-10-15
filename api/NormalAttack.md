@@ -33,10 +33,14 @@ public NormalAttack(Character character, bool isMagic = false, MagicType magicTy
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
+| `AttackAnywhere` | `bool` | 全图攻击；任一全选标志启用时为 true，否则使用设置值（默认 false） |
+| `AttackRange` | `int` | 全图时为地图格数，无地图为 999；否则默认跟随 `Character.ATR`，显式设置后使用配置值（最小 1） |
 | `CanSelectSelf` / `CanSelectEnemy` / `CanSelectTeammate` | `bool` | 可选目标类型 |
-| `SelectAllEnemies` / `SelectAllTeammates` | `bool` | 全选敌人/队友 |
+| `SelectAllEnemies` / `SelectAllTeammates` | `bool` | 全图选择合法敌方 / 友方；双开取并集，自身还需全选友方及 `CanSelectSelf` |
 | `CanSelectTargetCount` | `int` | 可选目标数量（默认 1） |
 | `CanSelectTargetRange` | `int` | 目标选择范围 |
+
+全选优先于数量与目标周围扩散，仍保留可选类型、免疫和谓词限制。`AttackAnywhere` 与显式配置的 `AttackRange` 独立于派生的全图射程保存，关闭全选后恢复原配置；未显式配置射程时继续跟随角色攻击距离。
 
 ## 主要方法
 

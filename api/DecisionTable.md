@@ -11,7 +11,7 @@
 | `TargetSelectorConfig` | `Relation = "enemy"`、`Selector = "lowestHpRatio"`、`Bind = "target"` |
 | `ConditionConfig` | `Type`、`All?`、`Any?`、`Not?`、`Target?`、`SkillId?`、`Operator = "atLeast"`、`Value`、`Parameters` |
 | `ActionConfig` | `Type`、`SkillId?`、`ItemId?`、`Target?`、`Movement = "ifNeeded"`、`PositionPreference = "current"`、`BindPlan?`、`MaxRisk?`、`Parameters` |
-| `DecisionDiagnostic` | 记录类型 `(string Path, string Message)` |
+| `DecisionDiagnostic` | 记录类型 `(string Path, string Message)`，另有可初始化属性 `Code = ""` |
 
 `SkillId` / `ItemId` 为 `long?`，`Value` 为 `double`，`MaxRisk` 为 `double?`，扩展 `Parameters` 为 `Dictionary<string, JsonElement>`。完整字段值与条件语义见 [配置指南](../dev/decision-tables.md#动作字段)。
 
@@ -24,7 +24,7 @@
 | `DecisionTableGenerator.GetJson(DecisionTableConfig config)` | `string`，camelCase JSON |
 | `DecisionTableGenerator.Save(DecisionTableConfig config, string path, bool overwrite = false)` | 写入 UTF-8 文件，默认拒绝覆盖 |
 
-Parser 拒绝未知字段；Generator 不代替 Compiler 校验配置。
+Parser 拒绝未知字段，JSON 对象和数组最大深度为 64（包含扩展参数）；Generator 不代替 Compiler 校验配置。规则允许空列表但不可为 null，最多 256 条；条件根深度为 0，最多嵌套 16 级，`all` / `any` 每节点最多 64 个直接子条件。
 
 ## 构建与编译
 
@@ -57,6 +57,8 @@ public sealed class DecisionTableLoader(DecisionTableCompiler? compiler = null)
 
 配置策略可共享，角色 JSON 仅保存 ID。角色属性与生命周期见 [Character](./Character.md#决策策略)。
 
+`Load` 将文件读取阶段的 `IOException`、`UnauthorizedAccessException`、`ArgumentException`、`NotSupportedException` 转为路径诊断，JSON 格式错误由 Parser 返回；读取之外的编程异常继续抛出。重复注册返回 `id` 诊断，原策略保留。
+
 ## 代码策略与扩展
 
 ```csharp
@@ -66,7 +68,7 @@ public interface IDecisionPolicy
 }
 ```
 
-`DecisionTableRegistry.RegisterCondition(string id, Func<DecisionEvaluationContext, ConditionConfig, DecisionPlan, bool> evaluate)` 注册只读条件；`RegisterAction(string id, Func<DecisionEvaluationContext, ActionConfig, TargetSelectorConfig?, IReadOnlyList<DecisionPlan>> plan)` 注册只读规划器。扩展 ID 使用 `module:name`，不能重复注册。
+`DecisionTableRegistry.RegisterCondition(string id, Func<DecisionEvaluationContext, ConditionConfig, DecisionPlan, bool> evaluate)` 注册只读条件；`RegisterAction(string id, Func<DecisionEvaluationContext, ActionConfig, TargetSelectorConfig?, IReadOnlyList<DecisionPlan>> plan)` 注册只读规划器。扩展 ID 使用 `module:name`；重复注册抛出 `ArgumentException`，保留原扩展。
 
 `FunGame.Core.Controller.DecisionActionPlanner.Plan(DecisionEvaluationContext context, ActionConfig action, TargetSelectorConfig? selector)` 返回 `IReadOnlyList<DecisionPlan>`，按当前局面生成合法候选。
 
@@ -80,7 +82,7 @@ public interface IDecisionPolicy
 | `Enemies / Allies / SelectableEnemies / SelectableAllies` | 全部与可选角色集合 |
 | `IsChainAction` | 原地协同求值 |
 | `AllowItem / AllowSkill / AllowAttack` | 类别是否允许，默认 true |
-| `PositionBudget / CenterBudget / PlanBudget` | 默认 32 / 64 / 4096 |
+| `PositionBudget / CenterBudget / PlanBudget` | 每动作位置 / 每位置中心 / 当前规划范围方案上限，默认 32 / 64 / 4096；策略与默认 AI 分阶段独立使用方案预算 |
 | `RejectedRules` | 本次行动尝试已失效的规则 ID 集合 |
 | `RecentPositions` | 近期实际离开的格子 ID |
 | `Metrics` | 只读 `DecisionMetrics` 实例 |
@@ -91,3 +93,18 @@ public interface IDecisionPolicy
 上下文配置为 `init` 属性，评估期间不得修改引用的战斗对象。`DecisionPlan.TargetCount` 来自 `Decision.Targets.Count`。
 
 `DecisionEvaluationResult` 是 `(AIDecision? Decision, string? RuleId, IReadOnlyList<DecisionDiagnostic> Diagnostics)`，`Matched` 表示 `Decision != null`；回退 `endTurn` 也属于有效决策，可没有命中规则 ID。指标见 [AIController](./AIController.md#诊断与统计)。
+
+## 运行诊断
+
+`DecisionDiagnostic.Path` 定位配置路径或规则，`Message` 提供原因，`Code` 供程序分类；未分类的配置诊断使用空字符串。
+
+| `Code` | 含义 |
+|---|---|
+| `budget.exhausted` | 没有剩余方案额度，跳过规划 |
+| `budget.truncated` | 位置、中心或方案搜索被预算截断 |
+| `plan.unavailable` | 当前局面无法生成可执行方案 |
+| `condition.unmatched` | 内置前置条件不成立，或已评估候选未满足条件 |
+| `execution.rejected` | 决策执行前重验失败 |
+| `plan.invalid` | 规划器未提供有效动作 |
+
+`condition.unmatched` 与 `budget.truncated` 同时出现时，只能说明已搜索候选未命中。`LastPlanningDiagnostics` 汇总策略和回退阶段；不能仅凭未命中推断全局不存在合法行动。分配规则见 [规则预算](../dev/decision-tables.md#规则预算)。

@@ -28,7 +28,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `IsDebug` | `bool` | 调试模式 |
 | `Seed` | `int` | 确定性随机种子（只读，v3.0+；复现对局时传入相同 seed 可得到相同随机序列） |
 | `Random` | `Random` | 队列的确定性随机数（只读；角色/技能/特效绑定队列后经 `Random` 属性共享同一实例） |
-| `EnableAI` | `bool` | 是否启用内置 AI 控制器（false 时清空 AI，仅走模组事件与概率决策） |
+| `EnableAI` | `bool` | 是否启用内置 AI 控制器；false 时入口返回 null 并清空短期规划状态，内部实例、配置与订阅保留 |
 | `AI` | `AIController?` | 当前控制器，关闭 AI 时为 null；配置模式与评估事件见 [AIController](./AIController.md) |
 | `Guid` | `Guid` | 本队列唯一标识（外发数据包的 `g` 字段） |
 | `UseQueueProtected` | `bool` | 是否启用插队保护 |
@@ -120,7 +120,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 
 | 方法 | 说明 |
 |---|---|
-| `LoadGameMap(GameMap)` | 加载地图 |
+| `LoadGameMap(GameMap)` | 加载地图并立即同步已有 AI 控制器；实际地图实例改变时清空短期规划状态 |
 | `RemoveCharacterFromMap(params Character[])` | 从地图移除角色 |
 | `RemoveCharactersUnitFromMap(params Character[])` | 从地图移除角色的召唤单位 |
 

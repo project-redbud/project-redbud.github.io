@@ -2,7 +2,9 @@
 
 AI 控制器位于 `FunGame.Core.Controller`。通常使用启用 AI 的 `GamingQueue.AI`，由队列派发普通行动与协同申请。模式和估值说明见 [AI 规划](../dev/ai-planning.md)。
 
-队列更换地图时会自动重建控制器，模式与实例事件应在加载地图后配置。
+队列首次访问 `AI` 时创建控制器。换图、关闭再启用均复用同一实例，保留模式、阈值和实例事件订阅；换成不同地图实例或关闭 AI 时清空位置历史与最近诊断、统计。关闭期间加载地图也会同步已有实例，随机决策序号不重置。完整操作语义见 [控制器生命周期](../dev/ai-planning.md#控制器生命周期)。
+
+直接构造的独立控制器保持显式地图绑定，不随队列换图自动更新。宿主需同步换图与决策操作。
 
 ## 构造与配置
 
@@ -60,6 +62,7 @@ public AIDecision DecideAIAction(
 |---|---|
 | `LastPolicyResult` | `DecisionEvaluationResult?`，最近一次策略求值结果 |
 | `LastMetrics` | `DecisionMetrics?`，最近一次决策统计 |
+| `LastPlanningDiagnostics` | `IReadOnlyList<DecisionDiagnostic>`，最近一次决策的策略与默认 AI 规划诊断 |
 | `PolicyEvaluatedEvent` | `Action<Character, DecisionEvaluationResult, DecisionMetrics>`，每次已绑定策略求值后触发，包括协同 |
 
 `DecisionMetrics` 位于 `FunGame.Core.Model.DecisionTable`：
@@ -68,9 +71,15 @@ public AIDecision DecideAIAction(
 |---|---|---|
 | `PositionsGenerated` | `int` | 生成的候选位置数 |
 | `PositionsEvaluated` | `int` | 完整评估的位置次数 |
-| `PlansEvaluated` | `int` | 完整评估的方案数 |
+| `PlansEvaluated` | `int` | 已生成并保留的候选方案数，不含常量结束回合 |
+| `PolicyPlansEvaluated` | `int` | 策略阶段保留的方案数 |
+| `DefaultAIPlansEvaluated` | `int` | 默认 AI 阶段保留的方案数 |
+| `BudgetTruncations` | `int` | 因位置、中心或方案上限截断的预算范围数，每个范围至多计一次 |
+| `BudgetExhaustions` | `int` | 因没有方案额度而跳过规划的次数 |
+| `RiskEvaluations` | `int` | 实际计算位置风险的次数 |
+| `RiskCacheHits` | `int` | 命中位置风险缓存的次数 |
 | `CentersGenerated` | `int` | 按位置累计的施法中心候选数 |
 | `CentersEvaluated` | `int` | 完整投影与覆盖检查次数，缓存命中不计入 |
 | `Elapsed` | `TimeSpan` | 决策耗时 |
 
-指标均只读。事件发生在策略评估后、默认 AI 回退前；若策略未命中，后续回退还可能更新同一个 `LastMetrics` 实例。采集策略命中和当时指标应及时复制字段，不能只保存最后一次引用或只看战斗结束值。
+指标对调用方只读。事件发生在策略评估后、默认 AI 回退前，交付当时的独立统计快照；后续回退不会修改该快照。`LastMetrics` 在决策完成后包含两个阶段的汇总。预算分配见 [搜索预算与扩展](../dev/ai-planning.md#搜索预算与扩展)，诊断代码见 [运行诊断](./DecisionTable.md#运行诊断)。

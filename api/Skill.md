@@ -89,20 +89,23 @@ protected Skill(SkillType type, Character? character = null)
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
-| `CastAnywhere` | `bool` | 是否全地图施放（默认 false，魔法自动为 true） |
+| `CastAnywhere` | `bool` | 是否全地图施放；魔法或任一全选标志启用时为 true，否则使用设置值（默认 false） |
+| `CastRange` | `int` | 有效射程；全图时为地图格数，无地图为 999，否则使用设置值（默认 3，最小 1） |
 | `CanSelectSelf` | `bool` | 可选自己 |
 | `CanSelectEnemy` | `bool` | 可选敌人（默认 true） |
 | `CanSelectTeammate` | `bool` | 可选队友 |
-| `SelectAllEnemies` / `SelectAllTeammates` | `bool` | 全选敌人 / 全选队友 |
+| `SelectAllEnemies` / `SelectAllTeammates` | `bool` | 全图指向性选择合法敌方 / 友方，双开取并集；自身还需 `CanSelectSelf` |
 | `CanSelectTargetCount` | `int` | 可选目标数（默认 1） |
-| `CanSelectTargetRange` | `int` | 施法距离 |
-| `IsNonDirectional` | `bool` | 是否非指向性（选格子） |
+| `CanSelectTargetRange` | `int` | 目标周围的效果扩散半径（默认 0），与施法射程区分 |
+| `IsNonDirectional` | `bool` | 是否非指向性（选格子）；任一全选标志启用时为 false，否则使用设置值 |
 | `SelectIncludeCharacterGrid` | `bool` | 非指向性：可选有角色的格子（默认 true） |
 | `AllowSelectNoCharacterGrid` | `bool` | 非指向性：可选空格子 |
 | `AllowSelectDead` | `bool` | 可选死亡角色 |
 | `SkillRangeType` | `SkillRangeType` | 范围形状（Diamond/Circle/Square/Line/LinePass/Sector） |
 | `SectorAngle` | `double` | 扇形角度（默认 90） |
 | `SelectTargetPredicates` | `List<Func<Character, bool>>` | 自定义目标过滤条件 |
+
+`CastAnywhere`、`CastRange` 与 `IsNonDirectional` 是可设置的非虚属性，在构造函数中赋值。全选优先于目标数量、范围中心与目标周围扩散，仍执行目标合法性检查。JSON 分开保存原始配置与全选标志，关闭全选后恢复配置射程与方向性。详见 [全选目标](../guide/skills.md#全选目标)。
 
 ## 豁免
 
@@ -145,7 +148,7 @@ protected Skill(SkillType type, Character? character = null)
 | `GetSelectableTargets(...)` | 获取所有可选目标 |
 | `RealCanSelectTargetCount(enemys, teammates)` | 实际可选目标数 |
 | `SelectTargets(...)` | 按规则选择目标 |
-| `SelectTargetsByCanSelectTargetRange(...)` | 按施法距离选择目标 |
+| `SelectTargetsByCanSelectTargetRange(...)` | 按目标周围扩散范围选择目标 |
 | `SelectTargetsByRange(...)` | 按指定格子范围选择目标 |
 | `SelectNonDirectionalTargets(caster, targetGrid, includeCharacter)` | 非指向性目标格子 |
 | `SelectNonDirectionalTargetsFrom(Character caster, Grid origin, Grid targetGrid, bool includeCharacter = false)`（virtual） | 显式假设施法起点的非指向性范围查询，不移动角色 |

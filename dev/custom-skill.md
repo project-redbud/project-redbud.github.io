@@ -119,7 +119,6 @@ public class ExampleNonDirectionalSkill1 : Skill
     public override double HardnessTime { get; set; } = 3;
 
     // 非指向性关键配置
-    public override bool IsNonDirectional => true;
     public override bool CanSelectSelf => true;
     public override bool CanSelectEnemy => false;
     public override bool SelectIncludeCharacterGrid => false;  // 不选有人的格子
@@ -128,6 +127,7 @@ public class ExampleNonDirectionalSkill1 : Skill
     public ExampleNonDirectionalSkill1(Character? c = null)
         : base(SkillType.Skill, c)
     {
+        IsNonDirectional = true;
         CastRange = 9;
         Effects.Add(new ExampleNonDirectionalSkill1Effect(this));
     }
@@ -166,7 +166,6 @@ public class ExampleNonDirectionalSkill2 : Skill
         4 or 5 or 6 => 2, 7 or 8 => 3, _ => 1
     };
 
-    public override bool IsNonDirectional => true;
     public override SkillRangeType SkillRangeType => SkillRangeType.Circle;
     public override int CanSelectTargetRange => 2;
     public override double MagicBottleneck =>
@@ -175,6 +174,7 @@ public class ExampleNonDirectionalSkill2 : Skill
     public ExampleNonDirectionalSkill2(Character? c = null)
         : base(SkillType.Magic, c)
     {
+        IsNonDirectional = true;
         Effects.Add(new ExampleDamageBasedOnATKWithBasicDamage(
             this, 20, 20, 0.03, 0.02, DamageType.Magical));
     }
