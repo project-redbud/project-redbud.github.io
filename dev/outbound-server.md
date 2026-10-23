@@ -184,13 +184,14 @@ app.Run();
 ## 存储与回放建议
 
 - **按 `g` 分组会话**：一局游戏的所有事件共享同一个 `g`，落库时以此为会话主键，按 `t` 排序。
-- **`"2"` 检查点是重建锚点**：其 `d.RoundRecord.Checkpoint` 是全角色状态快照（HP/MP/EP、装备、技能、物品、特效状态）。服务器端可缓存最近的检查点，配合增量事件（`"0"`/`"1"`）重建任意时刻的战况。
+- **`"2"` 检查点是重建锚点**：其 `d.RoundRecord.Checkpoint` 是全角色状态快照（HP/MP/EP、装备、技能、物品、特效状态）。使用 Core 推算器时，保留目标回合之前的最近检查点，以及其后直到目标回合的完整回合记录；单次操作事件 `"0"` 可用于实时展示。
 - **回放渲染**：服务端可直接引用 FunGame.Core 的 `RoundRecordRenderer`（`RenderRound`/`RenderAll`/`RenderCharacterActions`）将回合记录渲染为文本，或自行实现富客户端回放。
-- **状态推算**：`BattleStatePredictor.PredictAll(rounds, targetRound)` 可基于检查点推算目标回合的全角色状态，适合实现"跳到第 N 回合"的观战快进功能。
+- **状态推算**：`BattleStatePredictor.PredictAll(rounds, targetRound)` 可推算目标回合结束时的角色状态。无有效基准时返回空字典；逐角色 `Predict` 返回 `null`。它不重跑特效钩子或完整推演背包、装备变化，详见 [推算范围与精度](../api/BattleStatePredictor.md#快照与精度)。
+- **费用归属**：使用 `Actions` 中的 `Actor` 及结构化消耗字段，区分协同确认与实际执行；回合级 `SkillsCost` / `ItemsCost` 只用于兼容展示，见 [读取消耗记录](../api/RoundRecord.md#读取消耗记录)。
 
 ```csharp
 // 服务器端回放示例（引用 FunGame.Core）
-List<RoundRecord> rounds = LoadRounds(queueId);           // 从 "1"/"2" 事件还原
+List<RoundRecord> rounds = LoadRounds(queueId);           // 包含基准检查点及其后直到目标回合的完整记录
 string battleText = RoundRecordRenderer.RenderAll(rounds); // 渲染整场战斗文本
 
 Dictionary<Guid, CharacterStateSnapshot> states =

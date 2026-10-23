@@ -12,7 +12,6 @@
 | `HP` / `MaxHP` | `double` | 当前/最大生命值 |
 | `MP` / `MaxMP` | `double` | 当前/最大魔法值 |
 | `EP` | `double` | 爆发能量 |
-| `Attributes` | `Dictionary<string, string>` | 全部角色属性键值对（`Character.GetAttributeValues()`，v3.0+） |
 | `HR` / `MR` | `double` | 生命回复 / 魔法回复 |
 | `Attributes` | `Dictionary<string, string>` | 角色全部属性（属性名 → 展示值，与 `Character.GetInfo()` 中出现的属性一致；由队列生成检查点时写入 `GetAttributeValues()` 的结果） |
 | `Equipments` | `Dictionary<EquipSlotType, long>` | 装备槽位 → 物品 Id |
@@ -30,7 +29,6 @@
 | `SkillId` / `SkillName` | `long` / `string` | 技能标识与名称 |
 | `Level` | `int` | 技能等级 |
 | `CurrentCD` | `double` | 当前冷却 |
-| `Description` | `string` | 技能描述（v3.0+） |
 | `Description` | `string` | 技能描述 |
 
 ### ItemStateSnapshot
@@ -38,7 +36,6 @@
 | 属性 | 类型 | 说明 |
 |---|---|---|
 | `ItemId` / `ItemName` | `long` / `string` | 物品标识与名称 |
-| `Description` | `string` | 物品描述（v3.0+） |
 | `Description` | `string` | 物品描述 |
 
 ### EffectStateSnapshot
@@ -49,8 +46,6 @@
 | `EffectType` | `EffectType` | 特效类型 |
 | `RemainDuration` | `double` | 剩余持续时间 |
 | `RemainDurationTurn` | `int` | 剩余持续回合 |
-| `SourceGuid` | `Guid` | 特效施加者的 Guid（v3.0+） |
-| `Description` | `string` | 特效描述（v3.0+） |
 | `SourceGuid` | `Guid` | 特效施加者（Source 角色）的 Guid（无施加者时为 `Guid.Empty`） |
 | `Description` | `string` | 特效描述 |
 
@@ -62,7 +57,6 @@
 |---|---|---|
 | `Slot` | `EquipSlotType` | 装备槽位 |
 | `ItemId` / `ItemName` | `long` / `string` | 物品标识与名称 |
-| `Description` | `string` | 物品描述（v3.0+） |
 | `Description` | `string` | 物品描述 |
 
 ## 生成方式
@@ -72,6 +66,12 @@
 queue.CheckpointInterval = 10;
 // 快照会写入 RoundRecord.Checkpoint，并随事件 "2" 外发
 ```
+
+队列还在首回合建立开局检查点，并在游戏结束时补齐终局检查点。
+周期检查点在相应回合结算时生成；将 `CheckpointInterval` 设为 0 或负数只关闭周期生成。
+
+预测状态中保留的背包与装备明细来自基准检查点的独立副本，其名称和描述可直接用于展示；
+这不表示背包或装备变化已被逐动作推演。推算范围与精度见 [BattleStatePredictor](./BattleStatePredictor.md#快照与精度)。
 
 ## 关联
 

@@ -142,6 +142,7 @@ queue.CheckpointInterval = 10;  // 每 10 回合生成一次检查点
 
 - 检查点回合外发事件 `"2"`（内容比 `"1"` 更完整）。
 - 快照是**回放的基石**：配合 `BattleStatePredictor` 可从任意检查点推算后续回合状态。
+- 除周期检查点外，队列会建立开局检查点并补齐终局检查点；关闭周期生成不会关闭这两类检查点。
 
 ## 自定义外发通道
 
@@ -164,6 +165,11 @@ public class MyMQSink : IRoundRecordSink
 
 核心库附带两个回放辅助工具（`FunGame.Core.Api`），可基于外发的回合记录重建战斗过程：
 
+推算目标回合前，需保存该回合之前的检查点及其后直到目标回合的完整记录。
+`BattleStatePredictor` 处理展示级状态推算，不重新执行特效钩子或完整推演装备、背包变化；
+无检查点时的返回值及精度边界见 [BattleStatePredictor](../api/BattleStatePredictor.md#说明)。
+费用与执行者读取逐次 `Actions`，回合级同名消耗映射的边界见 [RoundRecord](../api/RoundRecord.md#读取消耗记录)。
+
 | 工具 | 方法 | 说明 |
 |---|---|---|
 | `BattleStatePredictor` | `PredictAll(rounds, targetRound)` | 推算到目标回合时所有角色的状态快照（`Dictionary<Guid, CharacterStateSnapshot>`） |
@@ -173,7 +179,7 @@ public class MyMQSink : IRoundRecordSink
 | `RoundRecordRenderer` | `RenderCharacterActions(rounds, character)` | 渲染指定角色的全部行动 |
 
 ```csharp
-// 服务器收到"2"后即可重建任意时刻的战况
+// rounds 包含目标回合之前的检查点及其后直到第 15 回合的完整记录
 Dictionary<Guid, CharacterStateSnapshot> states =
     BattleStatePredictor.PredictAll(rounds, targetRound: 15);
 

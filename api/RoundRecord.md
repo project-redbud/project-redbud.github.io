@@ -29,8 +29,10 @@ public RoundRecord(int round)
 | 属性 | 类型 | 说明 |
 |---|---|---|
 | `Targets` | `Dictionary<CharacterActionType, List<Character>>` | 各行动类型的目标角色 |
-| `Skills` / `SkillsCost` | `Dictionary<CharacterActionType, Skill>` / `Dictionary<Skill, string>` | 使用的技能及其消耗文本 |
-| `Items` / `ItemsCost` | `Dictionary<CharacterActionType, Item>` / `Dictionary<Item, string>` | 使用的物品及其消耗文本 |
+| `Skills` | `Dictionary<CharacterActionType, Skill>` | 各行动类型使用的技能引用 |
+| `SkillsCost` | `Dictionary<Skill, string>` | 各技能实例最近一次释放的消耗文本 |
+| `Items` | `Dictionary<CharacterActionType, Item>` | 各行动类型使用的物品引用 |
+| `ItemsCost` | `Dictionary<Item, string>` | 各物品实例最近一次使用的消耗文本；免费使用为空字符串 |
 | `Damages` | `Dictionary<Character, double>` | 各目标受到的伤害 |
 | `DamageDetails` | `Dictionary<Character, Dictionary<DamageType, double>>` | 伤害类型分桶（物理/魔法/真实，各桶之和 = Damages，v3.0+） |
 | `Dice` | `Dictionary<Character, double>` | 各角色的检定骰子值（确定性随机，v3.0+） |
@@ -62,6 +64,17 @@ public RoundRecord(int round)
 | `CharacterStatistics` | `Dictionary<Character, CharacterStatistics>` | 角色统计（终局写入） |
 | `GameResult` | `List<RankingEntry>` | 终局排名 |
 | `Checkpoint` | `List<CharacterStateSnapshot>?` | 检查点：全角色状态快照（检查点回合才有） |
+
+## 读取消耗记录
+
+显示每次行动的费用和执行者时，读取 [ActionRecord](./ActionRecord.md) 的 `Actor`、`Cost`、`MPCost`、`EPCost` 和 `DecisionPointsCost`。
+同一实例在一回合内多次使用时，`SkillsCost` / `ItemsCost` 只保留该实例最近一次的消耗文本，不能作为逐次明细或累计费用。
+
+JSON 中两个消耗字段的格式均为 `Id.Name → string`。不同实例具有相同键时，按消耗字典枚举顺序覆盖，只保留一个展示值；
+该值不能区分角色，也不保证对应最后一次行动。协同确认费用归确认记录，实际 MP / EP 消耗归协作方的执行记录。
+
+反序列化不依赖 JSON 属性顺序。消耗优先匹配回合级 `Skills` / `Items` 中首个同名引用，缺失时匹配 `Actions` 中最后出现的同名引用；
+这种匹配用于恢复兼容展示字段，不代表费用归属。没有对应引用的条目不恢复。
 
 ## 方法
 
