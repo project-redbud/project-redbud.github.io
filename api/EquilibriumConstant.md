@@ -114,7 +114,7 @@ var queue = new MixGamingQueue(characters, Console.WriteLine)
 |---|---|---|
 | `InitialDecisionPoints` | 1 | 初始决策点 |
 | `MaxDecisionPoints` | 7 | 决策点上限 |
-| `RecoverDecisionPointsPerRound` | 1 | 每回合回复 |
+| `RecoverDecisionPointsPerRound` | 0 | 每回合额外回复点数，作为角色决策点预算的初始加成 |
 | `DecisionPointsCostNormalAttack` | 1 | 普攻消耗 |
 | `DecisionPointsCostSkill` | 2 | 战技消耗 |
 | `DecisionPointsCostSuperSkill` | 2 | 爆发技（回合内）消耗 |

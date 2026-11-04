@@ -11,8 +11,8 @@
 | `GameplayEquilibriumConstant` | `EquilibriumConstant` | 游戏平衡常数 |
 | `CurrentDecisionPoints` | `int` | 当前决策点（默认初始值） |
 | `MaxDecisionPoints` | `int` | 决策点上限（默认初始值，最高 7） |
-| `RecoverDecisionPointsPerRound` | `int` | 恢复量配置；主循环按角色状态与上限的一半计算恢复量 |
-| `DecisionPointsRecovery` | `int` | 本回合实际恢复的决策点 |
+| `RecoverDecisionPointsPerRound` | `int` | 每回合额外回复点数，默认 0；叠加在按角色状态计算的基础回复量上 |
+| `DecisionPointsRecovery` | `int` | 本回合计算出的总回复量，含额外点数；存量受上限截断，实际增量可能更小 |
 | `DecisionPointsCost` | `int` | 本回合已消耗的决策点 |
 | `ActionsTaken` | `int` | 本回合已行动次数 |
 | `CourageCommandSkill` | `bool` | 是否使用了勇气指令（不结束回合） |
