@@ -98,52 +98,53 @@ Character 的属性分为三层：初始值 → 基础值 → 最终值。**只�
 ### 生命值
 
 ```csharp
-// 你设置的
-InitialHP = 85;
-
-// 框架自动计算
-// BaseHP = InitialHP + (Level-1) * (17 + 0.68 * InitialHP) + BaseSTR * 9
-// MaxHP = BaseHP + ExHP + ExHP2 + ExHP3
-
-// 运行时使用（只读）
-character.HP;      // 当前生命值
-character.MaxHP;   // 最大生命值
+Character character = new() { InitialHP = 85, Level = 1 };
+// 默认配置：BaseHP = InitialHP + (Level-1) * (17 + 0.68 * InitialHP) + BaseSTR * 13
+// ExHP = ExHPFromExSTR + ExHP2 + ExHP3
+// MaxHP = Math.Max(1, BaseHP + ExHP)
+double maxHP = character.MaxHP;
+character.HP = 40;
 ```
 
 ### 攻击力
 
 ```csharp
-InitialATK = 25;
-
-// 框架自动计算
-// BaseATK = InitialATK + (Level-1) * (0.95 + 0.045 * InitialATK) + BaseSTR (核心属性)
-// ATK = BaseATK + ExATK + ExATK2 + ExATK3
-
-character.ATK;      // 最终攻击力（只读）
-character.BaseATK;  // 基础攻击力（只读）
+Character character = new() { InitialATK = 25, InitialSTR = 30, Level = 1 };
+// 默认配置：BaseATK = InitialATK + (Level-1) * (0.95 + 0.045 * InitialATK) + BasePrimaryAttributeValue
+// ExATK = ExATKFromExPrimaryAttribute + ExATK2 + ExATK3
+// ATK = BaseATK + ExATK
+double attack = character.ATK;
 ```
 
 ### 核心属性
 
 ```csharp
-InitialSTR = 30;
-STRGrowth = 3;      // 每级 +3 力量
-
-// 框架自动计算 STR = InitialSTR + STRGrowth * (Level-1)
-// BaseSTR 和 STR 由框架维护
+Character character = new() { InitialSTR = 30, STRGrowth = 3, Level = 3 };
+character.ExSTR2 = 5;
+character.ExSTRPercentage = 0.2;
+// BaseSTR = InitialSTR + STRGrowth * (Level-1)
+// ExSTR3 = BaseSTR * ExSTRPercentage
+// ExSTR = ExSTR2 + ExSTR3
+// STR = BaseSTR + ExSTR
+double strength = character.STR;
 ```
+
+公式示例采用默认平衡常数；运行时以 `GameplayEquilibriumConstant` 配置为准。
 
 ### 技能/物品修改的属性
 
-这些是 `Ex*` 属性，**由技能和物品的 Effect 修改**，不要在构造函数里直接设：
+技能和物品通过 Effect 修改固定点数或比例；额外聚合、百分比派生及来源属性只读：
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
 | `ExATK2` | 可读写 | 额外攻击力（固定值） |
 | `ExATKPercentage` | 可读写 | 额外攻击力百分比 |
-| `ExHP` / `ExHP2` | 可读写 | 额外生命值 |
+| `ExHP2` / `ExMP2` | 可读写 | 额外生命 / 魔法固定点数 |
 | `ExDEF2` | 可读写 | 额外物理护甲 |
-| `ExSTR` / `ExAGI` / `ExINT` | 可读写 | 额外核心属性 |
+| `ExSTR2` / `ExAGI2` / `ExINT2` | 可读写 | 核心属性固定点数 |
+| `ExSTRPercentage` / `ExAGIPercentage` / `ExINTPercentage` | 可读写 | 核心属性比例 |
+| `ExSTR` / `ExAGI` / `ExINT` / `ExATK` / `ExDEF` / `ExHP` / `ExMP` | 只读 | 全部额外来源的聚合 |
+| `Ex*3` / `Ex*FromEx*` | 只读 | 百分比派生与核心属性来源 |
 | `ExSPD` | 可读写 | 额外行动速度 |
 | `ExEvadeRate` | 可读写 | 额外闪避率 |
 | `PhysicalPenetration` | 可读写 | 物理穿透 |

@@ -71,12 +71,13 @@ public Character()
 | 属性 | 类型 | 说明 |
 |---|---|---|
 | `InitialHP` | `double` | 初始生命值（可设置） |
-| `BaseHP` | `double` | 基础最大生命值（只读）：`InitialHP + (Level-1) × (17 + 0.68 × InitialHP) + BaseSTR × 9` |
-| `ExHP` | `double` | 额外生命值（只读）：`ExSTR × 9` |
+| `BaseHP` | `double` | 基础最大生命值（只读）：`InitialHP + (Level-1) × (17 + 0.68 × InitialHP) + BaseSTR × 13` |
+| `ExHP` | `double` | 额外生命值聚合（只读）：`ExHPFromExSTR + ExHP2 + ExHP3` |
+| `ExHPFromExSTR` | `double` | 核心属性提供的生命值（只读）：`ExSTR × GameplayEquilibriumConstant.STRtoHPFactor` |
 | `ExHP2` | `double` | 额外生命值（固定值） |
 | `ExHP3` | `double` | 额外生命值（只读）：`BaseHP × ExHPPercentage` |
 | `ExHPPercentage` | `double` | 额外生命值百分比 |
-| `MaxHP` | `double` | 最大生命值（只读，至少 1）：`BaseHP + ExHP + ExHP2 + ExHP3` |
+| `MaxHP` | `double` | 最大生命值（只读，至少 1）：`Math.Max(1, BaseHP + ExHP)` |
 | `HP` | `double` | 当前生命值 |
 
 ## 魔法值体系
@@ -86,11 +87,12 @@ public Character()
 | `HasMP` | `bool` | 是否有魔法值（默认 true） |
 | `InitialMP` | `double` | 初始魔法值（可设置） |
 | `BaseMP` | `double` | 基础最大魔法值（只读）：`InitialMP + (Level-1) × (1.5 + 0.14 × InitialMP) + BaseINT × 8` |
-| `ExMP` | `double` | 额外魔法值（只读）：`ExINT × 8` |
+| `ExMP` | `double` | 额外魔法值聚合（只读）：`ExMPFromExINT + ExMP2 + ExMP3` |
+| `ExMPFromExINT` | `double` | 核心属性提供的魔法值（只读）：`ExINT × GameplayEquilibriumConstant.INTtoMPFactor` |
 | `ExMP2` | `double` | 额外魔法值（固定值） |
 | `ExMP3` | `double` | 额外魔法值（只读）：`BaseMP × ExMPPercentage` |
 | `ExMPPercentage` | `double` | 额外魔法值百分比 |
-| `MaxMP` | `double` | 最大魔法值（只读，至少 1） |
+| `MaxMP` | `double` | 最大魔法值（只读）：`Math.Max(1, BaseMP + ExMP)` |
 | `MP` | `double` | 当前魔法值 |
 
 ## 爆发能量
@@ -104,12 +106,13 @@ public Character()
 | 属性 | 类型 | 说明 |
 |---|---|---|
 | `InitialATK` | `double` | 初始攻击力（可设置） |
-| `BaseATK` | `double` | 基础攻击力（只读）：`InitialATK + (Level-1) × (0.95 + 0.045 × InitialATK) + BaseSTR` |
-| `ExATK` | `double` | 额外攻击力（由核心属性提供） |
+| `BaseATK` | `double` | 基础攻击力（只读）：`InitialATK + (Level-1) × (0.95 + 0.045 × InitialATK) + BasePrimaryAttributeValue` |
+| `ExATK` | `double` | 额外攻击力聚合（只读）：`ExATKFromExPrimaryAttribute + ExATK2 + ExATK3` |
+| `ExATKFromExPrimaryAttribute` | `double` | 核心属性提供的攻击力（只读）：`ExPrimaryAttributeValue` |
 | `ExATK2` | `double` | 额外攻击力（固定值） |
 | `ExATK3` | `double` | 额外攻击力（只读）：`BaseATK × ExATKPercentage` |
 | `ExATKPercentage` | `double` | 额外攻击力百分比 |
-| `ATK` | `double` | 总攻击力（只读）：`BaseATK + ExATK + ExATK2 + ExATK3` |
+| `ATK` | `double` | 总攻击力（只读）：`BaseATK + ExATK` |
 
 ## 防御体系
 
@@ -117,11 +120,12 @@ public Character()
 |---|---|---|
 | `InitialDEF` | `double` | 初始物理护甲（可设置） |
 | `BaseDEF` | `double` | 基础护甲（只读）：`InitialDEF + BaseSTR × 0.75` |
-| `ExDEF` | `double` | 额外护甲（只读）：`ExSTR × 0.75` |
+| `ExDEF` | `double` | 额外护甲聚合（只读）：`ExDEFFromExSTR + ExDEF2 + ExDEF3` |
+| `ExDEFFromExSTR` | `double` | 核心属性提供的护甲（只读）：`ExSTR × GameplayEquilibriumConstant.STRtoDEFFactor` |
 | `ExDEF2` | `double` | 额外护甲（固定值） |
 | `ExDEF3` | `double` | 额外护甲（只读）：`BaseDEF × ExDEFPercentage` |
 | `ExDEFPercentage` | `double` | 额外护甲百分比 |
-| `DEF` | `double` | 总护甲（只读） |
+| `DEF` | `double` | 总护甲（只读）：`BaseDEF + ExDEF` |
 | `ExPDR` | `double` | 额外物理伤害减免 |
 | `MDF` | `MagicResistance` | 魔法抗性（按魔法属性区分） |
 
@@ -143,12 +147,30 @@ public Character()
 |---|---|---|
 | `InitialSTR` / `InitialAGI` / `InitialINT` | `double` | 初始力量 / 敏捷 / 智力 |
 | `BaseSTR` / `BaseAGI` / `BaseINT` | `double` | 基础属性（只读）：`Initial + Growth × (Level-1)` |
-| `STR` / `AGI` / `INT` | `double` | 总属性（只读）：`Base + Ex + Ex2` |
-| `ExSTR` / `ExAGI` / `ExINT` | `double` | 额外属性（固定值） |
-| `ExSTR2` / `ExAGI2` / `ExINT2` | `double` | 额外属性（只读）：`Base × ExPercentage` |
+| `STR` / `AGI` / `INT` | `double` | 总属性（只读）：`Base + Ex` |
+| `ExSTR` / `ExAGI` / `ExINT` | `double` | 额外属性聚合（只读）：`Ex2 + Ex3` |
+| `ExSTR2` / `ExAGI2` / `ExINT2` | `double` | 额外属性固定点数（可读写） |
+| `ExSTR3` / `ExAGI3` / `ExINT3` | `double` | 百分比派生值（只读）：`Base × ExPercentage` |
 | `ExSTRPercentage` / `ExAGIPercentage` / `ExINTPercentage` | `double` | 额外属性百分比 |
 | `STRGrowth` / `AGIGrowth` / `INTGrowth` | `double` | 每级属性成长 |
 | `STRExemption` / `AGIExemption` / `INTExemption` | `double` | 豁免率（只读，由核心属性计算） |
+
+### 主属性取值
+
+| 属性 | 类型 | 说明 |
+|---|---|---|
+| `PrimaryAttributeValue` | `double` | 当前主属性的总值（只读） |
+| `BasePrimaryAttributeValue` | `double` | 当前主属性的基础值（只读） |
+| `ExPrimaryAttributeValue` | `double` | 当前主属性的额外聚合值（只读）；`None` 按力量计算 |
+
+### 属性持久化
+
+Character 与 Unit 使用相同的可写属性字段。JSON 保存 `Initial*`、成长值、固定点数 `Ex*2`、比例 `Ex*Percentage` 及当前 HP / MP / EP。
+`Base*`、聚合 `Ex*`、派生 `Ex*3` 和 `FromEx*` 来源属性由配置实时计算。
+Unit 类型入口读取为 Unit；Character 类型入口读取为 Character。
+当前资源在配置读完后回填，提高资源上限不会自动补满当前资源。
+
+公式中的数值采用默认平衡常数；运行时以角色的 `GameplayEquilibriumConstant` 配置为准。
 
 ## 速度与行动
 

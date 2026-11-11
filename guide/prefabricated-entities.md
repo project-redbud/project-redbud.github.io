@@ -22,45 +22,33 @@ FunGame.Core 提供 4 种预制实体，位于 `Model/PrefabricatedEntity/`，�
 ### 构造
 
 ```csharp
-var pack = new MagicCardPack(new Dictionary<string, object>
+Character character = new() { Level = 1 };
+MagicCardPack pack = new(new Dictionary<string, object>
 {
-    { "exstr", 15 },           // +15 力量
-    { "exagi", 10 },           // +10 敏捷
-    { "resonance", "AGI" }     // 同频共振 → 敏捷
+    ["exstr"] = 15d,
+    ["exagi"] = 10d,
+    ["resonance"] = "AGI"
 });
 
-// 添加魔法技能
-Skill magic = new 火之矢 { Level = 5 };
-pack.Skills.Magics.Add(magic);
-
-// 添加神经校准
-pack.NeuralCalibration = new MyNeuralCalibration { SupportedWeaponType = WeaponType.Bow };
-
-// 添加勇气指令
-pack.CourageCommand = new MyCourageCommand();
-
-// 添加灵魂绑定爆发技
-pack.Soulbound = new MySoulbound();
-
-// 装备到角色
-character.EquipSlot.MagicCardPack = pack;
-// → OnItemEquipped 自动调用，所有特性生效
+character.Equip(pack);
+// 点数写入 ExSTR2 / ExAGI2，核心属性为 AGI。
+// 可通过 pack.Magics 添加魔法，或配置 NeuralCalibration / CourageCommand / Soulbound。
+character.UnEquip(EquipSlotType.MagicCardPack);
 ```
 
 ### 装备/卸载自动处理
 
-```csharp
-// 装备时 (OnItemEquipped)
-character.ExSTR += AttributeBoosts["STR"];
-character.ExAGI += AttributeBoosts["AGI"];
-character.ExINT += AttributeBoosts["INT"];
-character.PrimaryAttribute = Resonance;  // 同频共振
-character.Effects.Add(NeuralCalibration); // 神经校准
-character.Skills.Add(CourageCommand);     // 勇气指令
-character.Skills.Add(Soulbound);          // 灵魂绑定
+装备通过 `Character.Equip(pack)` 进入物品钩子，动态矩阵的固定点数写入 `ExSTR2` / `ExAGI2` / `ExINT2`，`Ex*` 聚合实时反映。
+`AttributeBoosts` 的键是 `PrimaryAttribute`：
 
-// 卸载时 (OnItemUnEquipped) → 全部恢复
+```csharp
+MagicCardPack pack = new();
+pack.AttributeBoosts[PrimaryAttribute.STR] = 15;
+pack.AttributeBoosts[PrimaryAttribute.AGI] = 10;
 ```
+
+配置共振时，装备会切换核心属性；卸载回收动态矩阵，并还原已记录的非 `None` 主属性。
+神经校准、勇气指令、灵魂绑定在配置后由对应装备钩子挂载和移除。
 
 ---
 

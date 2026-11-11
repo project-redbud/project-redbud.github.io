@@ -25,34 +25,28 @@ public MagicCardPack(Dictionary<string, object>? args = null)
 
 装备时（重写 `OnItemEquipped`）：
 
-- 应用 `AttributeBoosts` 到 `ExSTR`/`ExAGI`/`ExINT`
+- 应用 `AttributeBoosts` 到 `ExSTR2`/`ExAGI2`/`ExINT2`
 - 设置 `PrimaryAttribute = Resonance`（同频共振）
 - 添加 `NeuralCalibration` 特效
 - 添加 `CourageCommand`、`Soulbound` 技能
 
-卸载时（重写 `OnItemUnEquipped`）全部恢复。
+卸载时（重写 `OnItemUnEquipped`）回收点数、特效与技能，并还原已记录的非 `None` 主属性。
 
 ## 使用示例
 
 ```csharp
-var pack = new MagicCardPack(new Dictionary<string, object>
+Character character = new() { Level = 1 };
+MagicCardPack pack = new(new Dictionary<string, object>
 {
-    { "exstr", 15 },           // +15 力量
-    { "exagi", 10 },           // +10 敏捷
-    { "resonance", "AGI" }     // 同频共振 → 敏捷
+    ["exstr"] = 15d,
+    ["exagi"] = 10d,
+    ["resonance"] = "AGI"
 });
 
-// 添加魔法技能
-Skill magic = new 火之矢 { Level = 5 };
-pack.Magics.Add(magic);
-
-// 添加神经校准 / 勇气指令 / 灵魂绑定
-pack.NeuralCalibration = new MyNeuralCalibration { SupportedWeaponType = WeaponType.Bow };
-pack.CourageCommand = new MyCourageCommand();
-pack.Soulbound = new MySoulbound();
-
-// 装备到角色 → OnItemEquipped 自动调用，所有特性生效
-character.EquipSlot.MagicCardPack = pack;
+character.Equip(pack);
+// 点数写入 ExSTR2 / ExAGI2，核心属性为 AGI。
+// 可通过 pack.Magics 添加魔法，或配置 NeuralCalibration / CourageCommand / Soulbound。
+character.UnEquip(EquipSlotType.MagicCardPack);
 ```
 
 ## 关联
