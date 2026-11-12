@@ -34,12 +34,12 @@ public RoundRecord(int round)
 | `Items` | `Dictionary<CharacterActionType, Item>` | 各行动类型使用的物品引用 |
 | `ItemsCost` | `Dictionary<Item, string>` | 各物品实例最近一次使用的消耗文本；免费使用为空字符串 |
 | `Damages` | `Dictionary<Character, double>` | 各目标受到的伤害 |
-| `DamageDetails` | `Dictionary<Character, Dictionary<DamageType, double>>` | 伤害类型分桶（物理/魔法/真实，各桶之和 = Damages，v3.0+） |
-| `Dice` | `Dictionary<Character, double>` | 各角色的检定骰子值（确定性随机，v3.0+） |
-| `Inquiries` | `List<InquiryRecord>` | 本回合的询问记录（含答复与来源，v3.0+） |
+| `DamageDetails` | `Dictionary<Character, Dictionary<DamageType, double>>` | 伤害类型分桶（物理/魔法/真实，各桶之和 = Damages） |
+| `Dice` | `Dictionary<Character, double>` | 各角色的检定骰子值（确定性随机） |
+| `Inquiries` | `List<InquiryRecord>` | 本回合的询问记录（含答复与来源） |
 | `IsCritical` / `IsEvaded` / `IsImmune` | `Dictionary<Character, bool>` | 暴击 / 闪避 / 免疫标记 |
 | `Heals` | `Dictionary<Character, double>` | 各目标的治疗量 |
-| `Effects` | `Dictionary<Character, List<Skill>>` | 各角色在本回合触发过特效的技能列表（按首次触发顺序去重；v3.0 起由单技能改为技能列表） |
+| `Effects` | `Dictionary<Character, List<Skill>>` | 各角色在本回合触发过特效的技能列表（按首次触发顺序去重） |
 | `ApplyEffects` | `Dictionary<Character, List<EffectType>>` | 各角色被施加的特效类型 |
 | `Assists` | `List<Character>` | 助攻角色 |
 | `OtherMessages` | `List<string>` | 其他消息 |
@@ -52,7 +52,7 @@ public RoundRecord(int round)
 | `DeathContinuousKilling` | `List<string>` | 死亡角色连续击杀记录 |
 | `RespawnCountdowns` | `Dictionary<Character, double>` | 复活倒计时 |
 | `Respawns` | `List<Character>` | 本回合复活的角色 |
-| `RoundRewards` | `List<Skill>` | 本回合奖励的技能（一行汇总，兼容旧存档） |
+| `RoundRewards` | `List<Skill>` | 本回合奖励的技能；无奖励事件流时用于一行汇总 |
 | `RoundRewardEvents` | `List<RoundRewardRecord>` | 本回合的全部回合奖励事件流（发放/移除/夺取，按发生顺序；只读，结构见 [RoundRewardRecord](./RoundRewardRecord.md)） |
 
 ### 全局信息
@@ -82,7 +82,7 @@ JSON 中两个消耗字段的格式均为 `Id.Name → string`。不同实例具
 |---|---|
 | `AddApplyEffects(Character, params EffectType[])` | 记录角色被施加的特效类型 |
 | `AddEffectTriggered(Character, Skill?)` | 记录角色触发了某技能的特效（按技能 Guid 去重，保留首次触发顺序；框架在特效钩子触发时自动调用） |
-| `AddInquiry(Character, InquiryOptions, InquiryResponse)` | 记录一次询问（v3.0+） |
+| `AddInquiry(Character, InquiryOptions, InquiryResponse)` | 记录一次询问 |
 | `Snapshot()` | 生成结构快照（集合独立副本、实体引用共享），用于外发 |
 | `ToString()` | 渲染回合文本（有奖励事件流时按事件渲染，否则退化为旧的奖励一行汇总） |
 

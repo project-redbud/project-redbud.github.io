@@ -44,7 +44,7 @@ IClassRewardSettler（结算器，可替换扩展点；默认 DefaultClassReward
 
 ## 定位推导
 
-定位**不再由玩家手动选择**，由 `ClassPlanRoleResolver` 自动推导：
+定位由 `ClassPlanRoleResolver` 自动推导：
 
 - **主要定位**（`PrimaryRoleType`）= 当前生效战斗天赋所属定位；未激活为 `RoleType.None`
 - **次要定位**（`SecondaryRoleTypes`）= 流派按"所属职业等级降序、同级按选择顺序"展开候选，至多 2 个

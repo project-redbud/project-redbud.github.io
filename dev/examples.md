@@ -95,7 +95,7 @@ Console.WriteLine($"总游戏时长：{queue.TotalTime:0.##}");
 通过 `EquilibriumConstant` 定制数值（`FunGame.Core.Model.Framework`）：
 
 ```csharp
-var eq = new EquilibriumConstant
+EquilibriumConstant eq = new()
 {
     InitialHP = 100,
     InitialATK = 20,
@@ -109,11 +109,23 @@ var eq = new EquilibriumConstant
     InGameTime = "秒",
 };
 
-var queue = new MixGamingQueue(characters, Console.WriteLine)
+foreach (Character character in characters)
+{
+    character.GameplayEquilibriumConstant = eq;
+    character.InitialHP = eq.InitialHP;
+    character.InitialATK = eq.InitialATK;
+    character.InitialDEF = eq.InitialDEF;
+    character.Recovery();
+}
+
+MixGamingQueue queue = new(Console.WriteLine)
 {
     GameplayEquilibriumConstant = eq
 };
+queue.InitCharacters(characters);
 ```
+
+常量引用分别设置到队列与角色实例。修改配置对象不会自动重写既有的 Initial* 成员，本例显式更新三项初始值后回复资源；自行创建的模板副本也应按需设置所用常量。
 
 ---
 

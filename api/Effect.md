@@ -4,8 +4,8 @@
 
 需继承并使用。一个 `Skill` 由多个 `Effect` 组合而成，每个 `Effect` 负责一种具体效果。特效承载技能的实际效果，可通过约 60 个虚方法（钩子）介入游戏的各个环节。
 
-::: info v3.0 起统一上下文参数与结构体回读
-所有可重写钩子均接收单一**参数上下文对象**（`HookContext` 派生类，如 `DamageContext`、`SkillCastContext`），替代旧版的长参数列表与 `ref` 传参；需要回读结果的钩子返回 **`readonly record struct` 结果对象**（见 [EffectResult](./EffectResult.md)），`default` 即"不干预"。上下文定义见 [HookContext 参数上下文族](./HookContext.md)。
+::: info 上下文参数与结构体回读
+所有可重写钩子均接收单一**参数上下文对象**（`HookContext` 派生类，如 `DamageContext`、`SkillCastContext`）；需要回读结果的钩子返回 **`readonly record struct` 结果对象**（见 [EffectResult](./EffectResult.md)），`default` 即"不干预"。上下文定义见 [HookContext 参数上下文族](./HookContext.md)。
 :::
 
 ## 构造函数
@@ -90,7 +90,7 @@ public Effect()
 
 ## 可重写钩子
 
-所有钩子均为单一上下文参数（括号内为上下文类型，主角色统一从 `ctx.Trigger` 获取）。带返回结构体的钩子按聚合规则合并（OR 短路 / SUM 累加 / 覆盖后者胜 / 连乘），见 [EffectResult](./EffectResult.md)。
+所有钩子均为单一上下文参数（括号内为上下文类型，主角色统一从 `ctx.Trigger` 获取）。带返回结构体的钩子按聚合规则合并（OR 合并 / SUM 累加 / 覆盖后者胜 / 连乘），见 [EffectResult](./EffectResult.md)。
 
 ### 生命周期
 
@@ -101,7 +101,7 @@ public Effect()
 | `OnGameStart(HookContext)` | — | 游戏开始时 |
 | `OnTurnStart(TurnContext)` | DP/敌人/队友/技能/物品列表 | 回合开始时 |
 | `OnTurnEnd(TurnContext)` | DP | 回合结束时 |
-| `OnTimeElapsed(TimeLapseContext)` | `ctx.Trigger` 或 `ctx.Grid` | 时间流逝时（角色版与地图格版共用，v3.0 合并） |
+| `OnTimeElapsed(TimeLapseContext)` | `ctx.Trigger` 或 `ctx.Grid` | 时间流逝时（角色与地图格共用） |
 | `OnAttributeChanged(HookContext)` | 主角色 | 角色属性变化时 |
 | `OnSkillLevelUp(LevelUpContext)` | `ctx.Level` | 技能升级时 |
 | `OnOwnerLevelUp(LevelUpContext)` | `ctx.Level` | 所属角色升级时 |
@@ -113,7 +113,7 @@ public Effect()
 |---|---|---|---|
 | `OnSkillCasting(SkillCastContext)` | 施法者/Targets/Grids | 技能吟唱开始时 | void |
 | `OnSkillCasted(SkillCastContext)` | 施法者/Targets/Grids/Others | 技能释放完成时（局内） | void |
-| `OnSkillCastedOutside(SkillCastContext)` | `ctx.User` | 技能释放完成（局外，v3.0 由 User 重载改名） | void |
+| `OnSkillCastedOutside(SkillCastContext)` | `ctx.User` | 技能释放完成（局外） | void |
 | `BeforeSkillCasted(SkillCastContext)` | MPCost/EPCost | 技能释放前【技能的特效组】 | void |
 | `BeforeSkillCastedOnStatus(SkillCastContext)` | Skill/Targets/Others | 技能释放前【状态栏特效】 | `BeforeSkillCastedOnStatusResult`（RemoveFromTargets） |
 | `AfterSkillCasted(SkillCastContext)` | 施法者/Targets/Grids | 技能释放后 | void |
@@ -176,7 +176,7 @@ public Effect()
 |---|---|---|---|
 | `BeforeShieldCalculation(ShieldContext)` | DamageReduce/Message | 护盾结算前 | `BeforeShieldCalculationResult`（SkipShield/DamageReduce） |
 | `OnShieldNeutralizeDamage(ShieldContext)` | ShieldType | 护盾抵消伤害时 | void |
-| `OnShieldBroken(ShieldContext)` | ShieldType 或 ShieldEffect | 护盾破碎时（v3.0 两版重载合并为一个钩子） | `OnShieldBrokenResult`（NullifyRemainingDamage） |
+| `OnShieldBroken(ShieldContext)` | ShieldType 或 ShieldEffect | 护盾破碎时 | `OnShieldBrokenResult`（NullifyRemainingDamage） |
 
 ### 生命偷取
 
@@ -263,7 +263,6 @@ public Effect()
 | `RecordCharacterApplyEffects(caster, params EffectType[])` | 记录特效施加 |
 | `WriteLine(string)` | 输出日志 |
 | `Copy(Skill, bool copyByCode)` | 复制特效（走专用特效工厂） |
-| `GetDispelDescription(string)` | 生成驱散说明 |
 | `ToString()` | 特效文本输出 |
 
 ## 关联

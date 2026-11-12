@@ -2,8 +2,8 @@
 
 FunGame.Core 提供**即时外发**能力：在游戏过程中，将操作记录、回合数据、角色状态等实时推送（POST）到**外部专用服务器**，用于观战、回放、数据统计或存档等场景。
 
-::: info v3.0 新增
-即时外发是 v3.0 引入的新特性（核心库不提供网络传输层，本功能是唯一的官方"外发通道"实现）。
+::: info 通道实现
+DefaultRoundRecordSink 提供 HTTP 外发；宿主也可以实现 IRoundRecordSink，接入消息队列、文件或其他传输方式。
 :::
 
 ## 核心概念
@@ -151,11 +151,17 @@ queue.CheckpointInterval = 10;  // 每 10 回合生成一次检查点
 ```csharp
 public class MyMQSink : IRoundRecordSink
 {
-    public void Attach(Guid queueId) { /* 绑定队列，可忽略 queueId */ }
-    public void End() { /* 游戏结束，停止重试等 */ }
-    public void SendAction(ActionRecord action) { /* 推送到消息队列 */ }
-    public void SendRound(RoundRecord round) { /* ... */ }
-    // ...其余 6 个方法
+    public void Attach(Guid queueId) { }
+    public void End() { }
+    public void SendAction(ActionRecord action) { }
+    public void SendRound(RoundRecord round) { }
+    public void SendCheckpointRound(RoundRecord round) { }
+    public void SendCharacterStatistics(Dictionary<Guid, CharacterStatistics> statistics) { }
+    public void SendCharacters(IEnumerable<Character> characters) { }
+    public void SendTeams(IEnumerable<Team> teams) { }
+    public void SendQueueData(Dictionary<Guid, double> queueData) { }
+    public void SendEliminatedCharacters(IEnumerable<string> characterGuids) { }
+    public void SendEliminatedTeams(IEnumerable<string> teamNames) { }
 }
 ```
 

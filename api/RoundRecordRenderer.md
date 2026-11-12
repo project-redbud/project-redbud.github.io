@@ -4,7 +4,7 @@
 
 将回合记录（`RoundRecord`）渲染为可读文本，用于回放与战斗日志。
 
-回合奖励部分优先按 `RoundRecord.RoundRewardEvents` 事件流逐条渲染（含归属、绑定方式、顺延与夺取，见 [RoundRewardRecord](./RoundRewardRecord.md)）；旧存档等无事件流的记录退化为原来的一行奖励汇总。
+回合奖励部分优先按 `RoundRecord.RoundRewardEvents` 事件流逐条渲染（含归属、绑定方式、顺延与夺取，见 [RoundRewardRecord](./RoundRewardRecord.md)）；无事件流时使用一行奖励汇总。
 
 ## 方法
 

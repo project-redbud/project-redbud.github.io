@@ -18,7 +18,7 @@ public enum ImmuneType
     Physical = 1 << 0,   // 物理免疫
     Magical = 1 << 1,    // 魔法免疫
     Skilled = 1 << 2,    // 技能免疫
-    All = 1 << 3,        // 完全免疫（物理 + 技能）
+    All = 1 << 3,        // 独立的完全免疫标志，不等于其他标志之和
     Special = 1 << 4     // 特殊免疫
 }
 ```

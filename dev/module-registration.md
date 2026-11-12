@@ -16,6 +16,8 @@
 
 ---
 
+示例中的 OshimaShiya / MyWarrior 来自[自定义角色](./custom-character.md)；ExampleSkill、ExampleItem 及相关特效采用自定义技能 / 物品章节的类，Core 也提供 `FunGame.Core.Library.Module.Example` 命名空间下的示例实现。工厂分支应引用已定义的类型，并与实体 Id 对应。
+
 ## CharacterModule 角色模组
 
 ```csharp
@@ -43,7 +45,8 @@ public class ExampleCharacterModule : CharacterModule
                 InitialAGI = 10,
                 InitialINT = 5,
                 InitialATK = 100,
-                InitialDEF = 10
+                InitialDEF = 10,
+                Level = 1
             };
             dict.Add(c.Name, c);
             return dict;
@@ -94,6 +97,9 @@ public delegate T? EntityFactoryDelegate<T>(long id, string name, Dictionary<str
 public class ExampleSkillModule : SkillModule
 {
     public override string Name => "fungame.example.skill";
+    public override string Description => "示例实现";
+    public override string Version => "1.0.0";
+    public override string Author => "FunGamer";
 
     // 预定义的技能（编码实现）
     public override Dictionary<string, Skill> Skills
@@ -113,15 +119,15 @@ public class ExampleSkillModule : SkillModule
         {
             return id switch
             {
-                1 => new 疾风步(),
-                2 => new 火之矢(),
-                3 => new 心灵之弦(),
+                1 => new ExampleNonDirectionalSkill1(),
+                2 => new ExampleNonDirectionalSkill2(),
+                3 => new ExampleSkill(),
                 _ => null
             };
         };
     }
 
-    // ═══ 特效工厂（v3.0 专用委托 EffectFactoryDelegate）═══
+    // 特效使用带宿主技能的专用委托
     protected override Factory.EffectFactoryDelegate EffectFactory()
     {
         return (id, name, skill, args) =>
@@ -130,8 +136,8 @@ public class ExampleSkillModule : SkillModule
             skill ??= new OpenSkill(id, name, args ?? []);
             return id switch
             {
-                1001 => new ExATK(skill, args ?? []),
-                1002 => new ExDEF(skill, args ?? []),
+                1001 => new ExampleOpenEffectExATK2(skill, args ?? []),
+                1002 => new ExampleInterruptCastingEffect(skill),
                 _ => null
             };
         };
@@ -139,7 +145,7 @@ public class ExampleSkillModule : SkillModule
 }
 ```
 
-> **为什么需要 EffectFactory？** 特效通过 `Dictionary<string, object>` 传递参数（如 JSON 中 `"exatk": 20`），工厂负责根据 ID 创建正确的特效类型并传入参数。这使得同一个特效类可以被不同数值复用。
+> **为什么需要 EffectFactory？** 特效通过 `Dictionary<string, object>` 传递参数（如 JSON 中 `"exatk": 0.2`），工厂负责根据 ID 创建正确的特效类型并传入参数。这使得同一个特效类可以被不同数值复用。
 
 ---
 
@@ -149,6 +155,9 @@ public class ExampleSkillModule : SkillModule
 public class ExampleItemModule : ItemModule
 {
     public override string Name => "fungame.example.item";
+    public override string Description => "示例实现";
+    public override string Version => "1.0.0";
+    public override string Author => "FunGamer";
 
     // 预定义的物品（编码实现）
     public override Dictionary<string, Item> Items
@@ -167,8 +176,8 @@ public class ExampleItemModule : ItemModule
         {
             return id switch
             {
-                10001 => new 铁剑(),
-                10002 => new 回复药(),
+                1 => new ExampleItem(),
+                10002 => new OpenItem(id, name, args),
                 _ => null
             };
         };

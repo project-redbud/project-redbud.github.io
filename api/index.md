@@ -8,7 +8,7 @@ FunGame.Core 的核心 API 一览。
 |---|---|---|
 | [GamingQueue](./GamingQueue.md) | `FunGame.Core.Model.Queue` | 回合制队列基类（可继承扩展） |
 | [AIController](./AIController.md) | `FunGame.Core.Controller` | AI 模式、估值、策略求值与规划指标 |
-| [决策表 API](./DecisionTable.md) | `FunGame.Core.Api` / `FunGame.Core.Model.DecisionTable` | JSON、构建、编译、加载、绑定与求值模型 |
+| [DecisionTable](./DecisionTable.md) | `FunGame.Core.Api` / `FunGame.Core.Model.DecisionTable` | JSON、构建、编译、加载、绑定与求值模型 |
 | [MixGamingQueue](./GamingQueue.md#三种队列对比) | `FunGame.Core.Model.Queue` | 混战模式队列 |
 | [TeamGamingQueue](./GamingQueue.md#三种队列对比) | `FunGame.Core.Model.Queue` | 团队模式队列 |
 | [EquilibriumConstant](./EquilibriumConstant.md) | `FunGame.Core.Model.Framework` | 游戏平衡常数（全部可配置） |
@@ -29,7 +29,7 @@ FunGame.Core 的核心 API 一览。
 | 接口 | 命名空间 | 说明 |
 |---|---|---|
 | [IGamingQueue](./GamingQueue.md) | `FunGame.Core.Interface.Base` | 回合制队列接口 |
-| [IDecisionPolicy](./DecisionTable.md#代码策略与扩展) | `FunGame.Core.Interface` | 只读角色策略求值接口 |
+| [IDecisionPolicy](./DecisionTable.md#代码策略与扩展) | `FunGame.Core.Interface.Base` | 只读角色策略求值接口 |
 | [IModule](./IModule.md) | `FunGame.Core.Interface.Base` | 模组接口（Name/Version/Author + Load/UnLoad） |
 | [IRoundRecordSink](./IRoundRecordSink.md) | `FunGame.Core.Interface.Base` | 回合记录外发通道接口（9 个外发方法） |
 
@@ -47,7 +47,7 @@ FunGame.Core 的核心 API 一览。
 
 | 类 | 命名空间 | 说明 |
 |---|---|---|
-| [HookContext](./HookContext.md) | `FunGame.Core.Model.EffectContext` | 钩子/事件统一参数上下文族（v3.0 起） |
+| [HookContext](./HookContext.md) | `FunGame.Core.Model.EffectContext` | 钩子/事件统一参数上下文族 |
 | [RoundRecord](./RoundRecord.md) | `FunGame.Core.Model.Framework` | 回合记录（含行动流与汇总） |
 | [RoundRewardRecord](./RoundRewardRecord.md) | `FunGame.Core.Model.Framework` | 回合奖励事件记录（发放/移除/夺取事件流） |
 | [ActionRecord](./ActionRecord.md) | `FunGame.Core.Model.Framework` | 单次操作记录 |

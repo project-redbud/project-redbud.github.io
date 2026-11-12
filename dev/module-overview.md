@@ -8,7 +8,7 @@ FunGame.Core 通过 **模组（Module）** 系统扩展游戏内容。模组将�
 
 ## 模组体系
 
-v3.0 的模组体系由 **1 个接口 + 3 个实体模组基类 + 1 个地图基类**组成：
+模组体系由 **1 个接口 + 3 个实体模组基类 + 1 个地图基类**组成：
 
 | 类型 | 基类/接口 | 注册内容 |
 |---|---|---|
@@ -27,7 +27,7 @@ public interface IModule
     string Version { get; }
     string Author { get; }
 
-    bool Load(params object[] objs);    // 加载模组（单例，防重复）
+    bool Load(params object[] objs);    // 由各实现管理加载状态
     void UnLoad(params object[] objs);  // 卸载模组
 }
 ```
@@ -77,7 +77,7 @@ public class ExampleSkillModule : SkillModule
     }
 
     // 特效工厂：动态创建特效（JSON 配置创建实体时必须在此注册）
-    // v3.0 使用特效专用委托 EffectFactoryDelegate（签名镜像 Effect 受保护构造函数）
+    // 专用委托携带宿主 Skill 与特效参数
     protected override Factory.EffectFactoryDelegate EffectFactory()
     {
         return (id, name, skill, args) =>
@@ -104,7 +104,7 @@ public delegate T? EntityFactoryDelegate<T>(long id, string name, Dictionary<str
 ### 工厂的两种用法
 
 - **编码实现**：能直接 `new` 就 `new`——`Effects.Add(new MyDamageEffect(this, 100, 0.5))`。高性能、可调试、可读性好。
-- **动态创建**：`Factory.OpenFactory.GetInstance<Effect>(1001, "", args)`——根据运行时传入的 ID 和参数决定创建哪个类，配合 JSON 配置文件使用。
+- **动态创建**：`Factory.OpenFactory.GetInstance(1001, "", skill, args)`——根据运行时传入的 ID 和参数决定创建哪个类，配合 JSON 配置文件使用。
 
 > 工厂的价值在于**根据运行时传入的 ID 和参数决定创建哪个类**。编码时你已经知道要创建哪个类，直接 new 即可。
 
@@ -112,7 +112,7 @@ public delegate T? EntityFactoryDelegate<T>(long id, string name, Dictionary<str
 
 ## GameMap 地图模组
 
-地图继承抽象类 `GameMap`，重写元数据与尺寸，并实现 `InitGamingQueue(IGamingQueue)` 返回一个**新的地图实例**（模组是单例的，不能复用同一个地图对象）：
+地图继承抽象类 `GameMap`，重写元数据与尺寸，并实现 `InitGamingQueue(IGamingQueue)` 返回一个**新的地图实例**；每局独立保存地图状态：
 
 ```csharp
 public class ExampleGameMap : GameMap
@@ -189,7 +189,7 @@ protected override void AfterLoad()
 ```csharp
 protected override bool BeforeLoad()
 {
-    // 条件加载：根据宿主传入的参数决定是否加载此模组
+    // 条件加载：根据宿主配置决定是否加载此模组
     // 返回 false 将阻止加载（Load 返回 false，不注册工厂）
     return true;
 }
@@ -262,9 +262,9 @@ public class ExampleGameModuleConstant
 
 ## 关键设计原则
 
-### 1. 模组是单例的
+### 1. 按实例管理加载状态
 
-一个模组类在进程内只有一个实例（`Load` 防重复）。**不要把游戏局级别的数据放在模组的实例字段上**——每局游戏的状态应放在队列、地图或外部存储中。
+三个实体模组的 Load 标记属于实例，只防止同一实例重复加载，不保证进程内单例。宿主应统一管理模组实例与工厂注册；UnLoad 注销工厂但不重置加载标记，同一实例随后调用 Load 仍返回 false。每局状态应放在队列、独立地图或外部存储中。
 
 ### 2. 硬编码直接 new，动态创建走工厂
 
@@ -278,20 +278,19 @@ public class ExampleGameModuleConstant
   ✅ 直接 new：高性能、可调试、可读性好
 
 JSON/配置文件动态创建
-  → Factory.OpenFactory.GetInstance<Effect>(1001, "", args)
+  → Factory.OpenFactory.GetInstance(1001, "", skill, args)
   ✅ 走工厂：特效 ID → 工厂查找 → 传入参数 Dictionary → 创建实例
 ```
 
 ### 3. 命名空间约定
 
 - 核心库的所有类型位于 `FunGame.Core.*` 命名空间下（`Entity` / `Model` / `Api` / `Interface` / `Library` 等）
-- Module 类可以放在任意命名空间，通过加载流程发现
+- Module 类可以放在任意命名空间，由宿主创建并调用 Load
 - 推荐使用 `Oshima.FunGame.OshimaModules` 这样的独立命名空间
-- 注意：v2.x 的 `Milimoe.FunGame.Core.*` 命名空间前缀已废弃，请统一使用 `FunGame.Core.*`
 
-### 4. v3.0 变更说明
+### 4. 宿主通信与数据存储
 
-v3.0 剥离了网络传输层（Socket/HTTP/WebSocket、`DataRequest` 等）与数据库代码，因此 v2.x 的 `GameModule`/`GameModuleServer`/`Plugin` 体系**已不存在**。核心库只保留数据契约与抽象；客户端↔服务端通信由外部项目自实现，游戏数据外发请使用 [即时外发功能](./outbound.md)。
+客户端与服务端的通信、数据库访问由宿主实现。战斗数据可通过 [即时外发功能](./outbound.md) 发送，使用默认 HTTP 通道或自定义 IRoundRecordSink。
 
 ---
 

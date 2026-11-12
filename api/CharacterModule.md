@@ -27,7 +27,7 @@ protected virtual Factory.EntityFactoryDelegate<Character> CharacterFactory();
 
 | 方法 | 说明 |
 |---|---|
-| `Load(params object[] objs)` | 加载模组（注册角色工厂，单例防重复） |
+| `Load(params object[] objs)` | 加载模组（注册角色工厂，同一实例防重复） |
 | `UnLoad(params object[] objs)` | 卸载模组（注销工厂） |
 | `BeforeLoad()` | 返回 `false` 可阻止加载 |
 | `AfterLoad()` | 加载后回调 |
@@ -38,6 +38,9 @@ protected virtual Factory.EntityFactoryDelegate<Character> CharacterFactory();
 public class ExampleCharacterModule : CharacterModule
 {
     public override string Name => "fungame.example.character";
+    public override string Description => "示例实现";
+    public override string Version => "1.0.0";
+    public override string Author => "FunGamer";
 
     public override Dictionary<string, Character> Characters
     {
@@ -48,7 +51,8 @@ public class ExampleCharacterModule : CharacterModule
             {
                 Name = "Oshima",
                 InitialHP = 30,
-                InitialATK = 100
+                InitialATK = 100,
+                Level = 1
             };
             dict.Add(c.Name, c);
             return dict;

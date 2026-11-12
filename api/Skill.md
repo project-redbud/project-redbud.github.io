@@ -32,8 +32,8 @@ protected Skill(SkillType type, Character? character = null)
 | `Enable` | `bool` | 是否启用（默认 true） |
 | `IsInEffect` | `bool` | 是否生效中（默认 false） |
 
-::: info 相等语义（v3.0+）
-`Equals`/`GetHashCode` 基于 **`Guid`**（实例身份）而非 Id+Name：同一局内复制的技能互为不同键，`Dictionary<Skill,...>`/`HashSet<Skill>` 按实例区分。
+::: info 相等语义
+`Equals` / `GetHashCode` 基于 **`Guid`**。不同对象具有相同 Guid 时仍然相等，集合不按引用区分。复制通过工厂创建技能，身份以返回实例的 Guid 为准。
 :::
 
 ## 类型与消耗
@@ -59,12 +59,12 @@ protected Skill(SkillType type, Character? character = null)
 | `LastCostMP` / `LastCostEP` | `double` | 最近一次实际消耗 |
 | `CD` | `double` | 冷却时间 |
 | `InstantReset` | `bool` | 是否立即重置冷却 |
-| `RealCD` | `double` | 实际冷却（只读）：`CD × (1 - CDR)` |
+| `RealCD` | `double` | 实际冷却（只读）：`InstantReset ? 0 : Math.Max(0, CD × (1 - (Character?.CDR ?? 0)))` |
 | `CastTime` | `double` | 吟唱时间（魔法） |
-| `RealCastTime` | `double` | 实际吟唱时间（只读）：`CastTime × (1 - 加速系数)` |
+| `RealCastTime` | `double` | 实际吟唱时间（只读）：`Math.Max(0, CastTime × (1 - PercentageCheck(加速系数)))` |
 | `HardnessTime` | `double` | 硬直时间 |
 | `ExHardnessTime` / `ExHardnessTime2` | `double` | 额外硬直时间 |
-| `RealHardnessTime` | `double` | 实际硬直时间（只读）：`(HardnessTime + ExHardnessTime) × (1 + ExHardnessTime2) × (1 - 行动系数)` |
+| `RealHardnessTime` | `double` | 实际硬直时间（只读）：`Math.Max(0, (HardnessTime + ExHardnessTime) × (1 + ExHardnessTime2) × (1 - PercentageCheck(行动系数)))` |
 
 ## 类型枚举 `SkillType`
 
@@ -83,7 +83,7 @@ protected Skill(SkillType type, Character? character = null)
 | `DamageType` | `DamageType` | 伤害类型（Physical/Magical/True） |
 | `MagicType` | `MagicType` | 魔法属性 |
 | `MagicBottleneck` | `double` | 魔法瓶颈（智力门槛） |
-| `MagicEfficacy` | `double` | 魔法效能（只读）：`1.0 + (角色智力 - 魔法瓶颈) ÷ 魔法瓶颈` |
+| `MagicEfficacy` | `double` | 魔法效能（只读）：`Clamp(1.0 + (角色智力 - 魔法瓶颈) ÷ 魔法瓶颈, 0.01, 2.0)`；瓶颈为 0 或无角色时为 1.0 |
 
 ## 目标选择
 

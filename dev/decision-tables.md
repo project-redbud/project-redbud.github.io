@@ -1,6 +1,6 @@
 # 编写决策表
 
-决策表配置使用 BCL JSON，既可直接编写，也可通过链式构建器生成。配置、编译策略和角色绑定是三个步骤。规则语义见 [决策表](../guide/decision-tables.md)，接口速查见 [决策表 API](../api/DecisionTable.md)。
+决策表配置使用 BCL JSON，既可直接编写，也可通过链式构建器生成。配置、编译策略和角色绑定是三个步骤。规则语义见 [决策表](../guide/decision-tables.md)，接口速查见 [DecisionTable](../api/DecisionTable.md)。
 
 也可使用 Testing-v3 的[可视化决策表编辑器](./decision-table-editor.md)编排规则并导出 JSON，再通过下面的 Loader 接入角色。
 
@@ -156,6 +156,6 @@ Registry 重复注册扩展抛出 `ArgumentException`；Loader 重复注册配�
 
 也可实现 `IDecisionPolicy` 并用 `loader.Register(id, policy)` 注册代码策略。代码策略无法作为独立 JSON 规则导出；共享实现不得保存角色或战斗的可变状态。
 
-`AIController.PolicyEvaluatedEvent` 提供每次策略评估及当时的独立统计快照，包括协同申请；`LastPolicyResult` 保存最近一次策略结果，`LastPlanningDiagnostics` 和 `LastMetrics` 汇总最近一次完整决策。后续默认 AI 不改写事件快照。诊断代码及指标见 [决策表 API](../api/DecisionTable.md#运行诊断)和 [AIController](../api/AIController.md#诊断与统计)。
+`AIController.PolicyEvaluatedEvent` 提供每次策略评估及当时的独立统计快照，包括协同申请；`LastPolicyResult` 保存最近一次策略结果，`LastPlanningDiagnostics` 和 `LastMetrics` 汇总最近一次完整决策。后续默认 AI 不改写事件快照。诊断代码及指标见 [DecisionTable](../api/DecisionTable.md#运行诊断)和 [AIController](../api/AIController.md#诊断与统计)。
 
 完整配置与使用场景见 [BOSS 决策表示例](./decision-table-boss.md)。

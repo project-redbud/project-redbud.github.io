@@ -3,7 +3,7 @@
 特效钩子返回值结构体族，位于 `FunGame.Core.Model.EffectResult`。共 23 个 `public readonly record struct`。
 
 ::: info 设计要点
-全部遵循「**默认即无害**」：`default` 结构体 = 该特效不干预。需要干预时返回设置了相应字段的结构体。bool 语义统一为「**肯定动作**」命名（如 `CancelHeal`、`BlockInterruption`），替代旧版易混淆的 `bool` 返回值。
+全部遵循「**默认即无害**」：`default` 结构体 = 该特效不干预。需要干预时返回设置了相应字段的结构体。bool 语义统一为「**肯定动作**」命名（如 `CancelHeal`、`BlockInterruption`）。
 :::
 
 ## 聚合规则
@@ -12,7 +12,7 @@
 
 | 规则 | 含义 | 示例字段 |
 |---|---|---|
-| **OR** | 任一 true 即生效，短路后续特效 | `CancelHeal`、`ForceAction` |
+| **OR** | 任一 true 即生效；是否提前停止分发由对应入口决定 | `CancelHeal`、`ForceAction` |
 | **SUM** | 数值累加 | `DamageDelta`、`ThrowingBonusDelta` |
 | **覆盖后者胜** | 非 null 即覆盖，后续特效可读 ctx 最新值链式叠加 | `BaseEP?`、`DamageType?` |
 | **连乘** | 系数相乘 | `Factor`（硬直系数） |
@@ -49,13 +49,11 @@
 ```csharp
 public class MyInterruptEffect : Effect
 {
-    // 旧版：bool BeforeSkillCastWillBeInterrupted(...) => false;  // false = 阻止打断
-    // 新版：返回结构体，BlockInterruption = true 表示阻止打断
+    // 返回结构体，BlockInterruption = true 表示阻止打断
     public override BeforeSkillCastWillBeInterruptedResult BeforeSkillCastWillBeInterrupted(SkillCastContext ctx)
         => new() { BlockInterruption = true };
 
-    // 旧版：double AlterEPAfterDamage(Character, ref double baseEP)  // ref 修改
-    // 新版：返回覆盖值，可链式读取 ctx.BaseEP
+    // 返回覆盖值，可链式读取 ctx.BaseEP
     public override AlterEPResult AlterEPAfterDamage(DamageContext ctx)
         => new() { BaseEP = ctx.BaseEP * 1.5 };
 }

@@ -15,7 +15,7 @@ public abstract int Width { get; }   // 宽度
 public abstract int Height { get; }  // 高度
 public abstract float Size { get; }  // 格子大小
 
-// 返回一个绑定到队列的新地图实例（模组是单例的，每次游戏需新实例）
+// 返回一个绑定到队列的新地图实例，每局独立保存地图状态
 public abstract GameMap InitGamingQueue(IGamingQueue queue);
 ```
 
@@ -90,18 +90,23 @@ public Grid? this[long id]                  // 按 Id 取格子
 public class ExampleGameMap : GameMap
 {
     public override string Name => "fungame.example.gamemap";
+    public override string Description => "示例实现";
+    public override string Version => "1.0.0";
+    public override string Author => "FunGamer";
     public override int Length => 12;
     public override int Width => 12;
     public override int Height => 6;
     public override float Size => 4.0f;
+    public Func<SelectionContext, Grid>? SelectTargetGrid { get; set; }
 
     public override GameMap InitGamingQueue(IGamingQueue queue)
     {
-        GameMap map = new ExampleGameMap();
+        GameMap map = new ExampleGameMap { SelectTargetGrid = SelectTargetGrid };
         map.Load();
-        if (queue is GamingQueue gq)
+        Func<SelectionContext, Grid>? select = SelectTargetGrid;
+        if (queue is GamingQueue gq && select != null)
         {
-            gq.SelectTargetGridEvent += Gq_SelectTargetGrid;  // 介入目标选择
+            gq.SelectTargetGridEvent += ctx => select(ctx);
         }
         return map;
     }

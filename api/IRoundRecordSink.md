@@ -25,15 +25,21 @@
 ```csharp
 public class MyMQSink : IRoundRecordSink
 {
-    public void Attach(Guid queueId) { /* 绑定队列 */ }
-    public void End() { /* 游戏结束 */ }
-    public void SendAction(ActionRecord action) { /* 推送到消息队列 */ }
-    public void SendRound(RoundRecord round) { /* ... */ }
-    // ...其余 6 个方法
+    public void Attach(Guid queueId) { }
+    public void End() { }
+    public void SendAction(ActionRecord action) { }
+    public void SendRound(RoundRecord round) { }
+    public void SendCheckpointRound(RoundRecord round) { }
+    public void SendCharacterStatistics(Dictionary<Guid, CharacterStatistics> statistics) { }
+    public void SendCharacters(IEnumerable<Character> characters) { }
+    public void SendTeams(IEnumerable<Team> teams) { }
+    public void SendQueueData(Dictionary<Guid, double> queueData) { }
+    public void SendEliminatedCharacters(IEnumerable<string> characterGuids) { }
+    public void SendEliminatedTeams(IEnumerable<string> teamNames) { }
 }
 ```
 
-> 所有方法的参数均为**结构快照**（集合独立副本、实体引用共享），可在回调中安全消费。
+> Action / Round / Checkpoint 使用结构快照，实体引用仍共享；其他参数按各外发入口提供，不能推断为深拷贝。异步消费者需要按自身用途冻结实体及嵌套数据，避免读取后续变化。
 
 ## 关联
 

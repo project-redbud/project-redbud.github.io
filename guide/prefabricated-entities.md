@@ -147,7 +147,7 @@ public class BowMasteryEffect(Skill skill) : NeuralCalibrationEffect
 
 ## SwitchCombatTalentSkill — 转换战斗天赋
 
-战斗内切换当前生效战斗天赋的战技（v3.0 新增）。角色学满 2 个战斗天赋后由 `ClassPlanner` 自动授予。
+战斗内切换当前生效战斗天赋的战技。角色学满 2 个战斗天赋后由 `ClassPlanner` 自动授予。
 
 - `TargetRoleType`：切换到该定位下尚未激活的已学天赋；null 自动循环切换
 - `TargetTalentId`：精确指定天赋 IdName（优先于 TargetRoleType）

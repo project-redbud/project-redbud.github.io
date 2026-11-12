@@ -41,6 +41,7 @@ public class MyWarrior : Character
 
         // 角色定位
         PrimaryRoleType = RoleType.Guardian;
+        Level = 1;
     }
 }
 ```
@@ -206,6 +207,7 @@ public class OshimaShiya : Character
         AGIGrowth = 0;
         InitialINT = 0;
         INTGrowth = 0;
+        Level = 1;
     }
 }
 ```

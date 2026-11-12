@@ -12,10 +12,13 @@
 using FunGame.Core.Entity;
 using FunGame.Core.Library.Constant;
 using FunGame.Core.Model.Framework;
+using FunGame.Core.Model.EffectContext;
 using FunGame.Core.Model.Queue;
 
 static void BindChainActions(
-    GamingQueue queue, Character coordinator, Character partner, Character enemy)
+    GamingQueue queue, Character coordinator, Character partner, Character enemy,
+    Func<TurnContext, CharacterActionType> chooseAction,
+    Func<Character, IReadOnlyList<ChainActionRequest>, Guid?> chooseRequest)
 {
     queue.TurnStartEvent += ctx =>
     {
@@ -29,15 +32,14 @@ static void BindChainActions(
         return true;
     };
 
-    queue.DecideActionEvent += ctx =>
-        ctx.Trigger == coordinator && ctx.ChainActions.Count > 0
-            ? CharacterActionType.ChainAction
-            : CharacterActionType.EndTurn;
+    queue.DecideActionEvent += ctx => chooseAction(ctx);
 
     queue.SelectChainActionEvent += (actor, pending) =>
-        actor == coordinator ? pending.FirstOrDefault()?.Id : null;
+        chooseRequest(actor, pending);
 }
 ```
+
+`chooseAction` 由宿主行动菜单返回玩家选择，`chooseRequest` 返回玩家选中的申请 ID，取消返回 null。存在申请不代表自动选择协同，也不默认确认第一条。手动协作方的动作应由玩家预先确定后显式提交。
 
 协作申请的类型与动作对应如下：
 

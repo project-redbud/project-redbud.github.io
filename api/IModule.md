@@ -12,7 +12,7 @@ public interface IModule
     string Version { get; }     // 模组版本
     string Author { get; }      // 模组作者
 
-    bool Load(params object[] objs);    // 加载模组（单例，防重复）
+    bool Load(params object[] objs);    // 由各实现管理加载状态
     void UnLoad(params object[] objs);  // 卸载模组
 }
 ```

@@ -26,7 +26,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `GameplayEquilibriumConstant` | `EquilibriumConstant` | 游戏平衡常数（规则见 [EquilibriumConstant](./EquilibriumConstant.md)） |
 | `WriteLine` | `Action<string>` | 日志输出委托（只读） |
 | `IsDebug` | `bool` | 调试模式 |
-| `Seed` | `int` | 确定性随机种子（只读，v3.0+；复现对局时传入相同 seed 可得到相同随机序列） |
+| `Seed` | `int` | 确定性随机种子（只读；复现对局时传入相同 seed 可得到相同随机序列） |
 | `Random` | `Random` | 队列的确定性随机数（只读；角色/技能/特效绑定队列后经 `Random` 属性共享同一实例） |
 | `EnableAI` | `bool` | 是否启用内置 AI 控制器；false 时入口返回 null 并清空短期规划状态，内部实例、配置与订阅保留 |
 | `AI` | `AIController?` | 当前控制器，关闭 AI 时为 null；配置模式与评估事件见 [AIController](./AIController.md) |
@@ -83,7 +83,7 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 
 | 方法 | 说明 |
 |---|---|
-| `InitCharacters(List<Character>)` | 初始化角色列表（复制原角色、初始化统计/助攻） |
+| `InitCharacters(List<Character> characters, bool regenerateGuids = true)` | 初始化角色列表（复制原角色、初始化统计/助攻） |
 | `InitActionQueue()` | 初始化行动顺序表（按速度排位，规则见 [行动顺序表 - 排位顺序](../guide/action-queue.md#排位顺序)） |
 | `AddCharacter(Character, double hardnessTime, bool isCheckProtected = true)` | 添加角色到队列（含插队保护） |
 | `RemoveCharacterFromQueue(params IEnumerable<Character>)` | 移出队列，并清理吟唱、预释放、协同上下文及顺延奖励 |
@@ -192,8 +192,8 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 | `RemoveRoundRewards(character, actionTurnOffset, out removed)` | 一次性移除未来某行动回合的全部奖励（仅角色绑定） |
 | `StealRoundReward(target, fromOffset, thief, toOffset, out stolen)` | 夺取目标某行动回合的全部奖励，并入夺取者的指定行动回合（仅角色绑定） |
 
-::: warning 破坏性变更
-`InitRoundRewards` 不再接收 `maxRound` / `maxRewardsInRound` 参数：奖励表改为稀疏步进 + 1000 键窗口（`RoundRewardWindowSize`）滚动惰性物化，每个命中键位固定 1 个奖励，无需预先指定总回合数。
+::: info 奖励窗口
+奖励表使用稀疏步进与 1000 键窗口（`RoundRewardWindowSize`）滚动惰性物化，每个命中键位固定 1 个奖励，无需预先指定总回合数。
 :::
 
 奖励的发放（`GrantRoundRewards`）与结算（`SettleRoundRewards`）由队列在回合循环中自动完成，被动奖励在吟唱回合顺延到结算回合。吟唱终止、预释放覆盖、死亡或移出队列会立即清理顺延奖励；协同吟唱正常释放时按参与者自己的回合结算奖励。
@@ -202,9 +202,9 @@ public GamingQueue(List<Character> characters, Action<string>? writer = null, Ga
 
 | 方法 | 说明 |
 |---|---|
-| `GetActionType(DecisionPoints, pUseItem, pCastSkill, pNormalAttack)` | 根据概率决定行动类型（v3.0+ 实例方法，使用确定性 `Random`） |
-| `GetEP(double a, double b, double max)` | 计算获得的爆发能量（v3.0+ 实例方法） |
-| `Inquiry(Character, InquiryOptions)` | 向角色/玩家询问（v3.0+ 流程：外部事件 → 特效钩子 → `FallbackResolver` → AI → 内置默认；答复写入 `RoundRecord.Inquiries`） |
+| `GetActionType(DecisionPoints, pUseItem, pCastSkill, pNormalAttack)` | 根据概率决定行动类型（实例方法，使用确定性 `Random`） |
+| `GetEP(double a, double b, double max)` | 计算获得的爆发能量（实例方法） |
+| `Inquiry(Character, InquiryOptions)` | 向角色/玩家询问（流程：外部事件 → 特效钩子 → `FallbackResolver` → AI → 内置默认；答复写入 `RoundRecord.Inquiries`） |
 
 ## 扩展点（protected 虚方法）
 

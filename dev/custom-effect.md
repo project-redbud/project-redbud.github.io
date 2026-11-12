@@ -2,8 +2,8 @@
 
 基于官方示例 `Library/Module/Example/ExampleSkill.cs` 和 `ExampleItem.cs`。
 
-::: info v3.0 起统一上下文参数与结构体回读
-所有特效钩子接收单一**参数上下文对象**（如 `SkillCastContext`、`DamageContext`），主角色从 `ctx.Trigger` 获取；上下文属性只读（`internal set`），原 `ref` 参数与 `bool` 返回值改为返回**结果结构体**（如 `AlterHardnessTimeResult`、`BeforeHealToTargetResult`），由框架聚合后写回。详见 [HookContext 参数上下文族](../api/HookContext.md) 与 [EffectResult](../api/EffectResult.md)。
+::: info 上下文参数与结构体回读
+所有特效钩子接收单一**参数上下文对象**（如 `SkillCastContext`、`DamageContext`），主角色从 `ctx.Trigger` 获取；上下文属性通常仅有 getter 或 internal setter，模组通过返回值干预结算；需要回读的钩子返回**结果结构体**（如 `AlterHardnessTimeResult`、`BeforeHealToTargetResult`），由框架聚合后写回。详见 [HookContext 参数上下文族](../api/HookContext.md) 与 [EffectResult](../api/EffectResult.md)。
 :::
 
 ---
@@ -165,16 +165,19 @@ public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
     {
         if (ctx.Trigger is Character character && ctx.Enemy is Character enemy
             && character == Skill.Character && ctx.IsNormalAttack
-            && CurrentCD == 0 && !IsNested && GamingQueue != null && enemy.HP > 0)
+            && CurrentCD == 0 && !IsNested && GamingQueue is IGamingQueue queue && enemy.HP > 0)
         {
-            WriteLine($"[ {character} ] 发动了{Skill.Name}！额外进行一次普通攻击！");
             CurrentCD = CD;
             IsNested = true;
-            character.NormalAttack.Attack(GamingQueue, character, null, enemy);
+            try
+            {
+                character.NormalAttack.Attack(queue, character, null, enemy);
+            }
+            finally
+            {
+                IsNested = false;
+            }
         }
-
-        if (ctx.Trigger == Skill.Character && IsNested)
-            IsNested = false;
     }
 
     // 时间流逝时冷却
@@ -223,6 +226,7 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
         Skill.Level > 0 ? 0.1 + 0.02 * (Skill.Level - 1) : 0.1;
 
     // 保存实际加成值以便恢复
+    private bool BonusApplied = false;
     private double ActualATKBonus = 0;
     private double ActualPhysicalPenetrationBonus = 0;
     private double ActualEvadeRateBonus = 0;
@@ -230,12 +234,14 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     // 特效施加：修改角色属性
     public override void OnEffectGained(HookContext ctx)
     {
-        if (ctx.Trigger is not Character character) return;
+        if (ctx.Trigger is not Character character || BonusApplied) return;
+        BonusApplied = true;
         ActualATKBonus = ATKBonus;
-        ActualPhysicalPenetrationBonus = PhysicalPenetrationBonus;
+        double previousPenetration = character.PhysicalPenetration;
+        character.PhysicalPenetration += PhysicalPenetrationBonus;
+        ActualPhysicalPenetrationBonus = character.PhysicalPenetration - previousPenetration;
         ActualEvadeRateBonus = EvadeRateBonus;
         character.ExATK2 += ActualATKBonus;
-        character.PhysicalPenetration += ActualPhysicalPenetrationBonus;
         character.ExEvadeRate += ActualEvadeRateBonus;
 
         // 联动其他技能：修改 ExamplePassiveSkillEffect 的冷却
@@ -251,10 +257,14 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     // 特效移除：恢复角色属性
     public override void OnEffectLost(HookContext ctx)
     {
-        if (ctx.Trigger is not Character character) return;
+        if (ctx.Trigger is not Character character || !BonusApplied) return;
+        BonusApplied = false;
         character.ExATK2 -= ActualATKBonus;
         character.PhysicalPenetration -= ActualPhysicalPenetrationBonus;
         character.ExEvadeRate -= ActualEvadeRateBonus;
+        ActualATKBonus = 0;
+        ActualPhysicalPenetrationBonus = 0;
+        ActualEvadeRateBonus = 0;
 
         if (character.Effects.FirstOrDefault(
             e => e is ExamplePassiveSkillEffect && e.Skill.Character == character)
@@ -292,15 +302,8 @@ public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
     public override void OnSkillCasted(SkillCastContext ctx)
     {
         if (ctx.Trigger is not Character caster) return;
-        ActualATKBonus = 0;
-        ActualPhysicalPenetrationBonus = 0;
-        ActualEvadeRateBonus = 0;
         RemainDuration = Duration;
-        if (!caster.Effects.Contains(this))
-        {
-            caster.Effects.Add(this);
-            OnEffectGained(new HookContext(GamingQueue, caster));
-        }
+        AddToCharacter(caster);
         RecordCharacterApplyEffects(caster, EffectType.DamageBoost, EffectType.PenetrationBoost);
     }
 }
@@ -322,32 +325,39 @@ public class ExampleOpenEffectExATK2 : Effect
 
     private readonly double BonusFactor = 0;
     private double ActualBonus = 0;
+    private bool BonusApplied = false;
+    private double AppliedBonusFactor = 0;
 
     // 特效施加
     public override void OnEffectGained(HookContext ctx)
     {
-        if (ctx.Trigger is not Character character) return;
+        if (ctx.Trigger is not Character character || BonusApplied) return;
         if (Durative && RemainDuration == 0)
             RemainDuration = Duration;
         else if (RemainDurationTurn == 0)
             RemainDurationTurn = DurationTurn;
 
         ActualBonus = character.BaseATK * BonusFactor;
-        character.ExATKPercentage += BonusFactor;
+        AppliedBonusFactor = BonusFactor;
+        character.ExATKPercentage += AppliedBonusFactor;
+        BonusApplied = true;
     }
 
     // 特效移除
     public override void OnEffectLost(HookContext ctx)
     {
-        if (ctx.Trigger is not Character character) return;
-        character.ExATKPercentage -= BonusFactor;
+        if (ctx.Trigger is not Character character || !BonusApplied) return;
+        character.ExATKPercentage -= AppliedBonusFactor;
+        AppliedBonusFactor = 0;
+        ActualBonus = 0;
+        BonusApplied = false;
     }
 
     // 属性变化时刷新（等级提升、装备更换等引起的基础属性变化）
     public override void OnAttributeChanged(HookContext ctx)
     {
-        OnEffectLost(ctx);
-        OnEffectGained(ctx);
+        if (ctx.Trigger is Character character && BonusApplied)
+            ActualBonus = character.BaseATK * AppliedBonusFactor;
     }
 
     // 从 Dictionary 读取参数

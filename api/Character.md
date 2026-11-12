@@ -4,7 +4,7 @@
 
 - **编码定义**：继承 `Character` 类，在构造函数中设置属性
 - **工厂创建**：通过 `Factory.OpenFactory.GetInstance<Character>(id, name, args)`
-- **复制**：使用中调用 `Copy()` 创建独立副本
+- **复制**：调用 `Copy()` 创建新对象，保留原 Guid；需要新身份时显式赋新的 Guid
 
 ## 构造函数
 
@@ -23,16 +23,16 @@ public Character()
 | `Profile` | `CharacterProfile` | 角色档案 |
 | `EquipSlot` | `EquipSlot` | 装备栏 |
 | `MagicType` | `MagicType` | 魔法属性 |
-| `PrimaryRoleType` | `RoleType` | **主要定位**：当前生效战斗天赋所属定位；未激活为 `None`（v3.0 取代旧 `FirstRoleType`） |
-| `SecondaryRoleTypes` | `List<RoleType>` | **次要定位**：由流派自动推导，至多 2 个（v3.0 取代旧 `SecondRoleType`/`ThirdRoleType`） |
+| `PrimaryRoleType` | `RoleType` | **主要定位**：当前生效战斗天赋所属定位；未激活为 `None` |
+| `SecondaryRoleTypes` | `List<RoleType>` | **次要定位**：由流派自动推导，至多 2 个 |
 | `Promotion` | `int` | 段位（默认 100） |
 | `RoleRating` | `RoleRating` | 评级（由 Promotion 计算，只读） |
 | `PrimaryAttribute` | `PrimaryAttribute` | 核心属性（STR/AGI/INT） |
 | `AttributeLimit` | `ClassAttributeLimit?` | 角色模板核心属性分配上下限（与职业模板取交集，约束 1 级初始分配） |
 | `Class` | `CharacterClass` | 职业计划（职业规划系统挂载点，见 [ClassPlanner](./ClassPlanner.md)） |
 
-::: info 相等语义（v3.0+）
-`Equals`/`GetHashCode` 基于 **`Guid`**（实例身份）而非 Id+Name：同一局内复制的角色互为不同键，`Dictionary<Character,...>`/`HashSet<Character>` 按实例区分。
+::: info 相等语义
+`Equals` / `GetHashCode` 基于 **`Guid`**。不同对象具有相同 Guid 时仍然相等；`Character.Copy()` 保留 Guid，副本与原角色会被 Dictionary / HashSet 视为同一个键。战斗初始化默认重新生成参战 Guid，详见 [GamingQueue](./GamingQueue.md)。
 :::
 
 ## 决策策略
@@ -48,9 +48,9 @@ public Character()
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
-| `Level` | `int` | 当前等级（自动限制在最大等级内） |
+| `Level` | `int` | 有效等级；setter 限制在平衡常数的 1 至 MaxLevel，getter 加 ExLevel 后应用正的自定义 MaxLevel 上界，下限 0 |
 | `ExLevel` | `int` | 额外等级 |
-| `MaxLevel` | `int` | 最大等级（0 时按平衡常数） |
+| `MaxLevel` | `int` | 自定义有效等级上界；0 表示 getter 不额外设上界 |
 | `EXP` | `double` | 经验值 |
 | `LevelBreak` | `int` | 等级突破（默认 -1） |
 
@@ -134,10 +134,10 @@ public Character()
 | 属性 | 类型 | 说明 |
 |---|---|---|
 | `InitialHR` | `double` | 初始生命回复（可设置） |
-| `HR` | `double` | 生命回复（只读）：`InitialHR + STR × 0.15 + ExHR` |
+| `HR` | `double` | 生命回复（只读）：`Math.Max(0, InitialHR + STR × 0.15 + ExHR)` |
 | `ExHR` | `double` | 额外生命回复 |
 | `InitialMR` | `double` | 初始魔法回复（可设置） |
-| `MR` | `double` | 魔法回复（只读）：`InitialMR + INT × 0.1 + ExMR` |
+| `MR` | `double` | 魔法回复（只读）：`Math.Max(0, InitialMR + INT × 0.1 + ExMR)` |
 | `ExMR` | `double` | 额外魔法回复 |
 | `ER` | `double` | 能量回复 |
 
@@ -177,7 +177,7 @@ Unit 类型入口读取为 Unit；Character 类型入口读取为 Character。
 | 属性 | 类型 | 说明 |
 |---|---|---|
 | `InitialSPD` | `double` | 初始行动速度（可设置） |
-| `SPD` | `double` | 行动速度（只读）：`InitialSPD + AGI × 0.65 + ExSPD` |
+| `SPD` | `double` | 行动速度（只读）：`Math.Max(0, InitialSPD + AGI × 0.65 + ExSPD)` |
 | `ExSPD` | `double` | 额外行动速度 |
 | `ActionCoefficient` | `double` | 行动系数（只读，减少硬直时间） |
 | `ExActionCoefficient` | `double` | 额外行动系数 |
@@ -196,7 +196,10 @@ Unit 类型入口读取为 Unit；Character 类型入口读取为 Character。
 | `ExCritDMG` | `double` | 额外暴击伤害 |
 | `ExEvadeRate` | `double` | 额外闪避率 |
 | `Lifesteal` | `double` | 生命偷取 |
-| `PhysicalPenetration` | `double` | 物理穿透（只读） |
+| `PhysicalPenetration` | `double` | 物理穿透（可读写，限制在 0 至 1） |
+| `MagicalPenetration` | `double` | 魔法穿透（可读写，限制在 0 至 1） |
+| `CritRate` / `EvadeRate` | `double` | 暴击率 / 闪避率，只读，限制在 0 至 1 |
+| `CritDMG` | `double` | 暴击伤害倍率，只读，不统一钳制 |
 | `Shield` | `Shield` | 护盾 |
 | `IsUnit` | `bool` | 是否为召唤单位（virtual，默认 false） |
 | `Master` | `Character?` | 召唤主（Unit 的主人） |
@@ -217,9 +220,9 @@ Unit 类型入口读取为 Unit；Character 类型入口读取为 Character。
 
 | 方法 | 说明 |
 |---|---|
-| `Recovery(double EP = -1)` | 满状态恢复（EP 默认恢复全部） |
+| `Recovery(double EP = -1)` | 回满 HP / MP；EP = -1 时保持当前能量，传入其他值时设置能量 |
 | `Recovery(int time, double EP = -1)` | 按时间流逝恢复（生命/魔法回复 × 时间） |
-| `Recovery(double pastHP, double pastMP, double pastMaxHP, double pastMaxMP)` | 按历史值恢复（复活还原用） |
+| `Recovery(double pastHP, double pastMP, double pastMaxHP, double pastMaxMP)` | 对应旧资源与旧上限均大于 0 时，按原比例回填到当前上限；否则不修改该资源 |
 
 ### 装备
 
@@ -234,7 +237,7 @@ Unit 类型入口读取为 Unit；Character 类型入口读取为 Character。
 
 | 方法 | 说明 |
 |---|---|
-| `SetLevel(int level, bool recovery = true)` | 设置等级（可选恢复状态） |
+| `SetLevel(int level, bool recovery = true)` | 默认等级变化时回满 HP / MP；recovery: false 对正的旧资源按比例回填，不保证保留绝对数值或零资源状态 |
 | `OnLevelUp(int level = 0, bool checkLevelBreak = true)` | 升级回调 |
 | `OnLevelBreak()` | 等级突破回调 |
 | `OnAttributeChanged()` | 属性变化回调（通知技能/特效刷新） |
@@ -249,7 +252,7 @@ Unit 类型入口读取为 Unit；Character 类型入口读取为 Character。
 
 | 方法 | 说明 |
 |---|---|
-| `Copy(bool copyEx = false, bool copyMagic = false, bool copyItem = false)` | 创建独立副本 |
+| `Copy(bool copyEx = false, bool copyMagic = false, bool copyItem = false)` | 创建新对象，保留 Guid，回满 HP / MP；参数控制额外属性、魔法和背包物品的复制 |
 | `Respawn(Character original)` | 按原角色复活还原 |
 
 ### 文本输出
@@ -267,7 +270,6 @@ Unit 类型入口读取为 Unit；Character 类型入口读取为 Character。
 | `GetEquipSlotInfo()` | 装备栏信息 |
 | `GetBackpackItemsInfo()` | 背包信息 |
 | `GetMagicResistanceInfo()` | 魔法抗性信息 |
-| `GetAttributeValues()` | 全部属性键值对（检查点快照 `Attributes` 的数据源） |
 | `ToString()` 系列 | 多种文本输出（含用户/等级等变体） |
 
 ## 继承示例
@@ -292,6 +294,7 @@ public class MyWarrior : Character
 
         InitialSTR = 30;  STRGrowth = 3;
         PrimaryRoleType = RoleType.Guardian;
+        Level = 1;
     }
 }
 ```

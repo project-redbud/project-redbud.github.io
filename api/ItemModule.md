@@ -27,7 +27,7 @@ protected abstract Factory.EntityFactoryDelegate<Item> ItemFactory();
 
 | 方法 | 说明 |
 |---|---|
-| `Load(params object[] objs)` | 加载模组（注册物品工厂，单例防重复） |
+| `Load(params object[] objs)` | 加载模组（注册物品工厂，同一实例防重复） |
 | `UnLoad(params object[] objs)` | 卸载模组（注销工厂） |
 | `BeforeLoad()` | 返回 `false` 可阻止加载 |
 | `AfterLoad()` | 加载后回调 |
@@ -38,6 +38,9 @@ protected abstract Factory.EntityFactoryDelegate<Item> ItemFactory();
 public class ExampleItemModule : ItemModule
 {
     public override string Name => "fungame.example.item";
+    public override string Description => "示例实现";
+    public override string Version => "1.0.0";
+    public override string Author => "FunGamer";
 
     public override Dictionary<string, Item> Items
     {
@@ -53,8 +56,8 @@ public class ExampleItemModule : ItemModule
     {
         return (id, name, args) => id switch
         {
-            10001 => new 铁剑(),
-            10002 => new 回复药(),
+            1 => new ExampleItem(),
+            10002 => new OpenItem(id, name, args),
             _ => null
         };
     }

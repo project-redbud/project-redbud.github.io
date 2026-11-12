@@ -62,6 +62,7 @@ public class ExampleDamageBasedOnATKWithBasicDamage : Effect
     private double BaseNumericDamageLevelGrowth { get; set; } = 50;
     private double BaseATKCoefficient { get; set; } = 0.2;
     private double BaseATKCoefficientLevelGrowth { get; set; } = 0.2;
+    private DamageType DamageType { get; set; } = DamageType.Magical;
 
     public ExampleDamageBasedOnATKWithBasicDamage(
         Skill skill, double baseNumericDamage, double baseNumericDamageLevelGrowth,
@@ -70,7 +71,12 @@ public class ExampleDamageBasedOnATKWithBasicDamage : Effect
         MagicType magicType = MagicType.None) : base(skill)
     {
         GamingQueue = skill.GamingQueue;
-        // 赋值所有参数...
+        BaseNumericDamage = baseNumericDamage;
+        BaseNumericDamageLevelGrowth = baseNumericDamageLevelGrowth;
+        BaseATKCoefficient = baseATKCoefficient;
+        BaseATKCoefficientLevelGrowth = baseATKCoefficientLevelGrowth;
+        DamageType = damageType;
+        MagicType = magicType;
     }
 
     public override void OnSkillCasted(SkillCastContext ctx)
@@ -90,6 +96,11 @@ public class ExampleDamageBasedOnATKWithBasicDamage : Effect
 public class ExampleInterruptCastingEffect : Effect
 {
     public override EffectType EffectType => EffectType.InterruptCasting;
+
+    public ExampleInterruptCastingEffect(Skill skill) : base(skill)
+    {
+        GamingQueue = skill.GamingQueue;
+    }
 
     public override void OnSkillCasted(SkillCastContext ctx)
     {
@@ -209,41 +220,59 @@ public class ExamplePassiveSkill : Skill
 ```csharp
 public class ExamplePassiveSkillEffect(Skill skill) : Effect(skill)
 {
+    public override long Id => Skill.Id;
+    public override string Name => Skill.Name;
+    public override string Description =>
+        $"普通攻击硬直时间减少 20%。冷却 {CD:0.##} {GameplayEquilibriumConstant.InGameTime}。" +
+        (CurrentCD > 0 ? $"（冷却剩余 {CurrentCD:0.##}）" : "");
+
     public double CurrentCD { get; set; } = 0;
     public double CD { get; set; } = 10;
     private bool IsNested = false;
 
-    // 乘区2：嵌套普攻伤害折半
-    public override double AlterActualDamageAfterCalculation(DamageContext ctx)
+    // 乘区2钩子：调整伤害计算后的实际伤害
+    public override AlterActualDamageResult AlterActualDamageAfterCalculation(DamageContext ctx)
     {
-        if (ctx.Trigger == Skill.Character && IsNested && ctx.IsNormalAttack)
-            return -(ctx.Damage / 2);
-        return 0;
+        // 嵌套普攻伤害折半（DamageDelta 为 SUM 聚合，负值即削减）
+        if (ctx.Trigger == Skill.Character && IsNested && ctx.IsNormalAttack && ctx.Damage > 0)
+            return new AlterActualDamageResult { DamageDelta = -(ctx.Damage / 2) };
+        return default;
     }
 
-    // 伤害计算后：额外发动一次普通攻击
+    // 伤害计算后钩子：额外发动一次普通攻击
     public override void AfterDamageCalculation(DamageContext ctx)
     {
         if (ctx.Trigger is Character character && ctx.Enemy is Character enemy
             && character == Skill.Character && ctx.IsNormalAttack
-            && CurrentCD == 0 && !IsNested && enemy.HP > 0)
+            && CurrentCD == 0 && !IsNested && GamingQueue is IGamingQueue queue && enemy.HP > 0)
         {
             CurrentCD = CD;
             IsNested = true;
-            character.NormalAttack.Attack(GamingQueue, character, null, enemy);
+            try
+            {
+                character.NormalAttack.Attack(queue, character, null, enemy);
+            }
+            finally
+            {
+                IsNested = false;
+            }
         }
     }
 
     // 时间流逝时冷却
     public override void OnTimeElapsed(TimeLapseContext ctx)
     {
-        if (CurrentCD > 0) CurrentCD -= ctx.Elapsed;
+        if (CurrentCD > 0)
+        {
+            CurrentCD -= ctx.Elapsed;
+            if (CurrentCD <= 0) CurrentCD = 0;
+        }
     }
 
-    // 普攻后减少硬直时间
+    // 普攻后硬直时间减免（Factor 连乘聚合：最终硬直 = 基础 × (1 + Factor)）
     public override AlterHardnessTimeResult AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        return new AlterHardnessTimeResult { Factor = -0.2 };
+        return new AlterHardnessTimeResult { Factor = -0.2 };  // 即 × 0.8
     }
 }
 ```
@@ -276,71 +305,105 @@ public class ExampleSuperSkill : Skill
 ```csharp
 public class ExampleSuperSkillEffect(Skill skill) : Effect(skill)
 {
+    public override long Id => Skill.Id;
+    public override string Name => Skill.Name;
+    public override string Description =>
+        $"{Duration:0.##} {GameplayEquilibriumConstant.InGameTime}内，增加" +
+        $"{ATKMultiplier * 100:0.##}% 攻击力、{PhysicalPenetrationBonus * 100:0.##}% 物理穿透、" +
+        $"{EvadeRateBonus * 100:0.##}% 闪避率，普攻硬直时间额外减少 20%。";
+
     public override bool Durative => true;
     public override double Duration => 30;
     public override DispelledType DispelledType => DispelledType.CannotBeDispelled;
 
-    // 保存实际加成值以便恢复
-    private double ActualATKBonus = 0, ActualPenBonus = 0, ActualEvadeBonus = 0;
+    private double Coefficient => 1.2 * (1 + 0.5 * (Skill.Level - 1));
+    private double ATKMultiplier =>
+        Skill.Level > 0 ? 0.15 + 0.03 * (Skill.Level - 1) : 0.15;
+    private double ATKBonus => ATKMultiplier * (Skill.Character?.BaseATK ?? 0);
+    private double PhysicalPenetrationBonus =>
+        Skill.Level > 0 ? 0.1 + 0.03 * (Skill.Level - 1) : 0.1;
+    private double EvadeRateBonus =>
+        Skill.Level > 0 ? 0.1 + 0.02 * (Skill.Level - 1) : 0.1;
 
+    // 保存实际加成值以便恢复
+    private bool BonusApplied = false;
+    private double ActualATKBonus = 0;
+    private double ActualPhysicalPenetrationBonus = 0;
+    private double ActualEvadeRateBonus = 0;
+
+    // 特效施加：修改角色属性
     public override void OnEffectGained(HookContext ctx)
     {
-        if (ctx.Trigger is not Character character) return;
-        ActualATKBonus = ATKMultiplier * character.BaseATK;
+        if (ctx.Trigger is not Character character || BonusApplied) return;
+        BonusApplied = true;
+        ActualATKBonus = ATKBonus;
+        double previousPenetration = character.PhysicalPenetration;
+        character.PhysicalPenetration += PhysicalPenetrationBonus;
+        ActualPhysicalPenetrationBonus = character.PhysicalPenetration - previousPenetration;
+        ActualEvadeRateBonus = EvadeRateBonus;
         character.ExATK2 += ActualATKBonus;
-        character.PhysicalPenetration += 0.1 + 0.03 * (Skill.Level - 1);
-        character.ExEvadeRate += 0.1 + 0.02 * (Skill.Level - 1);
+        character.ExEvadeRate += ActualEvadeRateBonus;
 
-        // 联动：降低心灵之弦的冷却时间至 3
+        // 联动其他技能：修改 ExamplePassiveSkillEffect 的冷却
         if (character.Effects.FirstOrDefault(
-            e => e is ExamplePassiveSkillEffect) is ExamplePassiveSkillEffect e)
+            e => e is ExamplePassiveSkillEffect && e.Skill.Character == character)
+            is ExamplePassiveSkillEffect e)
         {
             e.CD = 3;
             if (e.CurrentCD > e.CD) e.CurrentCD = e.CD;
         }
     }
 
+    // 特效移除：恢复角色属性
     public override void OnEffectLost(HookContext ctx)
     {
-        if (ctx.Trigger is not Character character) return;
+        if (ctx.Trigger is not Character character || !BonusApplied) return;
+        BonusApplied = false;
         character.ExATK2 -= ActualATKBonus;
-        // 恢复所有...
+        character.PhysicalPenetration -= ActualPhysicalPenetrationBonus;
+        character.ExEvadeRate -= ActualEvadeRateBonus;
+        ActualATKBonus = 0;
+        ActualPhysicalPenetrationBonus = 0;
+        ActualEvadeRateBonus = 0;
+
         if (character.Effects.FirstOrDefault(
-            e => e is ExamplePassiveSkillEffect) is ExamplePassiveSkillEffect e)
+            e => e is ExamplePassiveSkillEffect && e.Skill.Character == character)
+            is ExamplePassiveSkillEffect e)
+        {
             e.CD = 10;
+        }
     }
 
-    // AI 决策偏好调整
-    public override CharacterActionType AlterActionTypeBeforeAction(DecisionContext ctx)
+    // AI 决策偏好：提高普攻积极性
+    public override AlterActionTypeResult AlterActionTypeBeforeAction(DecisionContext ctx)
     {
-        ctx.PNormalAttack += 0.1;  // 提高普攻优先级
-        return CharacterActionType.None;
+        return new AlterActionTypeResult
+        {
+            ActionType = CharacterActionType.None,
+            PNormalAttack = ctx.PNormalAttack + 0.1  // 覆盖后者胜：基于 ctx 最新值链式叠加
+        };
     }
 
-    // 乘区1：基于敏捷的普攻伤害加成
+    // 乘区1钩子：普攻伤害加成（基于敏捷）
     public override double AlterExpectedDamageBeforeCalculation(DamageContext ctx)
     {
         if (ctx.Trigger == Skill.Character && ctx.IsNormalAttack)
-            return 1.2 * (1 + 0.5 * (Skill.Level - 1)) * ctx.Trigger.AGI;
+            return Coefficient * (Skill.Character?.AGI ?? 0);
         return 0;
     }
 
-    // 普攻硬直时间额外减免（与心灵之弦叠加）
+    // 普攻后硬直时间减免
     public override AlterHardnessTimeResult AlterHardnessTimeAfterNormalAttack(HardnessContext ctx)
     {
-        return new AlterHardnessTimeResult { Factor = -0.2 };  // 与心灵之弦叠加：最终 = 原硬直 × 0.8 × 0.8
+        return new AlterHardnessTimeResult { Factor = -0.2 };
     }
 
+    // 技能释放时：不叠加效果刷新持续时间
     public override void OnSkillCasted(SkillCastContext ctx)
     {
         if (ctx.Trigger is not Character caster) return;
-        // 不叠加效果：刷新持续时间
         RemainDuration = Duration;
-        if (!caster.Effects.Contains(this))
-        {
-            caster.Effects.Add(this);
-            OnEffectGained(new HookContext(GamingQueue, caster));
-        }
+        AddToCharacter(caster);
         RecordCharacterApplyEffects(caster, EffectType.DamageBoost, EffectType.PenetrationBoost);
     }
 }
