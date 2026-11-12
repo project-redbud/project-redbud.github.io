@@ -21,15 +21,15 @@ public OpenSkill(long id, string name, Dictionary<string, object> args, Characte
 
 ## 参数解析
 
-构造时 `args` 中的键值会被解析为技能属性，支持以下常用键：
+构造时所有 args 都写入 Values；以下已识别的键还会设置对应技能属性，键名按小写匹配：
 
 | 键 | 解析为 |
 |---|---|
-| `active` | 是否为主动技能 |
+| `active` | true 时设置 SkillType.Item；false 不修改默认 Passive |
 | `self` | 是否可选自身 |
 | `enemy` | 是否可选敌人 |
-| `mp` | 魔法消耗 |
-| `ep` | 爆发能量消耗 |
+| `mpcost` | 正数时设置 MPCost |
+| `epcost` | 正数时设置 EPCost |
 | `cd` | 冷却时间 |
 | 其他键 | 写入 `Values` 字典，供特效读取 |
 
@@ -37,11 +37,13 @@ public OpenSkill(long id, string name, Dictionary<string, object> args, Characte
 
 ```csharp
 // 直接创建
-Skill skill = new OpenSkill(2001, "木杖", new()
+Dictionary<string, object> args = new()
 {
-    { "mp", 10 },
+    { "active", true },
+    { "mpcost", 10 },
     { "cd", 5 }
-});
+};
+Skill skill = new OpenSkill(2001, "木杖", args) { Level = 1 };
 
 // 通过工厂创建（注册 SkillFactory 后）
 Skill skill2 = Factory.OpenFactory.GetInstance<Skill>(2001, "木杖", args);

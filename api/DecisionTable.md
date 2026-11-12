@@ -1,6 +1,6 @@
-# 决策表 API
+# DecisionTable
 
-配置与运行时模型位于 `FunGame.Core.Model.DecisionTable`，解析、构建、编译与加载入口位于 `FunGame.Core.Api`，代码策略接口位于 `FunGame.Core.Interface`。使用流程见 [编写决策表](../dev/decision-tables.md)。
+配置与运行时模型位于 `FunGame.Core.Model.DecisionTable`，解析、构建、编译与加载入口位于 `FunGame.Core.Api`，代码策略接口位于 `FunGame.Core.Interface.Base`。使用流程见 [编写决策表](../dev/decision-tables.md)。
 
 ## 配置模型
 
@@ -70,7 +70,7 @@ public interface IDecisionPolicy
 
 `DecisionTableRegistry.RegisterCondition(string id, Func<DecisionEvaluationContext, ConditionConfig, DecisionPlan, bool> evaluate)` 注册只读条件；`RegisterAction(string id, Func<DecisionEvaluationContext, ActionConfig, TargetSelectorConfig?, IReadOnlyList<DecisionPlan>> plan)` 注册只读规划器。扩展 ID 使用 `module:name`；重复注册抛出 `ArgumentException`，保留原扩展。
 
-`FunGame.Core.Controller.DecisionActionPlanner.Plan(DecisionEvaluationContext context, ActionConfig action, TargetSelectorConfig? selector)` 返回 `IReadOnlyList<DecisionPlan>`，按当前局面生成合法候选。
+`FunGame.Core.Model.DecisionActionPlanner.Plan(DecisionEvaluationContext context, ActionConfig action, TargetSelectorConfig? selector)` 返回 `IReadOnlyList<DecisionPlan>`，按当前局面生成合法候选。
 
 ## 求值上下文与结果
 

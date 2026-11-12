@@ -31,7 +31,7 @@ public event Action<ClassPlanner, ClassPlanEventArgs>? Planned;
 | `Success` | 是否成功 |
 | `Message` | 消息 |
 
-模组可按阶段监听：实现 `IClassPlanSelectClassEvent` / `IClassPlanUpgradeClassEvent` / `IClassPlanSettleRewardEvent` 等接口（`FunGame.Core.Interface.Event`），把实例方法挂到 `Planned` 事件。
+模组可按阶段监听：实现 `IClassPlanSelectClassEvent` / `IClassPlanUpgradeClassEvent` / `IClassPlanSettleRewardEvent` 等接口（`FunGame.Core.Interface`），把实例方法挂到 `Planned` 事件。
 
 ## 规划动作
 

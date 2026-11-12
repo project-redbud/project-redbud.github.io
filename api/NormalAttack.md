@@ -13,13 +13,14 @@ public NormalAttack(Character character, bool isMagic = false, MagicType magicTy
 
 | 属性 | 类型 | 说明 |
 |---|---|---|
-| `Damage` | `double` | 最终伤害（只读）：`Character.ATK × BaseDamageMultiplier × (1 + ExDamage2) + ExDamage` |
+| `Damage` | `double` | 最终伤害（只读）：`Character.ATK × 武器与等级倍率 × (1 + ExDamage2) + ExDamage` |
 | `ExDamage` | `double` | 额外伤害（固定值） |
 | `ExDamage2` | `double` | 额外伤害百分比加成 |
-| `BaseDamageMultiplier` | `double` | 基础伤害倍率（随等级成长） |
 | `Level` | `int` | 等级（最高 8 级，升级等级 8/16/24/32/40/48/56） |
 | `IsMagic` | `bool` | 是否魔法伤害（只读） |
 | `MagicType` | `MagicType` | 魔法属性类型（只读） |
+
+伤害倍率由武器、普攻等级及平衡常数在内部计算，不提供名为 BaseDamageMultiplier 的公共属性。
 
 ## 硬直时间
 
@@ -27,7 +28,7 @@ public NormalAttack(Character character, bool isMagic = false, MagicType magicTy
 |---|---|---|
 | `HardnessTime` | `double` | 基础硬直时间 |
 | `ExHardnessTime` / `ExHardnessTime2` | `double` | 额外硬直时间 |
-| `RealHardnessTime` | `double` | 实际硬直时间（只读）：`HardnessTime × (1 - 行动系数)` |
+| `RealHardnessTime` | `double` | 实际硬直时间（只读）：`Math.Max(0, HardnessTime × (1 - 行动系数))` |
 
 ## 目标选择（ISkill）
 

@@ -143,7 +143,7 @@ var queue = new MixGamingQueue(characters, Console.WriteLine)
 | 拳套 | 1.05 | 0.05 | 8 | 1 |
 | 暗器 | 0.90 | 0.05 | 7 | 4 |
 
-## 职业系统（v3.0+）
+## 职业系统
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|

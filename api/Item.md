@@ -2,7 +2,7 @@
 
 物品/装备基类，位于 `FunGame.Core.Entity`。
 
-与 `Skill` 一样，**需要继承此类**来构造自定义物品。物品通过 `Skills`（`SkillGroup`）关联主动/被动技能，装备后自动生效。
+可以直接构造通用物品；需要专门行为时继承此类。物品通过 `Skills`（`SkillGroup`）关联主动/被动技能，装备后自动生效。
 
 ## 构造函数
 
@@ -14,8 +14,8 @@ public Item(ItemType type, bool isInGame = true)
 public Item()
 ```
 
-::: info 相等语义（v3.0+）
-`Equals`/`GetHashCode` 基于 **`Guid`**（实例身份）而非 Id+Name：同一局内复制的物品互为不同键，`Dictionary<Item,...>`/`HashSet<Item>` 按实例区分。
+::: info 相等语义
+`Equals` / `GetHashCode` 基于 **`Guid`**。不同对象具有相同 Guid 时仍然相等，集合不按引用区分。`Copy()` 默认生成新 Guid，传入 `copyGuid: true` 时保留原 Guid。
 :::
 
 ## 属性
@@ -80,7 +80,7 @@ public Item()
 | `OnItemUnEquip(EquipSlotType)` | 卸下时调用 |
 | `UseItem(IGamingQueue, Character, DecisionPoints, ...)` | 战斗内使用物品 |
 | `UseItem(User, int times, Dictionary<string, object> args)` | 对局外使用物品 |
-| `ReduceTimesAndRemove(int times = 1)` | 减少使用次数并在用尽时移除 |
+| `ReduceTimesAndRemove(int times = 1)` | 按开关扣次数；仅在 IsRemoveAfterUse 为真且次数为 0 时标记 Deleted，不移除任何集合元素 |
 | `SetGamingQueue(IGamingQueue)` | 绑定队列（传递技能/特效上下文） |
 | `InquiryBeforeTargetSelection(Character, DecisionPoints)` | 使用物品选择目标前询问 |
 | `ResolveInquiryBeforeTargetSelection(...)` | 解析询问结果 |

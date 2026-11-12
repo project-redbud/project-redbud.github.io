@@ -46,7 +46,7 @@ AI 决策完全由 `GamingQueue.Seed` 驱动，同种子 + 同局面下决策序
 
 ```csharp
 // AIController 决策（AIController 在 FunGame.Core.Controller 命名空间）
-// v3.0+：map 可空（支持非战棋模式）；startGrid 可空
+// map 可空（支持非战棋模式）；startGrid 可空
 AIDecision decision = aiController.DecideAIAction(
     character, dp, startGrid, allPossibleMoveGrids, skills, items, ...);
 

@@ -1,6 +1,6 @@
 # 完整 BOSS 决策表
 
-此配置与 Core #198 的五规则 BOSS 回归夹具一致。它演示按优先级选择治疗、范围压制、追击、安全吟唱与普攻。可[下载 JSON](/examples/boss-decision-table.json)，再用 [DecisionTableLoader](../api/DecisionTable.md#加载与绑定) 加载。
+此配置与 Core 的五规则 BOSS 回归夹具一致。它演示按优先级选择治疗、范围压制、追击、安全吟唱与普攻。可[下载 JSON](/examples/boss-decision-table.json)，再用 [DecisionTableLoader](../api/DecisionTable.md#加载与绑定) 加载。
 
 ## 所需技能
 
@@ -13,7 +13,7 @@ JSON 不会创建技能或技能效果，角色必须已有下列技能，ID 可
 | `9003` | 指向性攻击战技 |
 | `9004` | 攻击敌方的范围魔法，吟唱时间 3 |
 
-夹具设置技能射程 3、范围半径 1、范围目标上限 3、硬直 5、冷却 10，EP / MP 成本为 5。这些属于测试技能实现，不是 JSON 配置字段，也不是框架默认值。实际效果可参考 [BossBattleFixture 源码](https://github.com/project-redbud/FunGame-Core/blob/1f755dd/tests/FunGame.Core.Tests.Queue/BossBattleFixture.cs)。
+夹具设置技能射程 3、范围半径 1、范围目标上限 3、硬直 5、冷却 10，EP / MP 成本为 5。这些属于测试技能实现，不是 JSON 配置字段，也不是框架默认值。实际效果可参考 [BossBattleFixture 源码](https://github.com/project-redbud/FunGame-Core/blob/master/tests/FunGame.Core.Tests.Queue/BossBattleFixture.cs)。
 
 ## 规则顺序
 

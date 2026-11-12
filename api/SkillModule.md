@@ -20,19 +20,19 @@ public abstract Dictionary<string, Skill> Skills { get; }
 // 技能工厂
 protected abstract Factory.EntityFactoryDelegate<Skill> SkillFactory();
 
-// 特效工厂（v3.0 专用委托，签名镜像 Effect 受保护构造函数）
+// 特效专用工厂，携带宿主 Skill 与特效参数
 protected abstract Factory.EffectFactoryDelegate EffectFactory();
 ```
 
-注册后可通过 `Factory.OpenFactory.GetInstance<Skill>(id, name, args)` 与 `GetInstance<Effect>(id, name, args)` 创建技能与特效。
+注册后可通过 `Factory.OpenFactory.GetInstance<Skill>(id, name, args)` 与 `GetInstance(id, name, skill, args)` 创建技能与特效。
 
-> **为什么需要 EffectFactory？** 特效通过 `Dictionary<string, object>` 传递参数（如 JSON 中 `"exatk": 20`），工厂根据 ID 创建正确的特效类型并传入参数，使同一个特效类可以被不同数值复用。
+> **为什么需要 EffectFactory？** 特效通过 `Dictionary<string, object>` 传递参数（如 JSON 中 `"exatk": 0.2`），工厂根据 ID 创建正确的特效类型并传入参数，使同一个特效类可以被不同数值复用。
 
 ## 生命周期
 
 | 方法 | 说明 |
 |---|---|
-| `Load(params object[] objs)` | 加载模组（注册技能 + 特效工厂，单例防重复） |
+| `Load(params object[] objs)` | 加载模组（注册技能 + 特效工厂，同一实例防重复） |
 | `UnLoad(params object[] objs)` | 卸载模组（注销工厂） |
 | `BeforeLoad()` | 返回 `false` 可阻止加载 |
 | `AfterLoad()` | 加载后回调 |
@@ -43,6 +43,9 @@ protected abstract Factory.EffectFactoryDelegate EffectFactory();
 public class ExampleSkillModule : SkillModule
 {
     public override string Name => "fungame.example.skill";
+    public override string Description => "示例实现";
+    public override string Version => "1.0.0";
+    public override string Author => "FunGamer";
 
     public override Dictionary<string, Skill> Skills
     {

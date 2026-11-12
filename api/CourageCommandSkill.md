@@ -30,6 +30,15 @@ public class MyCourageCommand : CourageCommandSkill
         Effects.Add(new MyCourageCommandEffect(this));
     }
 }
+
+public class MyCourageCommandEffect(Skill skill) : Effect(skill)
+{
+    public override void OnSkillCasted(SkillCastContext ctx)
+    {
+        WriteLine($"[ {ctx.Trigger} ] 发动了 [ {Skill.Name} ]。");
+        // 在此实现指令的实际效果。
+    }
+}
 ```
 
 ## 关联

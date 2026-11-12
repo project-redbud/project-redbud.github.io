@@ -36,7 +36,8 @@ Character player = new()
     NickName = "勇者",
     InitialHP = 80,
     InitialATK = 20,
-    InitialSPD = 120
+    InitialSPD = 120,
+    Level = 1
 };
 
 Character enemy = new()
@@ -45,7 +46,8 @@ Character enemy = new()
     NickName = "魔王",
     InitialHP = 100,
     InitialATK = 15,
-    InitialSPD = 100
+    InitialSPD = 100,
+    Level = 1
 };
 
 // 2. 创建混战模式队列
@@ -81,19 +83,19 @@ Console.WriteLine("--- 游戏结束 ---");
 如果不想全 AI，可以让特定角色由玩家控制：
 
 ```csharp
-// 全部 AI
-queue.SetCharactersToAIControl(cancel: false, characters);
+using FunGame.Core.Model.EffectContext;
 
-// 取消 player 的 AI，改为事件驱动
-queue.SetCharactersToAIControl(cancel: true, player);
-
-// 绑定选择事件
-queue.SelectSkillEvent += (queue, character, skills) =>
+static void BindPlayerSkillSelection(
+    GamingQueue queue, List<Character> characters, Character player,
+    Func<SelectionContext, Skill?> chooseSkill)
 {
-    // 在这里弹出 UI 让玩家选技能
-    return skills.FirstOrDefault();
-};
+    queue.SetCharactersToAIControl(cancel: false, characters);
+    queue.SetCharactersToAIControl(cancel: true, player);
+    queue.SelectSkillEvent += ctx => chooseSkill(ctx);
+}
 ```
+
+chooseSkill 由宿主界面返回玩家选中的技能，取消时返回 null；不自动取列表中的第一项。异步 UI 接入见[选择型事件](./events-pattern.md)。
 
 ## 下一步
 

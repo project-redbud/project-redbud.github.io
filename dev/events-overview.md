@@ -4,8 +4,8 @@ GamingQueue 通过 **38 个事件** 将整个游戏循环暴露给外部，让�
 
 > 参考项目：`FunGame.Testing/Desktop/GameMapTesting` — WPF 实现的完整回合制演示，展示了所有事件的 UI 绑定模式。
 
-::: info v3.0 起统一上下文参数
-除 `SelectChainActionEvent` 接收回合角色与申请列表外，事件委托均接收单一**参数上下文对象**，队列实例从 `ctx.Queue` 获取（旧版首参 `GamingQueue queue` 已移除），主角色从 `ctx.Trigger` 获取。上下文类与特效钩子共享同一族，详见 [HookContext 参数上下文族](../api/HookContext.md)。
+::: info 事件参数
+除 `SelectChainActionEvent` 接收回合角色与申请列表外，事件委托均接收单一**参数上下文对象**，队列实例从 `ctx.Queue` 获取，主角色从 `ctx.Trigger` 获取。上下文类与特效钩子共享同一族，详见 [HookContext 参数上下文族](../api/HookContext.md)。
 :::
 
 ---
@@ -82,7 +82,7 @@ GamingQueue.ProcessTurn()
 | `SelectNonDirectionalSkillTargetsEvent` | `(SelectionContext ctx)`，含 Skill / Enemys / Teammates / CastRange | `List<Grid>` | 选非指向性格子 |
 | `SelectTargetGridEvent` | `(SelectionContext ctx)`，含 Map / MoveRange | `Grid` | 选移动目标格子 |
 | `SelectChainActionEvent` | `(Character turnActor, IReadOnlyList<ChainActionRequest> pending)` | `Guid?` | 选择协同请求；接入见 [协同行动](./chain-action.md) |
-| `CharacterInquiryEvent` | `(InquiryContext ctx)`，含 DP / Options | `InquiryResponse?`（写入 `ctx.Response`；v3.0+ 无订阅者返回 null，询问依次经外部事件 → 特效钩子 → FallbackResolver → AI → 内置默认） | 询问玩家 |
+| `CharacterInquiryEvent` | `(InquiryContext ctx)`，含 DP / Options | `InquiryResponse?`（写入 `ctx.Response`；无订阅者返回 null，询问依次经外部事件 → 特效钩子 → FallbackResolver → AI → 内置默认） | 询问玩家 |
 
 ### 四、动作执行事件（8 个）— 通知型
 

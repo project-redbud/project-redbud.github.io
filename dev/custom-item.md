@@ -84,25 +84,32 @@ public class ExampleOpenEffectExATK2 : Effect
 
     private readonly double BonusFactor = 0;
     private double ActualBonus = 0;
+    private bool BonusApplied = false;
+    private double AppliedBonusFactor = 0;
 
     public override void OnEffectGained(HookContext ctx)
     {
-        if (ctx.Trigger is not Character character) return;
+        if (ctx.Trigger is not Character character || BonusApplied) return;
         ActualBonus = character.BaseATK * BonusFactor;
-        character.ExATKPercentage += BonusFactor;
+        AppliedBonusFactor = BonusFactor;
+        character.ExATKPercentage += AppliedBonusFactor;
+        BonusApplied = true;
     }
 
     public override void OnEffectLost(HookContext ctx)
     {
-        if (ctx.Trigger is not Character character) return;
-        character.ExATKPercentage -= BonusFactor;
+        if (ctx.Trigger is not Character character || !BonusApplied) return;
+        character.ExATKPercentage -= AppliedBonusFactor;
+        AppliedBonusFactor = 0;
+        ActualBonus = 0;
+        BonusApplied = false;
     }
 
     // 属性变化时刷新加成（等级提升、装备更换等）
     public override void OnAttributeChanged(HookContext ctx)
     {
-        OnEffectLost(ctx);
-        OnEffectGained(ctx);
+        if (ctx.Trigger is Character character && BonusApplied)
+            ActualBonus = character.BaseATK * AppliedBonusFactor;
     }
 
     // 从 Dictionary 读取参数
@@ -124,7 +131,7 @@ public class ExampleOpenEffectExATK2 : Effect
 ```
 
 ::: tip 设计要点
-`OnAttributeChanged` 确保角色等级提升或基础属性变化时，百分比加成自动重新计算。这是百分比型特效与固定数值型特效的关键区别。
+属性写入 ExATKPercentage 后，ExATK3 会随 BaseATK 实时计算。OnAttributeChanged 仅更新展示值，不重复施加或移除特效，也不重置持续时间；生效标记保证增减各执行一次。
 :::
 
 ---
@@ -137,51 +144,57 @@ public class ExampleOpenEffectExATK2 : Effect
 string json = @"{
     ""Id"": 10001,
     ""Name"": ""木杖"",
-    ""Description"": ""增加角色 20 点攻击力。"",
+    ""Description"": ""增加角色 20% 基础攻击力。"",
     ""BackgroundStory"": ""魔法使的起点。"",
-    ""ItemType"": 1,           // 1 = Weapon
-    ""WeaponType"": 8,         // 8 = Staff
-    ""QualityType"": 0,        // 0 = White
+    ""ItemType"": 1,
+    ""WeaponType"": 8,
+    ""QualityType"": 0,
     ""Skills"": {
         ""Active"": null,
         ""Passives"": [{
             ""Id"": 2001,
             ""Name"": ""木杖"",
-            ""SkillType"": 3,  // 3 = Passive
+            ""SkillType"": 3,
+            ""Level"": 1,
             ""Effects"": [{
                 ""Id"": 1001,
-                ""exatk"": 20  // 进入 Effect.Values 字典
+                ""exatk"": 0.2
             }]
         }]
     }
 }";
 
-// 一行反序列化（与官方示例 ExampleOpenItemByJson 一致）
-Item item = NetworkUtility.JsonDeserialize<Item>(json) ?? new();
+// 读取配置，再经已注册的工厂构造技能与编码特效。
+Item definition = NetworkUtility.JsonDeserialize<Item>(json)
+    ?? throw new InvalidOperationException("物品配置为空。");
+Item item = definition.Copy(copyLevel: true);
 ```
 
 ::: info JSON 结构说明
+读取前加载本页特效对应的 SkillModule；示例的 exatk 是比例，0.2 表示 20%，技能 Level 必须大于 0 才能生效。
 - `ItemType` / `WeaponType` / `QualityType` 使用枚举的 int 值
 - `SkillType: 3` → `SkillType.Passive`
 - `Effects` 中未映射到转换器的属性自动进入 `Effect.Values` 字典
 - 特效的 `Id` 需要在 `SkillModule.EffectFactory()` 中注册
+- 直接反序列化得到配置容器；`Copy(copyLevel: true)` 保留技能等级，并在重建 OpenSkill 的特效时调用注册的专用工厂。只读取 JSON 不会自动得到编码特效的行为。
 :::
 
 ### JSON 等效代码
 
 ```csharp
-Skill skill = new OpenSkill(2001, "木杖", []);
-Effect effect = Factory.OpenFactory.GetInstance<Effect>(1001, "", new()
+Skill skill = new OpenSkill(2001, "木杖", []) { Level = 1 };
+Effect effect = Factory.OpenFactory.GetInstance(1001, "", skill, new()
 {
-    { "skill", skill },
-    { "exatk", 20 }
+    { "exatk", 0.2 }
 });
 skill.Effects.Add(effect);
 
 Item item = new OpenItem(10001, "木杖", [])
 {
-    Description = "增加角色 20 点攻击力。",
+    Description = "增加角色 20% 基础攻击力。",
     BackgroundStory = "魔法使的起点。",
+    ItemType = ItemType.Weapon,
+    EquipSlotType = EquipSlotType.Weapon,
     WeaponType = WeaponType.Staff,
     QualityType = QualityType.White,
 };

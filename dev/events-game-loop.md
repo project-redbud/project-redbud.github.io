@@ -11,7 +11,7 @@
 GamingQueue queue = new MixGamingQueue(characters, WriteLine);
 // 或 TeamGamingQueue（团队模式）
 
-// ═══ 绑定所有事件（v3.0 起处理器接收单一上下文参数，队列从 ctx.Queue 获取） ═══
+// 上下文事件的队列从 ctx.Queue 获取。
 
 // 游戏级
 queue.GameStartEvent += (ctx) => { /* 游戏开始 */ };

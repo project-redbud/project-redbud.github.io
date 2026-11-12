@@ -171,7 +171,7 @@ export default defineConfig({
             { text: 'EquilibriumConstant', link: '/api/EquilibriumConstant' },
             { text: 'GamingQueue', link: '/api/GamingQueue' },
             { text: 'AIController', link: '/api/AIController' },
-            { text: '决策表 API', link: '/api/DecisionTable' },
+            { text: 'DecisionTable', link: '/api/DecisionTable' },
             { text: 'Character', link: '/api/Character' },
             { text: 'Skill', link: '/api/Skill' },
             { text: 'Effect', link: '/api/Effect' },
@@ -222,7 +222,7 @@ export default defineConfig({
             { text: 'CharacterModule', link: '/api/CharacterModule' },
             { text: 'SkillModule', link: '/api/SkillModule' },
             { text: 'ItemModule', link: '/api/ItemModule' },
-            { text: 'EntityModuleConfig<T>', link: '/api/EntityModuleConfig' },
+            { text: 'EntityModuleConfig&lt;T&gt;', link: '/api/EntityModuleConfig' },
           ],
         },
         {
